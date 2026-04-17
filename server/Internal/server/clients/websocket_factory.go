@@ -15,14 +15,14 @@ const (
 	SendChanBufferSize = 256
 )
 
-func (c *WebSocketClient) NewWebsocketConnection(hub *server.Hub, writer *http.ResponseWriter, request *http.Request) (server.ClientInterface, error) {
+func NewWebsocketConnection(hub *server.Hub, writer http.ResponseWriter, request *http.Request) (server.ClientInterface, error) {
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  ReadBufferSize,
 		WriteBufferSize: WriteBufferSize,
 		CheckOrigin:     checkOrigin,
 	}
 
-	var connection, err = upgrader.Upgrade(*writer, request, nil)
+	var connection, err = upgrader.Upgrade(writer, request, nil)
 
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (c *WebSocketClient) NewWebsocketConnection(hub *server.Hub, writer *http.R
 		conn:     connection,
 		hub:      hub,
 		sendChan: make(chan *packets.Packet, SendChanBufferSize),
-		logger:   log.New(*writer, "", log.LstdFlags),
+		logger:   log.New(writer, "", log.LstdFlags),
 	}
 
 	return client, nil

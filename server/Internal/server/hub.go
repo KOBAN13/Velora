@@ -71,10 +71,10 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Serve(getNewClient func(writer *http.ResponseWriter, request *http.Request) (ClientInterface, error), writer *http.ResponseWriter, request *http.Request) {
+func (h *Hub) Serve(getNewClient func(hub *Hub, writer http.ResponseWriter, request *http.Request) (ClientInterface, error), writer http.ResponseWriter, request *http.Request) {
 	log.Println("New client connected from ", request.RemoteAddr)
 
-	var client, err = getNewClient(writer, request)
+	var client, err = getNewClient(h, writer, request)
 
 	if err != nil {
 		log.Printf("Error getting new client: %v", err)

@@ -1,40 +1,35 @@
 package main
 
 import (
-	"Velora/server/pkg/packets"
+	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/clients"
+	"flag"
 	"fmt"
+	"log"
+	"net/http"
+)
 
-	"google.golang.org/protobuf/proto"
+var (
+	port = flag.Int("port", 8080, "The port to listen on")
+	hub  = server.NewHub()
 )
 
 func main() {
-	createPacket()
+	flag.Parse()
 
-	var data = []byte{8, 69, 18, 14, 10, 12, 208, 159, 209, 128, 208, 184, 208, 178, 208, 181, 209, 130}
-	var packet = &packets.Packet{}
+	http.HandleFunc("/velora", handler)
 
-	var err = proto.Unmarshal(data, packet)
+	go hub.Run()
+
+	var addr = fmt.Sprintf(":%d", *port)
+
+	var err = http.ListenAndServe(addr, nil)
 
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Fatalf("Failed start server %v: ", err)
 	}
-
-	fmt.Println(packet)
 }
 
-func createPacket() *packets.Packet {
-	var packet = &packets.Packet{
-		SenderId: 69,
-		Msg:      packets.NewChat("Привет"),
-	}
-
-	var data, err = proto.Marshal(packet)
-
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(data)
-
-	return packet
+func handler(writer http.ResponseWriter, reader *http.Request) {
+	hub.Serve(clients.NewWebsocketConnection, writer, reader)
 }
