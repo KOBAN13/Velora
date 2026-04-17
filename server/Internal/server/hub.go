@@ -9,8 +9,7 @@ import (
 type ClientInterface interface {
 	Initialize(id uint64)
 	Id() uint64
-	SendPacket(*packets.Packet) error
-	ProcessPacket(id uint64, msg packets.Msg) error
+	ProcessPacket(id uint64, msg packets.Msg)
 
 	SocketSend(message packets.Msg)
 	SocketSendAs(message packets.Msg, id uint64)
@@ -65,11 +64,7 @@ func (h *Hub) Run() {
 
 			for id, client := range h.Clients {
 				if id != packet.SenderId {
-					err := client.ProcessPacket(id, packet.Msg)
-
-					if err != nil {
-						log.Println(err)
-					}
+					client.ProcessPacket(id, packet.Msg)
 				}
 			}
 		}
@@ -90,8 +85,4 @@ func (h *Hub) Serve(getNewClient func(writer *http.ResponseWriter, request *http
 
 	go client.WritePump()
 	go client.ReadPump()
-}
-
-func createClient(writer *http.ResponseWriter, request *http.Request) (ClientInterface, error) {
-
 }
