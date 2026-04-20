@@ -47,8 +47,6 @@ func (c *WebSocketClient) WritePump() {
 			return
 		}
 
-		writer.Write([]byte{'\n'})
-
 		if err := writer.Close(); err != nil {
 			c.logger.Printf("error closing client writer: %v", err)
 		}

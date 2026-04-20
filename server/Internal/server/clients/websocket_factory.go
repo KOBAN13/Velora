@@ -5,6 +5,7 @@ import (
 	"Velora/server/pkg/packets"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -32,7 +33,7 @@ func NewWebsocketConnection(hub *server.Hub, writer http.ResponseWriter, request
 		conn:     connection,
 		hub:      hub,
 		sendChan: make(chan *packets.Packet, SendChanBufferSize),
-		logger:   log.New(writer, "", log.LstdFlags),
+		logger:   log.New(os.Stderr, "", log.LstdFlags),
 	}
 
 	return client, nil

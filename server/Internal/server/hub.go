@@ -1,6 +1,8 @@
 package server
 
 import (
+	"Velora/server/Internal"
+	"Velora/server/Internal/objects"
 	"Velora/server/pkg/packets"
 	"log"
 	"net/http"
@@ -23,9 +25,9 @@ type ClientInterface interface {
 }
 
 type Hub struct {
-	Generator IdGenerator
+	Generator *Internal.IdGenerator
 
-	Clients map[uint64]ClientInterface
+	Clients *objects.SharedCollection[ClientInterface]
 
 	Broadcast chan *packets.Packet
 
@@ -35,9 +37,12 @@ type Hub struct {
 }
 
 func NewHub() *Hub {
+	var idGenerator = &Internal.IdGenerator{}
+	var clients = objects.NewSharedCollection[ClientInterface](idGenerator)
+
 	return &Hub{
-		Generator:  IdGenerator{},
-		Clients:    make(map[uint64]ClientInterface),
+		Generator:  idGenerator,
+		Clients:    clients,
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan ClientInterface),
 		Unregister: make(chan ClientInterface),
@@ -51,22 +56,19 @@ func (h *Hub) Run() {
 		select {
 		case client := <-h.Register:
 			log.Println("register client")
-			var id = h.Generator.Next()
+			var id = h.Clients.Add(client, h.Generator)
 			client.Initialize(id)
-			h.Clients[id] = client
 
 		case client := <-h.Unregister:
 			log.Println("unregister client")
-			delete(h.Clients, client.Id())
+			h.Clients.Remove(client.Id())
 
 		case packet := <-h.Broadcast:
 			log.Println("broadcast packet")
 
-			for id, client := range h.Clients {
-				if id != packet.SenderId {
-					client.ProcessPacket(id, packet.Msg)
-				}
-			}
+			h.Clients.Foreach(func(clientInterface ClientInterface, id uint64) {
+				clientInterface.ProcessPacket(id, packet.Msg)
+			})
 		}
 	}
 }

@@ -20,7 +20,7 @@ type WebSocketClient struct {
 func (c *WebSocketClient) Initialize(id uint64) {
 	c.id = id
 
-	c.logger.SetPrefix(fmt.Sprintf("Client ID: %d", c.id))
+	c.logger.SetPrefix(fmt.Sprintf("Client ID: %d ", c.id))
 }
 
 func (c *WebSocketClient) Id() uint64 {

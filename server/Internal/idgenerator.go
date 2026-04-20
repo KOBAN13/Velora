@@ -1,4 +1,4 @@
-package server
+package Internal
 
 import "sync/atomic"
 
