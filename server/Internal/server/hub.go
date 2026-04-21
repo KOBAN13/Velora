@@ -67,7 +67,9 @@ func (h *Hub) Run() {
 			log.Println("broadcast packet")
 
 			h.Clients.Foreach(func(clientInterface ClientInterface, id uint64) {
-				clientInterface.ProcessPacket(id, packet.Msg)
+				if id != packet.SenderId {
+					clientInterface.ProcessPacket(id, packet.Msg)
+				}
 			})
 		}
 	}

@@ -13,6 +13,9 @@ func (c *WebSocketClient) Broadcast(message packets.Msg) {
 }
 
 func (c *WebSocketClient) ProcessPacket(id uint64, msg packets.Msg) {
-	c.logger.Printf("Processing packet id %d with msg %T", id, msg)
-	c.SocketSend(msg)
+	if id == c.id {
+		c.Broadcast(msg)
+	} else {
+		c.SocketSendAs(msg, id)
+	}
 }

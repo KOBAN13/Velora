@@ -23,7 +23,7 @@ func NewSharedCollection[T any](idGenerator *Internal.IdGenerator, capacity ...i
 
 	return &SharedCollection[T]{
 		objectsMap: objectsMap,
-		nextID:     idGenerator.Next(),
+		nextID:     1,
 	}
 }
 
