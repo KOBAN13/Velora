@@ -25,7 +25,7 @@ func (c *WebSocketClient) Initialize(id uint64) {
 	var clientId = packets.NewId(id)
 
 	c.SocketSend(clientId)
-	c.logger.Println("Client initialized and send to client id: %d", clientId)
+	c.logger.Printf("Client initialized and send to client id: %v", clientId)
 }
 
 func (c *WebSocketClient) Id() uint64 {
