@@ -14,6 +14,7 @@ type WebSocketClient struct {
 	conn     *websocket.Conn
 	hub      *server.Hub
 	sendChan chan *packets.Packet
+	state    server.ClientStateHandler
 	logger   *log.Logger
 }
 
@@ -26,6 +27,10 @@ func (c *WebSocketClient) Initialize(id uint64) {
 
 	c.SocketSend(clientId)
 	c.logger.Printf("Client initialized and send to client id: %v", clientId)
+}
+
+func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {
+	
 }
 
 func (c *WebSocketClient) Id() uint64 {

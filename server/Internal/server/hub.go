@@ -8,7 +8,20 @@ import (
 	"net/http"
 )
 
+type ClientStateHandler interface {
+	Name() string
+
+	SetClientInterface(client ClientInterface)
+
+	HandleMessage(id uint64, msg packets.Msg)
+
+	OnEnter()
+	OnLeave()
+}
+
 type ClientInterface interface {
+	SetState(newState ClientStateHandler)
+
 	Initialize(id uint64)
 	Id() uint64
 	ProcessPacket(id uint64, msg packets.Msg)
@@ -68,7 +81,7 @@ func (h *Hub) Run() {
 
 			h.Clients.Foreach(func(clientInterface ClientInterface, id uint64) {
 				if id != packet.SenderId {
-					clientInterface.ProcessPacket(id, packet.Msg)
+					clientInterface.ProcessPacket(packet.SenderId, packet.Msg)
 				}
 			})
 		}
