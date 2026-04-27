@@ -2,6 +2,7 @@ package clients
 
 import (
 	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/states"
 	"Velora/server/pkg/packets"
 	"fmt"
 	"log"
@@ -23,14 +24,28 @@ func (c *WebSocketClient) Initialize(id uint64) {
 
 	c.logger.SetPrefix(fmt.Sprintf("Client ID: %d ", c.id))
 
-	var clientId = packets.NewId(id)
-
-	c.SocketSend(clientId)
-	c.logger.Printf("Client initialized and send to client id: %v", clientId)
+	c.SetState(&states.Connection{})
 }
 
 func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {
-	
+	var prevStateName = "None"
+
+	if c.state != nil {
+		prevStateName = c.state.Name()
+		c.state.OnLeave()
+	}
+
+	var newStateName = "None"
+
+	if newState != nil {
+		newStateName = newState.Name()
+	}
+
+	c.logger.Printf("Switch from state : %s, new state: %s", prevStateName, newStateName)
+
+	c.state = newState
+	c.state.SetClientInterface(c)
+	c.state.OnEnter()
 }
 
 func (c *WebSocketClient) Id() uint64 {

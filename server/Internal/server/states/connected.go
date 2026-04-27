@@ -25,11 +25,20 @@ func (conn *Connection) SetClientInterface(client server.ClientInterface) {
 }
 
 func (conn *Connection) HandleMessage(id uint64, msg packets.Msg) {
-
+	if id == conn.client.Id() {
+		conn.client.Broadcast(msg)
+	} else {
+		conn.client.SocketSendAs(msg, id)
+	}
 }
 
 func (conn *Connection) OnEnter() {
-	conn.client.SocketSend(packets.NewId(conn.client.Id()))
+	var id = conn.client.Id()
+
+	var clientId = packets.NewId(id)
+
+	conn.client.SocketSend(clientId)
+	conn.logger.Printf("Client initialized and send to client id: %v", clientId)
 }
 
 func (conn *Connection) OnLeave() {
