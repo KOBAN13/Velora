@@ -3,10 +3,28 @@ package server
 import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/objects"
+	"Velora/server/Internal/server/db"
 	"Velora/server/pkg/packets"
+	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type DbTx struct {
+	Ctx            context.Context
+	UserRepository *db.UserRepository
+}
+
+func (h *Hub) NewDbTx() *DbTx {
+	return &DbTx{
+		Ctx:            context.Background(),
+		UserRepository: &db.UserRepository{},
+	}
+}
 
 type ClientStateHandler interface {
 	Name() string
@@ -34,6 +52,8 @@ type ClientInterface interface {
 	WritePump()
 	ReadPump()
 
+	DbTx() *DbTx
+
 	Close(reason string)
 }
 
@@ -47,11 +67,20 @@ type Hub struct {
 	Register chan ClientInterface
 
 	Unregister chan ClientInterface
+
+	dbPool *pgxpool.Pool
 }
 
 func NewHub() *Hub {
 	var idGenerator = &Internal.IdGenerator{}
 	var clients = objects.NewSharedCollection[ClientInterface](idGenerator)
+
+	var connect, errConnect = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+
+	if errConnect != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", errConnect)
+		os.Exit(1)
+	}
 
 	return &Hub{
 		Generator:  idGenerator,
@@ -59,6 +88,7 @@ func NewHub() *Hub {
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan ClientInterface),
 		Unregister: make(chan ClientInterface),
+		dbPool:     connect,
 	}
 }
 

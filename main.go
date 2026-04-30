@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -27,6 +29,12 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("Failed start server %v: ", err)
+	}
+}
+
+func init() {
+	if err := godotenv.Load("config.env"); err != nil {
+		log.Fatalf("Error loading config.env file")
 	}
 }
 
