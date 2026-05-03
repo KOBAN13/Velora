@@ -34,6 +34,7 @@ func NewWebsocketConnection(hub *server.Hub, writer http.ResponseWriter, request
 		hub:      hub,
 		sendChan: make(chan *packets.Packet, SendChanBufferSize),
 		logger:   log.New(os.Stderr, "", log.LstdFlags),
+		dBtX:     hub.NewDbTx(),
 	}
 
 	return client, nil

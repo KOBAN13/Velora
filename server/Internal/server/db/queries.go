@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -12,6 +14,7 @@ import (
 )
 
 type UserRepository struct {
+	dbPool *pgxpool.Pool
 }
 
 type CreateUserParams struct {
@@ -35,7 +38,41 @@ func usersTableName() (string, error) {
 	return pgx.Identifier{usersTable}.Sanitize(), nil
 }
 
-func (r *UserRepository) GetUserByUsername(ctx context.Context, conn *pgxpool.Pool, username string) (*User, error) {
+func TestPostgresConnection() {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer cancel()
+
+	var pool, err = pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+
+	if err != nil {
+		log.Fatalf("Error create pool: %s", err)
+	}
+
+	defer pool.Close()
+
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatalf("Error db ping: %s", err)
+	}
+
+	var result int
+
+	if err := pool.QueryRow(ctx, "SELECT 1").Scan(&result); err != nil {
+		log.Fatalf("Error querying row: %s", err)
+	}
+
+	if result != 1 {
+		log.Fatalf("Expected 1 row, got %d", result)
+	}
+
+	log.Println("Successfully connected to database")
+}
+
+func NewUserRepository(dbPool *pgxpool.Pool) *UserRepository {
+	return &UserRepository{dbPool: dbPool}
+}
+
+func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	var tableName, tableNameErr = usersTableName()
 
 	if tableNameErr != nil {
@@ -46,7 +83,7 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, conn *pgxpool.Po
 
 	var user User
 
-	var err = conn.QueryRow(ctx, sqlRequest, username).Scan(&user.ID, &user.Username, &user.PasswordHash)
+	var err = r.dbPool.QueryRow(ctx, sqlRequest, username).Scan(&user.ID, &user.Username, &user.PasswordHash)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -59,7 +96,7 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, conn *pgxpool.Po
 	return &user, nil
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, conn *pgxpool.Pool, params CreateUserParams) (*User, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, params CreateUserParams) (*User, error) {
 	var tableName, tableNameErr = usersTableName()
 	if tableNameErr != nil {
 		return nil, tableNameErr
@@ -69,7 +106,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, conn *pgxpool.Pool, par
 
 	var user User
 
-	var err = conn.QueryRow(ctx, query, params.Username, params.PasswordHash).Scan(&user.ID, &user.Username, &user.PasswordHash)
+	var err = r.dbPool.QueryRow(ctx, query, params.Username, params.PasswordHash).Scan(&user.ID, &user.Username, &user.PasswordHash)
 
 	if err != nil {
 		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" {

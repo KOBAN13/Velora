@@ -17,6 +17,7 @@ type WebSocketClient struct {
 	sendChan chan *packets.Packet
 	state    server.ClientStateHandler
 	logger   *log.Logger
+	dBtX     *server.DbTx
 }
 
 func (c *WebSocketClient) Initialize(id uint64) {
@@ -25,6 +26,10 @@ func (c *WebSocketClient) Initialize(id uint64) {
 	c.logger.SetPrefix(fmt.Sprintf("Client ID: %d ", c.id))
 
 	c.SetState(&states.Connection{})
+}
+
+func (c *WebSocketClient) DbTx() *server.DbTx {
+	return c.dBtX
 }
 
 func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {

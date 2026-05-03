@@ -22,7 +22,7 @@ type DbTx struct {
 func (h *Hub) NewDbTx() *DbTx {
 	return &DbTx{
 		Ctx:            context.Background(),
-		UserRepository: &db.UserRepository{},
+		UserRepository: db.NewUserRepository(h.dbPool),
 	}
 }
 
@@ -93,6 +93,10 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) Run() {
+	log.Println("Initializing database connection")
+
+	db.TestPostgresConnection()
+
 	log.Println("Hub is running")
 
 	for {
