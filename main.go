@@ -13,13 +13,20 @@ import (
 
 var (
 	port = flag.Int("port", 8080, "The port to listen on")
-	hub  = server.NewHub()
 )
 
 func main() {
 	flag.Parse()
 
-	http.HandleFunc("/velora", handler)
+	if err := godotenv.Load("config.env"); err != nil {
+		log.Fatalf("Error loading config.env file")
+	}
+
+	var hub = server.NewHub()
+
+	http.HandleFunc("/velora", func(writer http.ResponseWriter, reader *http.Request) {
+		hub.Serve(clients.NewWebsocketConnection, writer, reader)
+	})
 
 	go hub.Run()
 
@@ -30,14 +37,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed start server %v: ", err)
 	}
-}
-
-func init() {
-	if err := godotenv.Load("config.env"); err != nil {
-		log.Fatalf("Error loading config.env file")
-	}
-}
-
-func handler(writer http.ResponseWriter, reader *http.Request) {
-	hub.Serve(clients.NewWebsocketConnection, writer, reader)
 }

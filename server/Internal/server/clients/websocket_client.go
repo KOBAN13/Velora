@@ -49,8 +49,11 @@ func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {
 	c.logger.Printf("Switch from state : %s, new state: %s", prevStateName, newStateName)
 
 	c.state = newState
-	c.state.SetClientInterface(c)
-	c.state.OnEnter()
+
+	if c.state != nil {
+		c.state.SetClientInterface(c)
+		c.state.OnEnter()
+	}
 }
 
 func (c *WebSocketClient) Id() uint64 {

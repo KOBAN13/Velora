@@ -98,6 +98,7 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, username string)
 
 func (r *UserRepository) CreateUser(ctx context.Context, params CreateUserParams) (*User, error) {
 	var tableName, tableNameErr = usersTableName()
+
 	if tableNameErr != nil {
 		return nil, tableNameErr
 	}
