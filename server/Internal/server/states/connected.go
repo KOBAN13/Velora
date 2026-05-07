@@ -37,6 +37,8 @@ func (conn *Connection) HandleMessage(id uint64, msg packets.Msg) {
 	case *packets.Packet_RegisterRequest:
 		conn.handleRegisterRequest(id, message.RegisterRequest)
 		break
+	case *packets.Packet_Chat:
+		conn.handleChatMessage(id, message)
 	}
 }
 
@@ -51,6 +53,15 @@ func (conn *Connection) OnEnter() {
 
 func (conn *Connection) OnLeave() {
 
+}
+
+func (conn *Connection) handleChatMessage(id uint64, msg packets.Msg) {
+	if id == conn.client.Id() {
+		conn.client.Broadcast(msg)
+		return
+	}
+
+	conn.client.SocketSendAs(msg, id)
 }
 
 func (conn *Connection) handleLoginRequest(senderId uint64, msg *packets.LoginRequestMessage) {
