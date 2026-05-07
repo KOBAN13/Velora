@@ -124,7 +124,10 @@ func (conn *Connection) handleRegisterRequest(senderId uint64, msg *packets.Regi
 		return
 	}
 
-	_, err = dBtX.UserRepository.CreateUser(dBtX.Ctx, db.CreateUserParams{Username: username, PasswordHash: string(passwordHash)})
+	_, err = dBtX.UserRepository.CreateUser(dBtX.Ctx, db.CreateUserParams{
+		Username:     strings.ToLower(username),
+		PasswordHash: string(passwordHash),
+	})
 
 	if err != nil {
 		conn.logger.Printf("Failed to create user: %v", err)
