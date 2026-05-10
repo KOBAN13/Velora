@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="195b72a1-e121-46c0-9d12-454a3c5ab77c" name="apisfs">
+        <fileTransfer rootFolder="/opt/velora" accessType="SFTP" host="apisfs.ru" port="22" sshConfigId="d2735d4c-5e66-49ba-b3b0-5c081c56612b" sshConfig="Deploy to Ubuntu Docker">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

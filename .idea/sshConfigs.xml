@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="apisfs.ru" id="d2735d4c-5e66-49ba-b3b0-5c081c56612b" port="22" customName="Deploy to Ubuntu Docker" nameFormat="CUSTOM" username="root" useOpenSSHConfig="true">
+        <option name="customName" value="Deploy to Ubuntu Docker" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>
