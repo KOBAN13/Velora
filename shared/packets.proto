@@ -4,6 +4,12 @@ package packets;
 
 option go_package = "pkg/packets";
 
+enum RoomStatus {
+  ROOM_STATUS_WAITING = 0;
+  ROOM_STATUS_STARTING = 1;
+  ROOM_STATUS_STARTED = 2;
+}
+
 message ChatMessage {
   string msg = 1;
 }
@@ -20,6 +26,47 @@ message LoginRequestMessage {
 message RegisterRequestMessage {
   string username = 1;
   string password = 2;
+}
+
+message CreateRoomRequestMessage {
+  uint32 maxPlayer = 1;
+}
+
+message JoinRoomRequestMessage {
+  uint32 roomId = 1;
+}
+
+message LeaveRoomRequestMessage {
+
+}
+
+message ReadyRequestMessage {
+  bool isReady = 1;
+}
+
+message RoomPlayerMessage {
+  uint64 userId = 1;
+  uint64 clientId = 2;
+  string username = 3;
+  bool isReady = 4;
+  bool owner = 5;
+}
+
+message RoomStateSnapshotMessage {
+  uint64 roomId = 1;
+  uint32 maxPlayer = 2;
+  RoomStatus status = 3;
+  repeated RoomPlayerMessage Player = 4;
+}
+
+message MatchStartingMessage {
+  uint64 roomId = 1;
+  int64 startsAtUnixMs = 2;
+}
+
+message MatchStartMessage {
+  uint64 roomId = 1;
+  uint64 matchId = 2;
 }
 
 message OkResponseMessage {
@@ -39,5 +86,12 @@ message Packet {
     RegisterRequestMessage register_request = 5;
     OkResponseMessage ok_response = 6;
     DenyResponseMessage deny_response = 7;
+    CreateRoomRequestMessage create_room_request = 8;
+    JoinRoomRequestMessage join_room_request = 9;
+    LeaveRoomRequestMessage leave_room_request = 10;
+    ReadyRequestMessage ready_request = 11;
+    RoomStateSnapshotMessage room_state_snapshot = 12;
+    MatchStartingMessage match_starting = 13;
+    MatchStartMessage match_started = 14;
   }
 }
