@@ -44,6 +44,10 @@ type ClientInterface interface {
 	Id() uint64
 	ProcessPacket(id uint64, msg packets.Msg)
 
+	SetUser(user *db.User)
+	GetUser() *db.User
+	IsAuthenticated() bool
+
 	SocketSend(message packets.Msg)
 	SocketSendAs(message packets.Msg, id uint64)
 	PassToPear(message packets.Msg, id uint64)

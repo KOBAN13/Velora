@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type RoomStatus int32
+
+const (
+	RoomStatus_ROOM_STATUS_WAITING  RoomStatus = 0
+	RoomStatus_ROOM_STATUS_STARTING RoomStatus = 1
+	RoomStatus_ROOM_STATUS_STARTED  RoomStatus = 2
+)
+
+// Enum value maps for RoomStatus.
+var (
+	RoomStatus_name = map[int32]string{
+		0: "ROOM_STATUS_WAITING",
+		1: "ROOM_STATUS_STARTING",
+		2: "ROOM_STATUS_STARTED",
+	}
+	RoomStatus_value = map[string]int32{
+		"ROOM_STATUS_WAITING":  0,
+		"ROOM_STATUS_STARTING": 1,
+		"ROOM_STATUS_STARTED":  2,
+	}
+)
+
+func (x RoomStatus) Enum() *RoomStatus {
+	p := new(RoomStatus)
+	*p = x
+	return p
+}
+
+func (x RoomStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RoomStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_packets_proto_enumTypes[0].Descriptor()
+}
+
+func (RoomStatus) Type() protoreflect.EnumType {
+	return &file_packets_proto_enumTypes[0]
+}
+
+func (x RoomStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RoomStatus.Descriptor instead.
+func (RoomStatus) EnumDescriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{0}
+}
+
 type ChatMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Msg           string                 `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -213,6 +262,422 @@ func (x *RegisterRequestMessage) GetPassword() string {
 	return ""
 }
 
+type CreateRoomRequestMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MaxPlayer     uint32                 `protobuf:"varint,1,opt,name=maxPlayer,proto3" json:"maxPlayer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateRoomRequestMessage) Reset() {
+	*x = CreateRoomRequestMessage{}
+	mi := &file_packets_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateRoomRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRoomRequestMessage) ProtoMessage() {}
+
+func (x *CreateRoomRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRoomRequestMessage.ProtoReflect.Descriptor instead.
+func (*CreateRoomRequestMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateRoomRequestMessage) GetMaxPlayer() uint32 {
+	if x != nil {
+		return x.MaxPlayer
+	}
+	return 0
+}
+
+type JoinRoomRequestMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        uint32                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JoinRoomRequestMessage) Reset() {
+	*x = JoinRoomRequestMessage{}
+	mi := &file_packets_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JoinRoomRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JoinRoomRequestMessage) ProtoMessage() {}
+
+func (x *JoinRoomRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JoinRoomRequestMessage.ProtoReflect.Descriptor instead.
+func (*JoinRoomRequestMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *JoinRoomRequestMessage) GetRoomId() uint32 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+type LeaveRoomRequestMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaveRoomRequestMessage) Reset() {
+	*x = LeaveRoomRequestMessage{}
+	mi := &file_packets_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaveRoomRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaveRoomRequestMessage) ProtoMessage() {}
+
+func (x *LeaveRoomRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaveRoomRequestMessage.ProtoReflect.Descriptor instead.
+func (*LeaveRoomRequestMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{6}
+}
+
+type ReadyRequestMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsReady       bool                   `protobuf:"varint,1,opt,name=isReady,proto3" json:"isReady,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadyRequestMessage) Reset() {
+	*x = ReadyRequestMessage{}
+	mi := &file_packets_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadyRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadyRequestMessage) ProtoMessage() {}
+
+func (x *ReadyRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadyRequestMessage.ProtoReflect.Descriptor instead.
+func (*ReadyRequestMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ReadyRequestMessage) GetIsReady() bool {
+	if x != nil {
+		return x.IsReady
+	}
+	return false
+}
+
+type RoomPlayerMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	ClientId      uint64                 `protobuf:"varint,2,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	IsReady       bool                   `protobuf:"varint,4,opt,name=isReady,proto3" json:"isReady,omitempty"`
+	Owner         bool                   `protobuf:"varint,5,opt,name=owner,proto3" json:"owner,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoomPlayerMessage) Reset() {
+	*x = RoomPlayerMessage{}
+	mi := &file_packets_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoomPlayerMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoomPlayerMessage) ProtoMessage() {}
+
+func (x *RoomPlayerMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoomPlayerMessage.ProtoReflect.Descriptor instead.
+func (*RoomPlayerMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RoomPlayerMessage) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *RoomPlayerMessage) GetClientId() uint64 {
+	if x != nil {
+		return x.ClientId
+	}
+	return 0
+}
+
+func (x *RoomPlayerMessage) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *RoomPlayerMessage) GetIsReady() bool {
+	if x != nil {
+		return x.IsReady
+	}
+	return false
+}
+
+func (x *RoomPlayerMessage) GetOwner() bool {
+	if x != nil {
+		return x.Owner
+	}
+	return false
+}
+
+type RoomStateSnapshotMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	MaxPlayer     uint32                 `protobuf:"varint,2,opt,name=maxPlayer,proto3" json:"maxPlayer,omitempty"`
+	Status        RoomStatus             `protobuf:"varint,3,opt,name=status,proto3,enum=packets.RoomStatus" json:"status,omitempty"`
+	Player        []*RoomPlayerMessage   `protobuf:"bytes,4,rep,name=Player,proto3" json:"Player,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoomStateSnapshotMessage) Reset() {
+	*x = RoomStateSnapshotMessage{}
+	mi := &file_packets_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoomStateSnapshotMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoomStateSnapshotMessage) ProtoMessage() {}
+
+func (x *RoomStateSnapshotMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoomStateSnapshotMessage.ProtoReflect.Descriptor instead.
+func (*RoomStateSnapshotMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RoomStateSnapshotMessage) GetRoomId() uint64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *RoomStateSnapshotMessage) GetMaxPlayer() uint32 {
+	if x != nil {
+		return x.MaxPlayer
+	}
+	return 0
+}
+
+func (x *RoomStateSnapshotMessage) GetStatus() RoomStatus {
+	if x != nil {
+		return x.Status
+	}
+	return RoomStatus_ROOM_STATUS_WAITING
+}
+
+func (x *RoomStateSnapshotMessage) GetPlayer() []*RoomPlayerMessage {
+	if x != nil {
+		return x.Player
+	}
+	return nil
+}
+
+type MatchStartingMessage struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RoomId         uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	StartsAtUnixMs int64                  `protobuf:"varint,2,opt,name=startsAtUnixMs,proto3" json:"startsAtUnixMs,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *MatchStartingMessage) Reset() {
+	*x = MatchStartingMessage{}
+	mi := &file_packets_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MatchStartingMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MatchStartingMessage) ProtoMessage() {}
+
+func (x *MatchStartingMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MatchStartingMessage.ProtoReflect.Descriptor instead.
+func (*MatchStartingMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *MatchStartingMessage) GetRoomId() uint64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *MatchStartingMessage) GetStartsAtUnixMs() int64 {
+	if x != nil {
+		return x.StartsAtUnixMs
+	}
+	return 0
+}
+
+type MatchStartMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	MatchId       uint64                 `protobuf:"varint,2,opt,name=matchId,proto3" json:"matchId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MatchStartMessage) Reset() {
+	*x = MatchStartMessage{}
+	mi := &file_packets_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MatchStartMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MatchStartMessage) ProtoMessage() {}
+
+func (x *MatchStartMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MatchStartMessage.ProtoReflect.Descriptor instead.
+func (*MatchStartMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MatchStartMessage) GetRoomId() uint64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *MatchStartMessage) GetMatchId() uint64 {
+	if x != nil {
+		return x.MatchId
+	}
+	return 0
+}
+
 type OkResponseMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -221,7 +686,7 @@ type OkResponseMessage struct {
 
 func (x *OkResponseMessage) Reset() {
 	*x = OkResponseMessage{}
-	mi := &file_packets_proto_msgTypes[4]
+	mi := &file_packets_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +698,7 @@ func (x *OkResponseMessage) String() string {
 func (*OkResponseMessage) ProtoMessage() {}
 
 func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[4]
+	mi := &file_packets_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +711,7 @@ func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OkResponseMessage.ProtoReflect.Descriptor instead.
 func (*OkResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{4}
+	return file_packets_proto_rawDescGZIP(), []int{12}
 }
 
 type DenyResponseMessage struct {
@@ -258,7 +723,7 @@ type DenyResponseMessage struct {
 
 func (x *DenyResponseMessage) Reset() {
 	*x = DenyResponseMessage{}
-	mi := &file_packets_proto_msgTypes[5]
+	mi := &file_packets_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +735,7 @@ func (x *DenyResponseMessage) String() string {
 func (*DenyResponseMessage) ProtoMessage() {}
 
 func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[5]
+	mi := &file_packets_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +748,7 @@ func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DenyResponseMessage.ProtoReflect.Descriptor instead.
 func (*DenyResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{5}
+	return file_packets_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DenyResponseMessage) GetReason() string {
@@ -304,6 +769,13 @@ type Packet struct {
 	//	*Packet_RegisterRequest
 	//	*Packet_OkResponse
 	//	*Packet_DenyResponse
+	//	*Packet_CreateRoomRequest
+	//	*Packet_JoinRoomRequest
+	//	*Packet_LeaveRoomRequest
+	//	*Packet_ReadyRequest
+	//	*Packet_RoomStateSnapshot
+	//	*Packet_MatchStarting
+	//	*Packet_MatchStarted
 	Msg           isPacket_Msg `protobuf_oneof:"msg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -311,7 +783,7 @@ type Packet struct {
 
 func (x *Packet) Reset() {
 	*x = Packet{}
-	mi := &file_packets_proto_msgTypes[6]
+	mi := &file_packets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +795,7 @@ func (x *Packet) String() string {
 func (*Packet) ProtoMessage() {}
 
 func (x *Packet) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[6]
+	mi := &file_packets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +808,7 @@ func (x *Packet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Packet.ProtoReflect.Descriptor instead.
 func (*Packet) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{6}
+	return file_packets_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Packet) GetSenderId() uint64 {
@@ -407,6 +879,69 @@ func (x *Packet) GetDenyResponse() *DenyResponseMessage {
 	return nil
 }
 
+func (x *Packet) GetCreateRoomRequest() *CreateRoomRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_CreateRoomRequest); ok {
+			return x.CreateRoomRequest
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetJoinRoomRequest() *JoinRoomRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_JoinRoomRequest); ok {
+			return x.JoinRoomRequest
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetLeaveRoomRequest() *LeaveRoomRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_LeaveRoomRequest); ok {
+			return x.LeaveRoomRequest
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetReadyRequest() *ReadyRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_ReadyRequest); ok {
+			return x.ReadyRequest
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetRoomStateSnapshot() *RoomStateSnapshotMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_RoomStateSnapshot); ok {
+			return x.RoomStateSnapshot
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetMatchStarting() *MatchStartingMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_MatchStarting); ok {
+			return x.MatchStarting
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetMatchStarted() *MatchStartMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_MatchStarted); ok {
+			return x.MatchStarted
+		}
+	}
+	return nil
+}
+
 type isPacket_Msg interface {
 	isPacket_Msg()
 }
@@ -435,6 +970,34 @@ type Packet_DenyResponse struct {
 	DenyResponse *DenyResponseMessage `protobuf:"bytes,7,opt,name=deny_response,json=denyResponse,proto3,oneof"`
 }
 
+type Packet_CreateRoomRequest struct {
+	CreateRoomRequest *CreateRoomRequestMessage `protobuf:"bytes,8,opt,name=create_room_request,json=createRoomRequest,proto3,oneof"`
+}
+
+type Packet_JoinRoomRequest struct {
+	JoinRoomRequest *JoinRoomRequestMessage `protobuf:"bytes,9,opt,name=join_room_request,json=joinRoomRequest,proto3,oneof"`
+}
+
+type Packet_LeaveRoomRequest struct {
+	LeaveRoomRequest *LeaveRoomRequestMessage `protobuf:"bytes,10,opt,name=leave_room_request,json=leaveRoomRequest,proto3,oneof"`
+}
+
+type Packet_ReadyRequest struct {
+	ReadyRequest *ReadyRequestMessage `protobuf:"bytes,11,opt,name=ready_request,json=readyRequest,proto3,oneof"`
+}
+
+type Packet_RoomStateSnapshot struct {
+	RoomStateSnapshot *RoomStateSnapshotMessage `protobuf:"bytes,12,opt,name=room_state_snapshot,json=roomStateSnapshot,proto3,oneof"`
+}
+
+type Packet_MatchStarting struct {
+	MatchStarting *MatchStartingMessage `protobuf:"bytes,13,opt,name=match_starting,json=matchStarting,proto3,oneof"`
+}
+
+type Packet_MatchStarted struct {
+	MatchStarted *MatchStartMessage `protobuf:"bytes,14,opt,name=match_started,json=matchStarted,proto3,oneof"`
+}
+
 func (*Packet_Chat) isPacket_Msg() {}
 
 func (*Packet_Id) isPacket_Msg() {}
@@ -446,6 +1009,20 @@ func (*Packet_RegisterRequest) isPacket_Msg() {}
 func (*Packet_OkResponse) isPacket_Msg() {}
 
 func (*Packet_DenyResponse) isPacket_Msg() {}
+
+func (*Packet_CreateRoomRequest) isPacket_Msg() {}
+
+func (*Packet_JoinRoomRequest) isPacket_Msg() {}
+
+func (*Packet_LeaveRoomRequest) isPacket_Msg() {}
+
+func (*Packet_ReadyRequest) isPacket_Msg() {}
+
+func (*Packet_RoomStateSnapshot) isPacket_Msg() {}
+
+func (*Packet_MatchStarting) isPacket_Msg() {}
+
+func (*Packet_MatchStarted) isPacket_Msg() {}
 
 var File_packets_proto protoreflect.FileDescriptor
 
@@ -461,10 +1038,34 @@ const file_packets_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"P\n" +
 	"\x16RegisterRequestMessage\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x13\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"8\n" +
+	"\x18CreateRoomRequestMessage\x12\x1c\n" +
+	"\tmaxPlayer\x18\x01 \x01(\rR\tmaxPlayer\"0\n" +
+	"\x16JoinRoomRequestMessage\x12\x16\n" +
+	"\x06roomId\x18\x01 \x01(\rR\x06roomId\"\x19\n" +
+	"\x17LeaveRoomRequestMessage\"/\n" +
+	"\x13ReadyRequestMessage\x12\x18\n" +
+	"\aisReady\x18\x01 \x01(\bR\aisReady\"\x93\x01\n" +
+	"\x11RoomPlayerMessage\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\x04R\x06userId\x12\x1a\n" +
+	"\bclientId\x18\x02 \x01(\x04R\bclientId\x12\x1a\n" +
+	"\busername\x18\x03 \x01(\tR\busername\x12\x18\n" +
+	"\aisReady\x18\x04 \x01(\bR\aisReady\x12\x14\n" +
+	"\x05owner\x18\x05 \x01(\bR\x05owner\"\xb1\x01\n" +
+	"\x18RoomStateSnapshotMessage\x12\x16\n" +
+	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\x1c\n" +
+	"\tmaxPlayer\x18\x02 \x01(\rR\tmaxPlayer\x12+\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x13.packets.RoomStatusR\x06status\x122\n" +
+	"\x06Player\x18\x04 \x03(\v2\x1a.packets.RoomPlayerMessageR\x06Player\"V\n" +
+	"\x14MatchStartingMessage\x12\x16\n" +
+	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12&\n" +
+	"\x0estartsAtUnixMs\x18\x02 \x01(\x03R\x0estartsAtUnixMs\"E\n" +
+	"\x11MatchStartMessage\x12\x16\n" +
+	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\x18\n" +
+	"\amatchId\x18\x02 \x01(\x04R\amatchId\"\x13\n" +
 	"\x11OkResponseMessage\"-\n" +
 	"\x13DenyResponseMessage\x12\x16\n" +
-	"\x06reason\x18\x01 \x01(\tR\x06reason\"\x95\x03\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\"\xb0\a\n" +
 	"\x06Packet\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\x04R\bsenderId\x12*\n" +
 	"\x04chat\x18\x02 \x01(\v2\x14.packets.ChatMessageH\x00R\x04chat\x12$\n" +
@@ -473,8 +1074,21 @@ const file_packets_proto_rawDesc = "" +
 	"\x10register_request\x18\x05 \x01(\v2\x1f.packets.RegisterRequestMessageH\x00R\x0fregisterRequest\x12=\n" +
 	"\vok_response\x18\x06 \x01(\v2\x1a.packets.OkResponseMessageH\x00R\n" +
 	"okResponse\x12C\n" +
-	"\rdeny_response\x18\a \x01(\v2\x1c.packets.DenyResponseMessageH\x00R\fdenyResponseB\x05\n" +
-	"\x03msgB\rZ\vpkg/packetsb\x06proto3"
+	"\rdeny_response\x18\a \x01(\v2\x1c.packets.DenyResponseMessageH\x00R\fdenyResponse\x12S\n" +
+	"\x13create_room_request\x18\b \x01(\v2!.packets.CreateRoomRequestMessageH\x00R\x11createRoomRequest\x12M\n" +
+	"\x11join_room_request\x18\t \x01(\v2\x1f.packets.JoinRoomRequestMessageH\x00R\x0fjoinRoomRequest\x12P\n" +
+	"\x12leave_room_request\x18\n" +
+	" \x01(\v2 .packets.LeaveRoomRequestMessageH\x00R\x10leaveRoomRequest\x12C\n" +
+	"\rready_request\x18\v \x01(\v2\x1c.packets.ReadyRequestMessageH\x00R\freadyRequest\x12S\n" +
+	"\x13room_state_snapshot\x18\f \x01(\v2!.packets.RoomStateSnapshotMessageH\x00R\x11roomStateSnapshot\x12F\n" +
+	"\x0ematch_starting\x18\r \x01(\v2\x1d.packets.MatchStartingMessageH\x00R\rmatchStarting\x12A\n" +
+	"\rmatch_started\x18\x0e \x01(\v2\x1a.packets.MatchStartMessageH\x00R\fmatchStartedB\x05\n" +
+	"\x03msg*X\n" +
+	"\n" +
+	"RoomStatus\x12\x17\n" +
+	"\x13ROOM_STATUS_WAITING\x10\x00\x12\x18\n" +
+	"\x14ROOM_STATUS_STARTING\x10\x01\x12\x17\n" +
+	"\x13ROOM_STATUS_STARTED\x10\x02B\rZ\vpkg/packetsb\x06proto3"
 
 var (
 	file_packets_proto_rawDescOnce sync.Once
@@ -488,28 +1102,47 @@ func file_packets_proto_rawDescGZIP() []byte {
 	return file_packets_proto_rawDescData
 }
 
-var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_packets_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_packets_proto_goTypes = []any{
-	(*ChatMessage)(nil),            // 0: packets.ChatMessage
-	(*IdMessage)(nil),              // 1: packets.IdMessage
-	(*LoginRequestMessage)(nil),    // 2: packets.LoginRequestMessage
-	(*RegisterRequestMessage)(nil), // 3: packets.RegisterRequestMessage
-	(*OkResponseMessage)(nil),      // 4: packets.OkResponseMessage
-	(*DenyResponseMessage)(nil),    // 5: packets.DenyResponseMessage
-	(*Packet)(nil),                 // 6: packets.Packet
+	(RoomStatus)(0),                  // 0: packets.RoomStatus
+	(*ChatMessage)(nil),              // 1: packets.ChatMessage
+	(*IdMessage)(nil),                // 2: packets.IdMessage
+	(*LoginRequestMessage)(nil),      // 3: packets.LoginRequestMessage
+	(*RegisterRequestMessage)(nil),   // 4: packets.RegisterRequestMessage
+	(*CreateRoomRequestMessage)(nil), // 5: packets.CreateRoomRequestMessage
+	(*JoinRoomRequestMessage)(nil),   // 6: packets.JoinRoomRequestMessage
+	(*LeaveRoomRequestMessage)(nil),  // 7: packets.LeaveRoomRequestMessage
+	(*ReadyRequestMessage)(nil),      // 8: packets.ReadyRequestMessage
+	(*RoomPlayerMessage)(nil),        // 9: packets.RoomPlayerMessage
+	(*RoomStateSnapshotMessage)(nil), // 10: packets.RoomStateSnapshotMessage
+	(*MatchStartingMessage)(nil),     // 11: packets.MatchStartingMessage
+	(*MatchStartMessage)(nil),        // 12: packets.MatchStartMessage
+	(*OkResponseMessage)(nil),        // 13: packets.OkResponseMessage
+	(*DenyResponseMessage)(nil),      // 14: packets.DenyResponseMessage
+	(*Packet)(nil),                   // 15: packets.Packet
 }
 var file_packets_proto_depIdxs = []int32{
-	0, // 0: packets.Packet.chat:type_name -> packets.ChatMessage
-	1, // 1: packets.Packet.id:type_name -> packets.IdMessage
-	2, // 2: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
-	3, // 3: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
-	4, // 4: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
-	5, // 5: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	0,  // 0: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
+	9,  // 1: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
+	1,  // 2: packets.Packet.chat:type_name -> packets.ChatMessage
+	2,  // 3: packets.Packet.id:type_name -> packets.IdMessage
+	3,  // 4: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
+	4,  // 5: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
+	13, // 6: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
+	14, // 7: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
+	5,  // 8: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
+	6,  // 9: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
+	7,  // 10: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
+	8,  // 11: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
+	10, // 12: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
+	11, // 13: packets.Packet.match_starting:type_name -> packets.MatchStartingMessage
+	12, // 14: packets.Packet.match_started:type_name -> packets.MatchStartMessage
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_packets_proto_init() }
@@ -517,26 +1150,34 @@ func file_packets_proto_init() {
 	if File_packets_proto != nil {
 		return
 	}
-	file_packets_proto_msgTypes[6].OneofWrappers = []any{
+	file_packets_proto_msgTypes[14].OneofWrappers = []any{
 		(*Packet_Chat)(nil),
 		(*Packet_Id)(nil),
 		(*Packet_LoginRequest)(nil),
 		(*Packet_RegisterRequest)(nil),
 		(*Packet_OkResponse)(nil),
 		(*Packet_DenyResponse)(nil),
+		(*Packet_CreateRoomRequest)(nil),
+		(*Packet_JoinRoomRequest)(nil),
+		(*Packet_LeaveRoomRequest)(nil),
+		(*Packet_ReadyRequest)(nil),
+		(*Packet_RoomStateSnapshot)(nil),
+		(*Packet_MatchStarting)(nil),
+		(*Packet_MatchStarted)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_packets_proto_rawDesc), len(file_packets_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   7,
+			NumEnums:      1,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_packets_proto_goTypes,
 		DependencyIndexes: file_packets_proto_depIdxs,
+		EnumInfos:         file_packets_proto_enumTypes,
 		MessageInfos:      file_packets_proto_msgTypes,
 	}.Build()
 	File_packets_proto = out.File

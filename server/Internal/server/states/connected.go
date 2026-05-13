@@ -93,7 +93,9 @@ func (conn *Connection) handleLoginRequest(senderId uint64, msg *packets.LoginRe
 	}
 
 	conn.logger.Printf("Successfully authenticated user: %v", username)
+	conn.client.SetUser(user)
 	conn.client.SocketSend(packets.NewOkResponse())
+	conn.client.SetState(&Authenticated{})
 }
 
 func (conn *Connection) handleRegisterRequest(senderId uint64, msg *packets.RegisterRequestMessage) {
@@ -135,7 +137,7 @@ func (conn *Connection) handleRegisterRequest(senderId uint64, msg *packets.Regi
 		return
 	}
 
-	_, err = dBtX.UserRepository.CreateUser(dBtX.Ctx, db.CreateUserParams{
+	user, err := dBtX.UserRepository.CreateUser(dBtX.Ctx, db.CreateUserParams{
 		Username:     strings.ToLower(username),
 		PasswordHash: string(passwordHash),
 	})
@@ -147,7 +149,9 @@ func (conn *Connection) handleRegisterRequest(senderId uint64, msg *packets.Regi
 	}
 
 	conn.logger.Printf("Successfully register user: %v", username)
+	conn.client.SetUser(user)
 	conn.client.SocketSend(packets.NewOkResponse())
+	conn.client.SetState(&Authenticated{})
 }
 
 func validateUsername(username string) error {

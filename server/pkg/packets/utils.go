@@ -31,3 +31,62 @@ func NewDenyResponse(reason string) Msg {
 		},
 	}
 }
+
+func NewCreateRoomRequest(maxPlayer uint32) Msg {
+	return &Packet_CreateRoomRequest{
+		CreateRoomRequest: &CreateRoomRequestMessage{
+			MaxPlayer: maxPlayer,
+		},
+	}
+}
+
+func NewJoinRoomRequest(roomId uint32) Msg {
+	return &Packet_JoinRoomRequest{
+		JoinRoomRequest: &JoinRoomRequestMessage{
+			RoomId: roomId,
+		},
+	}
+}
+
+func NewLeaveRoomRequest() Msg {
+	return &Packet_LeaveRoomRequest{
+		LeaveRoomRequest: &LeaveRoomRequestMessage{},
+	}
+}
+
+func NewReadyRequest(isReady bool) Msg {
+	return &Packet_ReadyRequest{
+		ReadyRequest: &ReadyRequestMessage{
+			IsReady: isReady,
+		},
+	}
+}
+
+func NewRoomStateSnapshot(roomId uint64, maxPlayer uint32, status RoomStatus, players []*RoomPlayerMessage) Msg {
+	return &Packet_RoomStateSnapshot{
+		RoomStateSnapshot: &RoomStateSnapshotMessage{
+			RoomId:    roomId,
+			MaxPlayer: maxPlayer,
+			Status:    status,
+			Player:    players,
+		},
+	}
+}
+
+func NewMatchStarting(roomId uint64, startsAtUnixMs int64) Msg {
+	return &Packet_MatchStarting{
+		MatchStarting: &MatchStartingMessage{
+			RoomId:         roomId,
+			StartsAtUnixMs: startsAtUnixMs,
+		},
+	}
+}
+
+func NewMatchStarted(roomId uint64, matchId uint64) Msg {
+	return &Packet_MatchStarted{
+		MatchStarted: &MatchStartMessage{
+			RoomId:  roomId,
+			MatchId: matchId,
+		},
+	}
+}

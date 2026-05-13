@@ -2,6 +2,7 @@ package clients
 
 import (
 	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/db"
 	"Velora/server/Internal/server/states"
 	"Velora/server/pkg/packets"
 	"fmt"
@@ -18,6 +19,7 @@ type WebSocketClient struct {
 	state    server.ClientStateHandler
 	logger   *log.Logger
 	dBtX     *server.DbTx
+	user     *db.User
 }
 
 func (c *WebSocketClient) Initialize(id uint64) {
@@ -26,6 +28,22 @@ func (c *WebSocketClient) Initialize(id uint64) {
 	c.logger.SetPrefix(fmt.Sprintf("Client ID: %d ", c.id))
 
 	c.SetState(&states.Connection{})
+}
+
+func (c *WebSocketClient) SetUser(user *db.User) {
+	c.user = user
+}
+
+func (c *WebSocketClient) GetUser() *db.User {
+	return c.user
+}
+
+func (c *WebSocketClient) IsAuthenticated() bool {
+	if c.state.Name() == "Authenticated" {
+		return true
+	}
+
+	return false
 }
 
 func (c *WebSocketClient) DbTx() *server.DbTx {
