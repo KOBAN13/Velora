@@ -4,6 +4,7 @@ import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/objects"
 	"Velora/server/Internal/server/db"
+	"Velora/server/Internal/server/lobby"
 	"Velora/server/pkg/packets"
 	"context"
 	"fmt"
@@ -22,7 +23,7 @@ type DbTx struct {
 func (h *Hub) NewDbTx() *DbTx {
 	return &DbTx{
 		Ctx:            context.Background(),
-		UserRepository: db.NewUserRepository(h.dbPool),
+		UserRepository: db.NewUserRepository(h.DbPool),
 	}
 }
 
@@ -66,18 +67,20 @@ type Hub struct {
 
 	Clients *objects.SharedCollection[ClientInterface]
 
+	Lobby *lobby.LobbyManager
+
 	Broadcast chan *packets.Packet
 
 	Register chan ClientInterface
 
 	Unregister chan ClientInterface
 
-	dbPool *pgxpool.Pool
+	DbPool *pgxpool.Pool
 }
 
 func NewHub() *Hub {
 	var idGenerator = &Internal.IdGenerator{}
-	var clients = objects.NewSharedCollection[ClientInterface](idGenerator)
+	var clients = objects.NewSharedCollection[ClientInterface]()
 
 	var connect, errConnect = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 
@@ -92,7 +95,8 @@ func NewHub() *Hub {
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan ClientInterface),
 		Unregister: make(chan ClientInterface),
-		dbPool:     connect,
+		DbPool:     connect,
+		Lobby:      &lobby.LobbyManager{},
 	}
 }
 

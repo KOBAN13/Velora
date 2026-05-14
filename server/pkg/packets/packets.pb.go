@@ -24,22 +24,19 @@ const (
 type RoomStatus int32
 
 const (
-	RoomStatus_ROOM_STATUS_WAITING  RoomStatus = 0
-	RoomStatus_ROOM_STATUS_STARTING RoomStatus = 1
-	RoomStatus_ROOM_STATUS_STARTED  RoomStatus = 2
+	RoomStatus_ROOM_STATUS_WAITING RoomStatus = 0
+	RoomStatus_ROOM_STATUS_STARTED RoomStatus = 2
 )
 
 // Enum value maps for RoomStatus.
 var (
 	RoomStatus_name = map[int32]string{
 		0: "ROOM_STATUS_WAITING",
-		1: "ROOM_STATUS_STARTING",
 		2: "ROOM_STATUS_STARTED",
 	}
 	RoomStatus_value = map[string]int32{
-		"ROOM_STATUS_WAITING":  0,
-		"ROOM_STATUS_STARTING": 1,
-		"ROOM_STATUS_STARTED":  2,
+		"ROOM_STATUS_WAITING": 0,
+		"ROOM_STATUS_STARTED": 2,
 	}
 )
 
@@ -1083,11 +1080,10 @@ const file_packets_proto_rawDesc = "" +
 	"\x13room_state_snapshot\x18\f \x01(\v2!.packets.RoomStateSnapshotMessageH\x00R\x11roomStateSnapshot\x12F\n" +
 	"\x0ematch_starting\x18\r \x01(\v2\x1d.packets.MatchStartingMessageH\x00R\rmatchStarting\x12A\n" +
 	"\rmatch_started\x18\x0e \x01(\v2\x1a.packets.MatchStartMessageH\x00R\fmatchStartedB\x05\n" +
-	"\x03msg*X\n" +
+	"\x03msg*>\n" +
 	"\n" +
 	"RoomStatus\x12\x17\n" +
-	"\x13ROOM_STATUS_WAITING\x10\x00\x12\x18\n" +
-	"\x14ROOM_STATUS_STARTING\x10\x01\x12\x17\n" +
+	"\x13ROOM_STATUS_WAITING\x10\x00\x12\x17\n" +
 	"\x13ROOM_STATUS_STARTED\x10\x02B\rZ\vpkg/packetsb\x06proto3"
 
 var (

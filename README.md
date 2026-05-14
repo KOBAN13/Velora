@@ -146,10 +146,10 @@ go test ./...
 Перегенерация Go-кода после изменения protobuf-схемы:
 
 ```bash
-protoc --go_out=server shared/packets.proto
+make proto
 ```
 
-Для этой команды должны быть установлены `protoc` и `protoc-gen-go`.
+`make proto` запускает `protoc` с явным путем к `protoc-gen-go`, поэтому команда не зависит от `PATH` IDE.
 
 ## Текущие ограничения
 

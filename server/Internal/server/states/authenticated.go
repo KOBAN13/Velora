@@ -3,6 +3,7 @@ package states
 import (
 	"Velora/server/Internal/server"
 	"Velora/server/pkg/packets"
+	"fmt"
 	"log"
 )
 
@@ -16,7 +17,11 @@ func (auth *Authenticated) Name() string {
 }
 
 func (auth *Authenticated) SetClientInterface(client server.ClientInterface) {
+	auth.client = client
 
+	var loggerPrefix = fmt.Sprintf("Client %d [%s]", client.Id(), auth.Name())
+
+	auth.log = log.New(log.Writer(), loggerPrefix, log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
@@ -28,4 +33,8 @@ func (auth *Authenticated) OnEnter() {
 }
 func (auth *Authenticated) OnLeave() {
 
+}
+
+func CreateRoomRequestMessage() {
+	packets.NewReadyRequest()
 }

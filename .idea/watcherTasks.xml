@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectTasksOptions">
     <TaskOptions isEnabled="true">
-      <option name="arguments" value="-I=&quot;shared&quot; --go_out=&quot;server&quot; &quot;shared/packets.proto&quot;" />
+      <option name="arguments" value="-I=&quot;shared&quot; --plugin=protoc-gen-go=/home/daniil/go/bin/protoc-gen-go --go_out=&quot;server&quot; &quot;shared/packets.proto&quot;" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
       <option name="exitCodeBehavior" value="ERROR" />
@@ -14,7 +14,7 @@
         <array />
       </option>
       <option name="outputFromStdout" value="false" />
-      <option name="program" value="protoc" />
+      <option name="program" value="/usr/bin/protoc" />
       <option name="runOnExternalChanges" value="true" />
       <option name="scopeName" value="Project Files" />
       <option name="trackOnlyRoot" value="false" />

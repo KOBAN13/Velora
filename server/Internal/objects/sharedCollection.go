@@ -12,7 +12,7 @@ type SharedCollection[T any] struct {
 	mapMutex   sync.Mutex
 }
 
-func NewSharedCollection[T any](idGenerator *Internal.IdGenerator, capacity ...int) *SharedCollection[T] {
+func NewSharedCollection[T any](capacity ...int) *SharedCollection[T] {
 	var objectsMap map[uint64]T
 
 	if len(capacity) > 0 {
