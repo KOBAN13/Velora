@@ -16,7 +16,7 @@ type WebSocketClient struct {
 	conn     *websocket.Conn
 	hub      contracts.Hub
 	sendChan chan *packets.Packet
-	state    contracts.ClientState
+	state    contracts.ClientStateHandler
 	logger   *log.Logger
 	dBtX     *db.DbTx
 	user     *db.User
@@ -46,7 +46,7 @@ func (c *WebSocketClient) DbTx() *db.DbTx {
 	return c.dBtX
 }
 
-func (c *WebSocketClient) SetState(newState contracts.ClientState) {
+func (c *WebSocketClient) SetState(newState contracts.ClientStateHandler) {
 	var prevStateName = "None"
 
 	if c.state != nil {

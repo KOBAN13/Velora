@@ -17,25 +17,25 @@ var (
 	ErrRoomIsFull             = errors.New("room is full")
 	ErrRoomIsNotJoinable      = errors.New("room is not joinable")
 	ErrUserIsNotRoom          = errors.New("user is not a room")
+	ErrOwnerIsNotStartGame    = errors.New("owner is not starting game")
+	ErrUserInNotOwnerGame     = errors.New("user is not owner game")
 )
 
 func NewLobbyManager() *LobbyManager {
 	return &LobbyManager{
-		rooms:              objects.NewSharedCollection[*Room](),
-		userRoom:           make(map[uint64]uint64),
-		roomIdGenerator:    &Internal.IdGenerator{},
-		matchIdGenerator:   &Internal.IdGenerator{},
-		playersIdGenerator: &Internal.IdGenerator{},
+		rooms:            objects.NewSharedCollection[*Room](),
+		userRoom:         make(map[uint64]uint64),
+		roomIdGenerator:  &Internal.IdGenerator{},
+		matchIdGenerator: &Internal.IdGenerator{},
 	}
 }
 
 type LobbyManager struct {
-	mutex              sync.Mutex
-	rooms              *objects.SharedCollection[*Room]
-	userRoom           map[uint64]uint64
-	roomIdGenerator    *Internal.IdGenerator
-	matchIdGenerator   *Internal.IdGenerator
-	playersIdGenerator *Internal.IdGenerator
+	mutex            sync.Mutex
+	rooms            *objects.SharedCollection[*Room]
+	userRoom         map[uint64]uint64
+	roomIdGenerator  *Internal.IdGenerator
+	matchIdGenerator *Internal.IdGenerator
 }
 
 type Room struct {
@@ -53,6 +53,45 @@ type RoomPlayer struct {
 	IsReady  bool
 	IsOwner  bool
 	Client   contracts.LobbyClient
+}
+
+func (lobby *LobbyManager) StartGame(client contracts.Client) error {
+	if !client.IsAuthenticated() {
+		return ErrUserIsNotAuthenticated
+	}
+
+	var roomId = lobby.userRoom[client.Id()]
+
+	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
+		return ErrRoomNotFound
+	}
+
+	var room, _ = lobby.rooms.Get(roomId)
+
+	if _, ok := room.Players[client.GetUser().ID]; ok {
+		return ErrUserInRoom
+	}
+
+	if !room.Players[client.GetUser().ID].IsOwner {
+		return ErrUserInNotOwnerGame
+	}
+
+	if room.Status != packets.RoomStatus_ROOM_STATUS_WAITING || !allPLayersReady(room) {
+		return ErrOwnerIsNotStartGame
+	}
+
+	room.Status = packets.RoomStatus_ROOM_STATUS_STARTED
+
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
+
+	var matchId = lobby.matchIdGenerator.Next()
+
+	var matchStarted = packets.NewMatchStarted(roomId, matchId)
+
+	client.Broadcast(matchStarted)
+
+	return nil
 }
 
 func (lobby *LobbyManager) CreateRoom(client contracts.LobbyClient, maxPlayers uint32) error {
@@ -194,8 +233,6 @@ func (lobby *LobbyManager) SetReady(client contracts.LobbyClient, isReady bool) 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
 
-	//Проверить условие старта матча
-
 	return nil
 }
 
@@ -258,4 +295,14 @@ func syncPlayerOwner(room *Room) {
 	for userId, player := range room.Players {
 		player.IsOwner = userId == nextOwner
 	}
+}
+
+func allPLayersReady(room *Room) bool {
+	for _, roomPLayer := range room.Players {
+		if !roomPLayer.IsReady {
+			return false
+		}
+	}
+
+	return true
 }

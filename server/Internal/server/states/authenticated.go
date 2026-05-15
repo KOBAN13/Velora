@@ -25,12 +25,41 @@ func (auth *Authenticated) SetClient(client contracts.ClientInterface) {
 }
 
 func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
+	switch message := msg.(type) {
+	case *packets.Packet_CreateRoomRequest:
+		auth.createRoomRequestMessage()
 
+	case *packets.Packet_JoinRoomRequest:
+		auth.joinRoomRequestMessage()
+
+	case *packets.Packet_LeaveRoomRequest:
+		auth.leaveRoomRequestMessage()
+
+	case *packets.Packet_ReadyRequest:
+		auth.readyRequestMessage()
+	}
 }
 
 func (auth *Authenticated) OnEnter() {
 
 }
+
 func (auth *Authenticated) OnLeave() {
+
+}
+
+func (auth *Authenticated) createRoomRequestMessage() {
+
+}
+
+func (auth *Authenticated) joinRoomRequestMessage() {
+
+}
+
+func (auth *Authenticated) leaveRoomRequestMessage() {
+
+}
+
+func (auth *Authenticated) readyRequestMessage() {
 
 }

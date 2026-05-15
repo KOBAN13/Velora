@@ -53,4 +53,5 @@ type Hub interface {
 	Client(id uint64) (Client, bool)
 	BroadcastFrom(senderID uint64, msg packets.Msg)
 	UnregisterClient(client Client)
+	RemoveClient(client Client)
 }

@@ -73,15 +73,6 @@ func NewRoomStateSnapshot(roomId uint64, maxPlayer uint32, status RoomStatus, pl
 	}
 }
 
-func NewMatchStarting(roomId uint64, startsAtUnixMs int64) Msg {
-	return &Packet_MatchStarting{
-		MatchStarting: &MatchStartingMessage{
-			RoomId:         roomId,
-			StartsAtUnixMs: startsAtUnixMs,
-		},
-	}
-}
-
 func NewMatchStarted(roomId uint64, matchId uint64) Msg {
 	return &Packet_MatchStarted{
 		MatchStarted: &MatchStartMessage{

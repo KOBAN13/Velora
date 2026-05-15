@@ -75,6 +75,14 @@ func (h *Hub) UnregisterClient(client contracts.Client) {
 	h.Unregister <- client
 }
 
+func (h *Hub) RemoveClient(client contracts.Client) {
+	err := h.Lobby.RemoveClient(client)
+
+	if err != nil {
+		log.Printf("Unable to remove client: %v\n", err)
+	}
+}
+
 func (h *Hub) Run() {
 	log.Println("Initializing database connection")
 
