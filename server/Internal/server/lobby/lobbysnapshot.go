@@ -1,12 +1,11 @@
 package lobby
 
-import "Velora/server/pkg/packets"
+import (
+	"Velora/server/Internal/server/contracts"
+	"Velora/server/pkg/packets"
+)
 
-type roomSocketSender interface {
-	SocketSend(message packets.Msg)
-}
-
-func buildSnapshot(room *Room) packets.Msg {
+func (lobby *LobbyManager) buildSnapshot(room *Room) packets.Msg {
 	players := make([]*packets.RoomPlayerMessage, 0, len(room.Players))
 	addedPlayers := make(map[uint64]struct{}, len(room.Players))
 
@@ -16,7 +15,7 @@ func buildSnapshot(room *Room) packets.Msg {
 			continue
 		}
 
-		players = append(players, packets.NewRoomPlayerMessage(player))
+		players = append(players, newRoomPlayerMessage(player))
 		addedPlayers[userId] = struct{}{}
 	}
 
@@ -25,7 +24,7 @@ func buildSnapshot(room *Room) packets.Msg {
 			continue
 		}
 
-		players = append(players, packets.NewRoomPlayerMessage(player))
+		players = append(players, newRoomPlayerMessage(player))
 	}
 
 	return packets.NewRoomStateSnapshot(room.ID, room.MaxPlayers, room.Status, players)
@@ -33,15 +32,6 @@ func buildSnapshot(room *Room) packets.Msg {
 
 func (lobby *LobbyManager) broadcastToRoom(room *Room, msg packets.Msg) {
 	lobby.mutex.Lock()
-
-	if room == nil {
-		lobby.mutex.Unlock()
-		return
-	}
-
-	if msg == nil {
-		msg = buildSnapshot(room)
-	}
 
 	clients := roomClients(room)
 
@@ -52,8 +42,8 @@ func (lobby *LobbyManager) broadcastToRoom(room *Room, msg packets.Msg) {
 	}
 }
 
-func roomClients(room *Room) []roomSocketSender {
-	clients := make([]roomSocketSender, 0, len(room.Players))
+func roomClients(room *Room) []contracts.LobbyClient {
+	clients := make([]contracts.LobbyClient, 0, len(room.Players))
 	addedClients := make(map[uint64]struct{}, len(room.Players))
 
 	for _, userId := range room.PlayerOrder {
@@ -75,4 +65,14 @@ func roomClients(room *Room) []roomSocketSender {
 	}
 
 	return clients
+}
+
+func newRoomPlayerMessage(roomPlayer *RoomPlayer) *packets.RoomPlayerMessage {
+	return &packets.RoomPlayerMessage{
+		UserId:   roomPlayer.UserID,
+		ClientId: roomPlayer.ClientID,
+		Username: roomPlayer.Username,
+		IsReady:  roomPlayer.IsReady,
+		Owner:    roomPlayer.IsOwner,
+	}
 }

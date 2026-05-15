@@ -1,7 +1,7 @@
 package clients
 
 import (
-	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/contracts"
 	"Velora/server/pkg/packets"
 	"log"
 	"net/http"
@@ -16,7 +16,7 @@ const (
 	SendChanBufferSize = 256
 )
 
-func NewWebsocketConnection(hub *server.Hub, writer http.ResponseWriter, request *http.Request) (server.ClientInterface, error) {
+func NewWebsocketConnection(hub contracts.Hub, writer http.ResponseWriter, request *http.Request) (contracts.Client, error) {
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  ReadBufferSize,
 		WriteBufferSize: WriteBufferSize,

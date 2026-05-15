@@ -1,14 +1,14 @@
 package states
 
 import (
-	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/contracts"
 	"Velora/server/pkg/packets"
 	"fmt"
 	"log"
 )
 
 type Authenticated struct {
-	client server.ClientInterface
+	client contracts.ClientInterface
 	log    *log.Logger
 }
 
@@ -16,7 +16,7 @@ func (auth *Authenticated) Name() string {
 	return "Authenticated"
 }
 
-func (auth *Authenticated) SetClientInterface(client server.ClientInterface) {
+func (auth *Authenticated) SetClient(client contracts.ClientInterface) {
 	auth.client = client
 
 	var loggerPrefix = fmt.Sprintf("Client %d [%s]", client.Id(), auth.Name())
@@ -33,8 +33,4 @@ func (auth *Authenticated) OnEnter() {
 }
 func (auth *Authenticated) OnLeave() {
 
-}
-
-func CreateRoomRequestMessage() {
-	packets.NewReadyRequest()
 }

@@ -3,7 +3,7 @@ package lobby
 import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/objects"
-	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/contracts"
 	"Velora/server/pkg/packets"
 	"errors"
 	"sync"
@@ -18,6 +18,16 @@ var (
 	ErrRoomIsNotJoinable      = errors.New("room is not joinable")
 	ErrUserIsNotRoom          = errors.New("user is not a room")
 )
+
+func NewLobbyManager() *LobbyManager {
+	return &LobbyManager{
+		rooms:              objects.NewSharedCollection[*Room](),
+		userRoom:           make(map[uint64]uint64),
+		roomIdGenerator:    &Internal.IdGenerator{},
+		matchIdGenerator:   &Internal.IdGenerator{},
+		playersIdGenerator: &Internal.IdGenerator{},
+	}
+}
 
 type LobbyManager struct {
 	mutex              sync.Mutex
@@ -42,10 +52,10 @@ type RoomPlayer struct {
 	Username string
 	IsReady  bool
 	IsOwner  bool
-	Client   server.ClientInterface
+	Client   contracts.LobbyClient
 }
 
-func (lobby *LobbyManager) CreateRoom(client server.ClientInterface, maxPlayers uint32) error {
+func (lobby *LobbyManager) CreateRoom(client contracts.LobbyClient, maxPlayers uint32) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -58,8 +68,6 @@ func (lobby *LobbyManager) CreateRoom(client server.ClientInterface, maxPlayers 
 		return ErrMaxPlayersExceeded
 	}
 
-	var roomId = lobby.roomIdGenerator.Next()
-
 	var roomPlayer = &RoomPlayer{
 		UserID:   client.GetUser().ID,
 		ClientID: client.Id(),
@@ -70,25 +78,28 @@ func (lobby *LobbyManager) CreateRoom(client server.ClientInterface, maxPlayers 
 	}
 
 	var room = &Room{
-		ID:          roomId,
 		MaxPlayers:  maxPlayers,
 		Status:      packets.RoomStatus_ROOM_STATUS_WAITING,
 		Players:     make(map[uint64]*RoomPlayer),
 		PlayerOrder: []uint64{roomPlayer.UserID},
 	}
 
+	var roomId = lobby.rooms.Add(room, lobby.roomIdGenerator)
+	room.ID = roomId
+
 	room.Players[roomPlayer.UserID] = roomPlayer
 	syncPlayerOwner(room)
 
 	lobby.userRoom[roomPlayer.UserID] = roomId
 
-	//TODO:
-	//Отправлять снепшот
+	var msg = lobby.buildSnapshot(room)
+
+	client.SocketSend(msg)
 
 	return nil
 }
 
-func (lobby *LobbyManager) JoinRoom(client server.ClientInterface, roomId uint64) error {
+func (lobby *LobbyManager) JoinRoom(client contracts.LobbyClient, roomId uint64) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -126,13 +137,13 @@ func (lobby *LobbyManager) JoinRoom(client server.ClientInterface, roomId uint64
 
 	lobby.userRoom[roomPlayer.UserID] = roomId
 
-	//TODO:
-	//Отправлять снепшот
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
 
 	return nil
 }
 
-func (lobby *LobbyManager) LeaveRoom(client server.ClientInterface) error {
+func (lobby *LobbyManager) LeaveRoom(client contracts.LobbyClient) error {
 	var roomId = lobby.userRoom[client.GetUser().ID]
 
 	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
@@ -155,13 +166,13 @@ func (lobby *LobbyManager) LeaveRoom(client server.ClientInterface) error {
 
 	syncPlayerOwner(room)
 
-	//TODO:
-	//Отправлять снепшот
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
 
 	return nil
 }
 
-func (lobby *LobbyManager) SetReady(client server.ClientInterface, isReady bool) error {
+func (lobby *LobbyManager) SetReady(client contracts.LobbyClient, isReady bool) error {
 	var roomId = lobby.userRoom[client.GetUser().ID]
 
 	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
@@ -180,19 +191,21 @@ func (lobby *LobbyManager) SetReady(client server.ClientInterface, isReady bool)
 
 	room.Players[client.GetUser().ID].IsReady = isReady
 
-	//TODO:
-	//Отправлять снепшот
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
+
 	//Проверить условие старта матча
 
 	return nil
 }
 
-func (lobby *LobbyManager) RemoveClient(client server.ClientInterface) error {
+func (lobby *LobbyManager) RemoveClient(client contracts.LobbyClient) error {
 	if !client.IsAuthenticated() {
 		return nil
 	}
 
 	var userId = client.GetUser().ID
+
 	var roomId, ok = lobby.userRoom[userId]
 
 	if !ok {
@@ -215,6 +228,9 @@ func (lobby *LobbyManager) RemoveClient(client server.ClientInterface) error {
 	}
 
 	syncPlayerOwner(room)
+
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
 
 	return nil
 }

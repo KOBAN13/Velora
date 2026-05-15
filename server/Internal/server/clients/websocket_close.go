@@ -5,7 +5,7 @@ func (c *WebSocketClient) Close(reason string) {
 
 	c.SetState(nil)
 
-	c.hub.Unregister <- c
+	c.hub.UnregisterClient(c)
 	c.conn.Close()
 
 	if _, isClosed := <-c.sendChan; !isClosed {

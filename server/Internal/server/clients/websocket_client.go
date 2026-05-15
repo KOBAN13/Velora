@@ -1,7 +1,7 @@
 package clients
 
 import (
-	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/contracts"
 	"Velora/server/Internal/server/db"
 	"Velora/server/Internal/server/states"
 	"Velora/server/pkg/packets"
@@ -14,11 +14,11 @@ import (
 type WebSocketClient struct {
 	id       uint64
 	conn     *websocket.Conn
-	hub      *server.Hub
+	hub      contracts.Hub
 	sendChan chan *packets.Packet
-	state    server.ClientStateHandler
+	state    contracts.ClientState
 	logger   *log.Logger
-	dBtX     *server.DbTx
+	dBtX     *db.DbTx
 	user     *db.User
 }
 
@@ -39,18 +39,14 @@ func (c *WebSocketClient) GetUser() *db.User {
 }
 
 func (c *WebSocketClient) IsAuthenticated() bool {
-	if c.state.Name() == "Authenticated" {
-		return true
-	}
-
-	return false
+	return c.state != nil && c.state.Name() == "Authenticated"
 }
 
-func (c *WebSocketClient) DbTx() *server.DbTx {
+func (c *WebSocketClient) DbTx() *db.DbTx {
 	return c.dBtX
 }
 
-func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {
+func (c *WebSocketClient) SetState(newState contracts.ClientState) {
 	var prevStateName = "None"
 
 	if c.state != nil {
@@ -69,7 +65,7 @@ func (c *WebSocketClient) SetState(newState server.ClientStateHandler) {
 	c.state = newState
 
 	if c.state != nil {
-		c.state.SetClientInterface(c)
+		c.state.SetClient(c)
 		c.state.OnEnter()
 	}
 }

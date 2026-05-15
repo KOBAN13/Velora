@@ -1,7 +1,5 @@
 package packets
 
-import "Velora/server/Internal/server/lobby"
-
 type Msg = isPacket_Msg
 
 func NewChat(msg string) Msg {
@@ -72,16 +70,6 @@ func NewRoomStateSnapshot(roomId uint64, maxPlayer uint32, status RoomStatus, pl
 			Status:    status,
 			Player:    players,
 		},
-	}
-}
-
-func NewRoomPlayerMessage(roomPlayer *lobby.RoomPlayer) *RoomPlayerMessage {
-	return &RoomPlayerMessage{
-		UserId:   roomPlayer.UserID,
-		ClientId: roomPlayer.ClientID,
-		Username: roomPlayer.Username,
-		IsReady:  roomPlayer.IsReady,
-		Owner:    roomPlayer.IsOwner,
 	}
 }
 

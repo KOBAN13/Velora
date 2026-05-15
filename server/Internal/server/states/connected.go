@@ -1,7 +1,7 @@
 package states
 
 import (
-	"Velora/server/Internal/server"
+	"Velora/server/Internal/server/contracts"
 	"Velora/server/Internal/server/db"
 	"Velora/server/pkg/packets"
 	"errors"
@@ -13,7 +13,7 @@ import (
 )
 
 type Connection struct {
-	client server.ClientInterface
+	client contracts.ClientInterface
 	logger *log.Logger
 }
 
@@ -21,7 +21,7 @@ func (conn *Connection) Name() string {
 	return "Connection"
 }
 
-func (conn *Connection) SetClientInterface(client server.ClientInterface) {
+func (conn *Connection) SetClient(client contracts.ClientInterface) {
 	conn.client = client
 
 	var loggerPrefix = fmt.Sprintf("Client %d [%s]", client.Id(), conn.Name())
