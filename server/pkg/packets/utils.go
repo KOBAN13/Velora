@@ -40,7 +40,7 @@ func NewCreateRoomRequest(maxPlayer uint32) Msg {
 	}
 }
 
-func NewJoinRoomRequest(roomId uint32) Msg {
+func NewJoinRoomRequest(roomId uint64) Msg {
 	return &Packet_JoinRoomRequest{
 		JoinRoomRequest: &JoinRoomRequestMessage{
 			RoomId: roomId,

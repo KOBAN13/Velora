@@ -63,6 +63,10 @@ func (h *Hub) NewDbTx() *db.DbTx {
 	}
 }
 
+func (h *Hub) GetLobby() contracts.LobbyService {
+	return h.Lobby
+}
+
 func (h *Hub) Client(id uint64) (contracts.Client, bool) {
 	return h.Clients.Get(id)
 }

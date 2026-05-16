@@ -42,8 +42,8 @@ func (lobby *LobbyManager) broadcastToRoom(room *Room, msg packets.Msg) {
 	}
 }
 
-func roomClients(room *Room) []contracts.LobbyClient {
-	clients := make([]contracts.LobbyClient, 0, len(room.Players))
+func roomClients(room *Room) []contracts.ClientInterface {
+	clients := make([]contracts.ClientInterface, 0, len(room.Players))
 	addedClients := make(map[uint64]struct{}, len(room.Players))
 
 	for _, userId := range room.PlayerOrder {

@@ -32,7 +32,7 @@ message CreateRoomRequestMessage {
 }
 
 message JoinRoomRequestMessage {
-  uint32 roomId = 1;
+  uint64 roomId = 1;
 }
 
 message LeaveRoomRequestMessage {

@@ -305,7 +305,7 @@ func (x *CreateRoomRequestMessage) GetMaxPlayer() uint32 {
 
 type JoinRoomRequestMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomId        uint32                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -340,7 +340,7 @@ func (*JoinRoomRequestMessage) Descriptor() ([]byte, []int) {
 	return file_packets_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *JoinRoomRequestMessage) GetRoomId() uint32 {
+func (x *JoinRoomRequestMessage) GetRoomId() uint64 {
 	if x != nil {
 		return x.RoomId
 	}
@@ -1039,7 +1039,7 @@ const file_packets_proto_rawDesc = "" +
 	"\x18CreateRoomRequestMessage\x12\x1c\n" +
 	"\tmaxPlayer\x18\x01 \x01(\rR\tmaxPlayer\"0\n" +
 	"\x16JoinRoomRequestMessage\x12\x16\n" +
-	"\x06roomId\x18\x01 \x01(\rR\x06roomId\"\x19\n" +
+	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\"\x19\n" +
 	"\x17LeaveRoomRequestMessage\"/\n" +
 	"\x13ReadyRequestMessage\x12\x18\n" +
 	"\aisReady\x18\x01 \x01(\bR\aisReady\"\x93\x01\n" +

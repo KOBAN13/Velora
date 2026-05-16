@@ -9,7 +9,7 @@ import (
 
 type Authenticated struct {
 	client contracts.ClientInterface
-	log    *log.Logger
+	logger *log.Logger
 }
 
 func (auth *Authenticated) Name() string {
@@ -21,45 +21,90 @@ func (auth *Authenticated) SetClient(client contracts.ClientInterface) {
 
 	var loggerPrefix = fmt.Sprintf("Client %d [%s]", client.Id(), auth.Name())
 
-	auth.log = log.New(log.Writer(), loggerPrefix, log.Ldate|log.Ltime|log.Lshortfile)
+	auth.logger = log.New(log.Writer(), loggerPrefix, log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 	switch message := msg.(type) {
 	case *packets.Packet_CreateRoomRequest:
-		auth.createRoomRequestMessage()
+		auth.createRoomRequestMessage(message.CreateRoomRequest.MaxPlayer)
 
 	case *packets.Packet_JoinRoomRequest:
-		auth.joinRoomRequestMessage()
+		auth.joinRoomRequestMessage(message.JoinRoomRequest.RoomId)
 
 	case *packets.Packet_LeaveRoomRequest:
 		auth.leaveRoomRequestMessage()
 
 	case *packets.Packet_ReadyRequest:
-		auth.readyRequestMessage()
+		auth.readyRequestMessage(message.ReadyRequest.IsReady)
 	}
 }
 
 func (auth *Authenticated) OnEnter() {
+	var id = auth.client.Id()
 
+	var clientId = packets.NewId(id)
+
+	auth.client.SocketSend(clientId)
+	auth.logger.Printf("Client initialized and send to client id: %v", clientId)
 }
 
 func (auth *Authenticated) OnLeave() {
 
 }
 
-func (auth *Authenticated) createRoomRequestMessage() {
+func (auth *Authenticated) createRoomRequestMessage(maxPlayers uint32) {
+	var lobbyService = auth.client.Lobby()
 
+	var err = lobbyService.CreateRoom(auth.client, maxPlayers)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
 }
 
-func (auth *Authenticated) joinRoomRequestMessage() {
+func (auth *Authenticated) joinRoomRequestMessage(roomId uint64) {
+	var lobbyService = auth.client.Lobby()
 
+	var err = lobbyService.JoinRoom(auth.client, roomId)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
 }
 
 func (auth *Authenticated) leaveRoomRequestMessage() {
+	var lobbyService = auth.client.Lobby()
 
+	var err = lobbyService.LeaveRoom(auth.client)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
 }
 
-func (auth *Authenticated) readyRequestMessage() {
+func (auth *Authenticated) readyRequestMessage(isReady bool) {
+	var lobbyService = auth.client.Lobby()
 
+	var err = lobbyService.SetReady(auth.client, isReady)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
 }

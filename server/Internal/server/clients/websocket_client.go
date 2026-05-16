@@ -42,6 +42,10 @@ func (c *WebSocketClient) IsAuthenticated() bool {
 	return c.state != nil && c.state.Name() == "Authenticated"
 }
 
+func (c *WebSocketClient) Lobby() contracts.LobbyService {
+	return c.hub.GetLobby()
+}
+
 func (c *WebSocketClient) DbTx() *db.DbTx {
 	return c.dBtX
 }

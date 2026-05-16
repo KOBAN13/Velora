@@ -52,10 +52,10 @@ type RoomPlayer struct {
 	Username string
 	IsReady  bool
 	IsOwner  bool
-	Client   contracts.LobbyClient
+	Client   contracts.ClientInterface
 }
 
-func (lobby *LobbyManager) StartGame(client contracts.Client) error {
+func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -94,7 +94,7 @@ func (lobby *LobbyManager) StartGame(client contracts.Client) error {
 	return nil
 }
 
-func (lobby *LobbyManager) CreateRoom(client contracts.LobbyClient, maxPlayers uint32) error {
+func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, maxPlayers uint32) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -138,7 +138,7 @@ func (lobby *LobbyManager) CreateRoom(client contracts.LobbyClient, maxPlayers u
 	return nil
 }
 
-func (lobby *LobbyManager) JoinRoom(client contracts.LobbyClient, roomId uint64) error {
+func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uint64) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -182,7 +182,7 @@ func (lobby *LobbyManager) JoinRoom(client contracts.LobbyClient, roomId uint64)
 	return nil
 }
 
-func (lobby *LobbyManager) LeaveRoom(client contracts.LobbyClient) error {
+func (lobby *LobbyManager) LeaveRoom(client contracts.ClientInterface) error {
 	var roomId = lobby.userRoom[client.GetUser().ID]
 
 	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
@@ -211,7 +211,7 @@ func (lobby *LobbyManager) LeaveRoom(client contracts.LobbyClient) error {
 	return nil
 }
 
-func (lobby *LobbyManager) SetReady(client contracts.LobbyClient, isReady bool) error {
+func (lobby *LobbyManager) SetReady(client contracts.ClientInterface, isReady bool) error {
 	var roomId = lobby.userRoom[client.GetUser().ID]
 
 	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
@@ -236,7 +236,7 @@ func (lobby *LobbyManager) SetReady(client contracts.LobbyClient, isReady bool) 
 	return nil
 }
 
-func (lobby *LobbyManager) RemoveClient(client contracts.LobbyClient) error {
+func (lobby *LobbyManager) RemoveClient(client contracts.ClientInterface) error {
 	if !client.IsAuthenticated() {
 		return nil
 	}
