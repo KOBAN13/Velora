@@ -37,6 +37,9 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 
 	case *packets.Packet_ReadyRequest:
 		auth.readyRequestMessage(message.ReadyRequest.IsReady)
+
+	case *packets.Packet_StartGame:
+		auth.startGameRequestMessage()
 	}
 }
 
@@ -107,4 +110,8 @@ func (auth *Authenticated) readyRequestMessage(isReady bool) {
 	}
 
 	auth.client.SocketSend(packets.NewOkResponse())
+}
+
+func (auth *Authenticated) startGameRequestMessage() {
+
 }

@@ -6,7 +6,7 @@ option go_package = "pkg/packets";
 
 enum RoomStatus {
   ROOM_STATUS_WAITING = 0;
-  ROOM_STATUS_STARTED = 2;
+  ROOM_STATUS_STARTED = 1;
 }
 
 message ChatMessage {
@@ -15,6 +15,10 @@ message ChatMessage {
 
 message IdMessage {
   uint64 id = 1;
+}
+
+message StartGameRequestMessage {
+
 }
 
 message LoginRequestMessage {
@@ -90,7 +94,7 @@ message Packet {
     LeaveRoomRequestMessage leave_room_request = 10;
     ReadyRequestMessage ready_request = 11;
     RoomStateSnapshotMessage room_state_snapshot = 12;
-    MatchStartingMessage match_starting = 13;
-    MatchStartMessage match_started = 14;
+    MatchStartMessage match_started = 13;
+    StartGameRequestMessage start_game = 14;
   }
 }
