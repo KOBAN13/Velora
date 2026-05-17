@@ -2,7 +2,6 @@
 .idea
 .agents
 .codex
-config.env
 *.exe
 *.log
 tmp

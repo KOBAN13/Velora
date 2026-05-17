@@ -33,10 +33,26 @@ message RegisterRequestMessage {
 
 message CreateRoomRequestMessage {
   uint32 maxPlayer = 1;
+  string roomName = 2;
 }
 
 message JoinRoomRequestMessage {
   uint64 roomId = 1;
+}
+
+message RoomListRequestMessage {
+
+}
+
+message RoomSummaryMessage {
+  uint64 roomId = 1;
+  uint32 playersCount = 2;
+  uint32 maxPlayer = 3;
+  RoomStatus status = 4;
+}
+
+message RoomListSnapshotMessage {
+  repeated RoomSummaryMessage rooms = 1;
 }
 
 message LeaveRoomRequestMessage {

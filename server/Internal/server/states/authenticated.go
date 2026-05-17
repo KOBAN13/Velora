@@ -25,6 +25,8 @@ func (auth *Authenticated) SetClient(client contracts.ClientInterface) {
 }
 
 func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
+	auth.logger.Printf("Handle message id=%d msg=%s", id, msg)
+
 	switch message := msg.(type) {
 	case *packets.Packet_CreateRoomRequest:
 		auth.createRoomRequestMessage(message.CreateRoomRequest.MaxPlayer)
@@ -49,7 +51,7 @@ func (auth *Authenticated) OnEnter() {
 	var clientId = packets.NewId(id)
 
 	auth.client.SocketSend(clientId)
-	auth.logger.Printf("Client initialized and send to client id: %v", clientId)
+	auth.logger.Printf("Client authenticated and send to client id: %v", clientId)
 }
 
 func (auth *Authenticated) OnLeave() {
@@ -64,6 +66,7 @@ func (auth *Authenticated) createRoomRequestMessage(maxPlayers uint32) {
 	if err != nil {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
 
+		auth.logger.Printf("Error create room: %v", err)
 		auth.client.SocketSend(dennyMessage)
 	}
 
@@ -78,6 +81,7 @@ func (auth *Authenticated) joinRoomRequestMessage(roomId uint64) {
 	if err != nil {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
 
+		auth.logger.Printf("Error join room: %v", err)
 		auth.client.SocketSend(dennyMessage)
 	}
 
@@ -92,6 +96,7 @@ func (auth *Authenticated) leaveRoomRequestMessage() {
 	if err != nil {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
 
+		auth.logger.Printf("Error leave room: %v", err)
 		auth.client.SocketSend(dennyMessage)
 	}
 
@@ -106,6 +111,7 @@ func (auth *Authenticated) readyRequestMessage(isReady bool) {
 	if err != nil {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
 
+		auth.logger.Printf("Error ready request room: %v", err)
 		auth.client.SocketSend(dennyMessage)
 	}
 
@@ -113,5 +119,16 @@ func (auth *Authenticated) readyRequestMessage(isReady bool) {
 }
 
 func (auth *Authenticated) startGameRequestMessage() {
+	var lobbyService = auth.client.Lobby()
 
+	var err = lobbyService.StartGame(auth.client)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.logger.Printf("Error start game: %v", err)
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
 }
