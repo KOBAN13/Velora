@@ -29,7 +29,7 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 
 	switch message := msg.(type) {
 	case *packets.Packet_CreateRoomRequest:
-		auth.createRoomRequestMessage(message.CreateRoomRequest.MaxPlayer)
+		auth.createRoomRequestMessage(message.CreateRoomRequest)
 
 	case *packets.Packet_JoinRoomRequest:
 		auth.joinRoomRequestMessage(message.JoinRoomRequest.RoomId)
@@ -42,26 +42,24 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 
 	case *packets.Packet_StartGame:
 		auth.startGameRequestMessage()
+
+	case *packets.Packet_RoomList:
+		auth.collectRoomListRequestMessage()
 	}
 }
 
 func (auth *Authenticated) OnEnter() {
-	var id = auth.client.Id()
-
-	var clientId = packets.NewId(id)
-
-	auth.client.SocketSend(clientId)
-	auth.logger.Printf("Client authenticated and send to client id: %v", clientId)
+	auth.logger.Printf("Client authenticated and send to client id")
 }
 
 func (auth *Authenticated) OnLeave() {
 
 }
 
-func (auth *Authenticated) createRoomRequestMessage(maxPlayers uint32) {
+func (auth *Authenticated) createRoomRequestMessage(request *packets.CreateRoomRequestMessage) {
 	var lobbyService = auth.client.Lobby()
 
-	var err = lobbyService.CreateRoom(auth.client, maxPlayers)
+	var err = lobbyService.CreateRoom(auth.client, request.RoomName, request.MaxPlayer)
 
 	if err != nil {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
@@ -131,4 +129,8 @@ func (auth *Authenticated) startGameRequestMessage() {
 	}
 
 	auth.client.SocketSend(packets.NewOkResponse())
+}
+
+func (auth *Authenticated) collectRoomListRequestMessage() {
+
 }

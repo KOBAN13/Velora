@@ -112,5 +112,8 @@ message Packet {
     RoomStateSnapshotMessage room_state_snapshot = 12;
     MatchStartMessage match_started = 13;
     StartGameRequestMessage start_game = 14;
+    RoomListRequestMessage room_list = 15;
+    RoomSummaryMessage room_summary_message = 16;
+    RoomListSnapshotMessage room_list_snapshot = 17;
   }
 }

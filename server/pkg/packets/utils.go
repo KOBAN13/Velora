@@ -62,6 +62,25 @@ func NewReadyRequest(isReady bool) Msg {
 	}
 }
 
+func NewRoomSummaryMessage(roomId uint64, playersCount uint32, maxPlayer uint32, status RoomStatus) Msg {
+	return &Packet_RoomSummaryMessage{
+		RoomSummaryMessage: &RoomSummaryMessage{
+			RoomId:       roomId,
+			PlayersCount: playersCount,
+			MaxPlayer:    maxPlayer,
+			Status:       status,
+		},
+	}
+}
+
+func NewRoomListSnapshotMessage(rooms []*RoomSummaryMessage) Msg {
+	return &Packet_RoomListSnapshot{
+		RoomListSnapshot: &RoomListSnapshotMessage{
+			Rooms: rooms,
+		},
+	}
+}
+
 func NewRoomStateSnapshot(roomId uint64, maxPlayer uint32, status RoomStatus, players []*RoomPlayerMessage) Msg {
 	return &Packet_RoomStateSnapshot{
 		RoomStateSnapshot: &RoomStateSnapshotMessage{

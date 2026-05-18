@@ -6,7 +6,7 @@ import (
 )
 
 type LobbyService interface {
-	CreateRoom(client ClientInterface, maxPlayers uint32) error
+	CreateRoom(client ClientInterface, roomName string, maxPlayers uint32) error
 	JoinRoom(client ClientInterface, roomId uint64) error
 	LeaveRoom(client ClientInterface) error
 	SetReady(client ClientInterface, isReady bool) error

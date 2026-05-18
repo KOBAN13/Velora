@@ -42,6 +42,10 @@ func (lobby *LobbyManager) broadcastToRoom(room *Room, msg packets.Msg) {
 	}
 }
 
+func (lobby *LobbyManager) RoomSnapshot(room *Room) {
+	packets.Pa
+}
+
 func roomClients(room *Room) []contracts.ClientInterface {
 	clients := make([]contracts.ClientInterface, 0, len(room.Players))
 	addedClients := make(map[uint64]struct{}, len(room.Players))

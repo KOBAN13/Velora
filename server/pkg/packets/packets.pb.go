@@ -965,6 +965,9 @@ type Packet struct {
 	//	*Packet_RoomStateSnapshot
 	//	*Packet_MatchStarted
 	//	*Packet_StartGame
+	//	*Packet_RoomList
+	//	*Packet_RoomSummaryMessage
+	//	*Packet_RoomListSnapshot
 	Msg           isPacket_Msg `protobuf_oneof:"msg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1131,6 +1134,33 @@ func (x *Packet) GetStartGame() *StartGameRequestMessage {
 	return nil
 }
 
+func (x *Packet) GetRoomList() *RoomListRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_RoomList); ok {
+			return x.RoomList
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetRoomSummaryMessage() *RoomSummaryMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_RoomSummaryMessage); ok {
+			return x.RoomSummaryMessage
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetRoomListSnapshot() *RoomListSnapshotMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_RoomListSnapshot); ok {
+			return x.RoomListSnapshot
+		}
+	}
+	return nil
+}
+
 type isPacket_Msg interface {
 	isPacket_Msg()
 }
@@ -1187,6 +1217,18 @@ type Packet_StartGame struct {
 	StartGame *StartGameRequestMessage `protobuf:"bytes,14,opt,name=start_game,json=startGame,proto3,oneof"`
 }
 
+type Packet_RoomList struct {
+	RoomList *RoomListRequestMessage `protobuf:"bytes,15,opt,name=room_list,json=roomList,proto3,oneof"`
+}
+
+type Packet_RoomSummaryMessage struct {
+	RoomSummaryMessage *RoomSummaryMessage `protobuf:"bytes,16,opt,name=room_summary_message,json=roomSummaryMessage,proto3,oneof"`
+}
+
+type Packet_RoomListSnapshot struct {
+	RoomListSnapshot *RoomListSnapshotMessage `protobuf:"bytes,17,opt,name=room_list_snapshot,json=roomListSnapshot,proto3,oneof"`
+}
+
 func (*Packet_Chat) isPacket_Msg() {}
 
 func (*Packet_Id) isPacket_Msg() {}
@@ -1212,6 +1254,12 @@ func (*Packet_RoomStateSnapshot) isPacket_Msg() {}
 func (*Packet_MatchStarted) isPacket_Msg() {}
 
 func (*Packet_StartGame) isPacket_Msg() {}
+
+func (*Packet_RoomList) isPacket_Msg() {}
+
+func (*Packet_RoomSummaryMessage) isPacket_Msg() {}
+
+func (*Packet_RoomListSnapshot) isPacket_Msg() {}
 
 var File_packets_proto protoreflect.FileDescriptor
 
@@ -1264,7 +1312,7 @@ const file_packets_proto_rawDesc = "" +
 	"\amatchId\x18\x02 \x01(\x04R\amatchId\"\x13\n" +
 	"\x11OkResponseMessage\"-\n" +
 	"\x13DenyResponseMessage\x12\x16\n" +
-	"\x06reason\x18\x01 \x01(\tR\x06reason\"\xab\a\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\"\x8e\t\n" +
 	"\x06Packet\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\x04R\bsenderId\x12*\n" +
 	"\x04chat\x18\x02 \x01(\v2\x14.packets.ChatMessageH\x00R\x04chat\x12$\n" +
@@ -1282,7 +1330,10 @@ const file_packets_proto_rawDesc = "" +
 	"\x13room_state_snapshot\x18\f \x01(\v2!.packets.RoomStateSnapshotMessageH\x00R\x11roomStateSnapshot\x12A\n" +
 	"\rmatch_started\x18\r \x01(\v2\x1a.packets.MatchStartMessageH\x00R\fmatchStarted\x12A\n" +
 	"\n" +
-	"start_game\x18\x0e \x01(\v2 .packets.StartGameRequestMessageH\x00R\tstartGameB\x05\n" +
+	"start_game\x18\x0e \x01(\v2 .packets.StartGameRequestMessageH\x00R\tstartGame\x12>\n" +
+	"\troom_list\x18\x0f \x01(\v2\x1f.packets.RoomListRequestMessageH\x00R\broomList\x12O\n" +
+	"\x14room_summary_message\x18\x10 \x01(\v2\x1b.packets.RoomSummaryMessageH\x00R\x12roomSummaryMessage\x12P\n" +
+	"\x12room_list_snapshot\x18\x11 \x01(\v2 .packets.RoomListSnapshotMessageH\x00R\x10roomListSnapshotB\x05\n" +
 	"\x03msg*>\n" +
 	"\n" +
 	"RoomStatus\x12\x17\n" +
@@ -1343,11 +1394,14 @@ var file_packets_proto_depIdxs = []int32{
 	14, // 14: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
 	16, // 15: packets.Packet.match_started:type_name -> packets.MatchStartMessage
 	3,  // 16: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	8,  // 17: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
+	9,  // 18: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
+	10, // 19: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_packets_proto_init() }
@@ -1369,6 +1423,9 @@ func file_packets_proto_init() {
 		(*Packet_RoomStateSnapshot)(nil),
 		(*Packet_MatchStarted)(nil),
 		(*Packet_StartGame)(nil),
+		(*Packet_RoomList)(nil),
+		(*Packet_RoomSummaryMessage)(nil),
+		(*Packet_RoomListSnapshot)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -39,6 +39,7 @@ type LobbyManager struct {
 }
 
 type Room struct {
+	Name        string
 	ID          uint64
 	MaxPlayers  uint32
 	Status      packets.RoomStatus
@@ -94,7 +95,7 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 	return nil
 }
 
-func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, maxPlayers uint32) error {
+func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName string, maxPlayers uint32) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated
 	}
@@ -117,6 +118,7 @@ func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, maxPlaye
 	}
 
 	var room = &Room{
+		Name:        roomName,
 		MaxPlayers:  maxPlayers,
 		Status:      packets.RoomStatus_ROOM_STATUS_WAITING,
 		Players:     make(map[uint64]*RoomPlayer),
