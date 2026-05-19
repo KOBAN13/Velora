@@ -56,6 +56,10 @@ type RoomPlayer struct {
 	Client   contracts.ClientInterface
 }
 
+func (lobby *LobbyManager) GetRoomList() *objects.SharedCollection[*Room] {
+	return lobby.rooms
+}
+
 func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 	if !client.IsAuthenticated() {
 		return ErrUserIsNotAuthenticated

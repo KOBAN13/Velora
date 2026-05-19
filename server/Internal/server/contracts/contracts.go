@@ -6,6 +6,8 @@ import (
 )
 
 type LobbyService interface {
+	RoomListSnapshot() packets.Msg
+
 	CreateRoom(client ClientInterface, roomName string, maxPlayers uint32) error
 	JoinRoom(client ClientInterface, roomId uint64) error
 	LeaveRoom(client ClientInterface) error

@@ -132,5 +132,9 @@ func (auth *Authenticated) startGameRequestMessage() {
 }
 
 func (auth *Authenticated) collectRoomListRequestMessage() {
+	var lobbyService = auth.client.Lobby()
 
+	var msg = lobbyService.RoomListSnapshot()
+
+	auth.client.SocketSend(msg)
 }
