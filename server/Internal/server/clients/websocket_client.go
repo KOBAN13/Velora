@@ -3,7 +3,6 @@ package clients
 import (
 	"Velora/server/Internal/server/contracts"
 	"Velora/server/Internal/server/db"
-	"Velora/server/Internal/server/lobby"
 	"Velora/server/Internal/server/states"
 	"Velora/server/pkg/packets"
 	"fmt"
@@ -43,7 +42,7 @@ func (c *WebSocketClient) IsAuthenticated() bool {
 	return c.state != nil && c.state.Name() == "Authenticated"
 }
 
-func (c *WebSocketClient) Lobby() *lobby.LobbyManager {
+func (c *WebSocketClient) Lobby() contracts.LobbyService {
 	return c.hub.GetLobby()
 }
 

@@ -175,7 +175,7 @@ Snapshots и ответы:
 - `RoomStateSnapshotMessage` - состояние одной комнаты: `roomId`, `maxPlayer`, `status`, список игроков.
 - `RoomPlayerMessage` - игрок комнаты: `userId`, `clientId`, `username`, `isReady`, `owner`.
 - `RoomListSnapshotMessage` - краткий список комнат.
-- `RoomSummaryMessage` - summary комнаты: `roomId`, `playersCount`, `maxPlayer`, `status`.
+- `RoomSummaryMessage` - summary комнаты: `name`, `roomId`, `playersCount`, `maxPlayer`, `status`.
 - `MatchStartMessage` - уведомление о старте матча с `roomId` и `matchId`.
 - `OkResponseMessage` - успешный ответ на команду.
 - `DenyResponseMessage` - отказ с текстовой причиной.
@@ -205,7 +205,7 @@ Snapshots и ответы:
 
 ### Список комнат
 
-`RoomListRequestMessage` предназначен для получения краткого списка комнат. Формат ответа уже описан как `RoomListSnapshotMessage`, где каждая комната содержит только `roomId`, `playersCount`, `maxPlayer` и `status`. Название комнаты и список игроков в summary сейчас не передаются.
+`RoomListRequestMessage` предназначен для получения краткого списка комнат. Сервер отвечает `RoomListSnapshotMessage`, где каждая комната содержит `name`, `roomId`, `playersCount`, `maxPlayer` и `status`. Список игроков в summary не передается; подробный состав комнаты приходит через `RoomStateSnapshotMessage` для конкретной комнаты.
 
 ## Разработка
 
@@ -232,12 +232,11 @@ make proto
 ## Текущие ограничения
 
 - Lobby-состояние хранится только в памяти и теряется при рестарте сервера.
-- `RoomListSnapshotMessage` содержит только краткое summary комнаты без `roomName` и игроков.
+- `RoomListSnapshotMessage` содержит только краткое summary комнаты без списка игроков.
 - Нет миграций базы данных.
 - Нет проверки origin при WebSocket upgrade: `CheckOrigin` сейчас разрешает любые источники.
 - Нет TLS, rate limiting и отдельного слоя валидации размера/частоты сообщений.
 - Нет отдельного matchmaking/gameplay слоя после `MatchStartMessage`.
-- В текущем рабочем дереве есть незавершенные участки lobby room list handling, из-за которых сборка может падать до их завершения.
 
 ## Лицензия
 

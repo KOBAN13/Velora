@@ -429,10 +429,11 @@ func (*RoomListRequestMessage) Descriptor() ([]byte, []int) {
 
 type RoomSummaryMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
-	PlayersCount  uint32                 `protobuf:"varint,2,opt,name=playersCount,proto3" json:"playersCount,omitempty"`
-	MaxPlayer     uint32                 `protobuf:"varint,3,opt,name=maxPlayer,proto3" json:"maxPlayer,omitempty"`
-	Status        RoomStatus             `protobuf:"varint,4,opt,name=status,proto3,enum=packets.RoomStatus" json:"status,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	RoomId        uint64                 `protobuf:"varint,2,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	PlayersCount  uint32                 `protobuf:"varint,3,opt,name=playersCount,proto3" json:"playersCount,omitempty"`
+	MaxPlayer     uint32                 `protobuf:"varint,4,opt,name=maxPlayer,proto3" json:"maxPlayer,omitempty"`
+	Status        RoomStatus             `protobuf:"varint,5,opt,name=status,proto3,enum=packets.RoomStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -465,6 +466,13 @@ func (x *RoomSummaryMessage) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RoomSummaryMessage.ProtoReflect.Descriptor instead.
 func (*RoomSummaryMessage) Descriptor() ([]byte, []int) {
 	return file_packets_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RoomSummaryMessage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 func (x *RoomSummaryMessage) GetRoomId() uint64 {
@@ -1282,12 +1290,13 @@ const file_packets_proto_rawDesc = "" +
 	"\broomName\x18\x02 \x01(\tR\broomName\"0\n" +
 	"\x16JoinRoomRequestMessage\x12\x16\n" +
 	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\"\x18\n" +
-	"\x16RoomListRequestMessage\"\x9b\x01\n" +
-	"\x12RoomSummaryMessage\x12\x16\n" +
-	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\"\n" +
-	"\fplayersCount\x18\x02 \x01(\rR\fplayersCount\x12\x1c\n" +
-	"\tmaxPlayer\x18\x03 \x01(\rR\tmaxPlayer\x12+\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x13.packets.RoomStatusR\x06status\"L\n" +
+	"\x16RoomListRequestMessage\"\xaf\x01\n" +
+	"\x12RoomSummaryMessage\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	"\x06roomId\x18\x02 \x01(\x04R\x06roomId\x12\"\n" +
+	"\fplayersCount\x18\x03 \x01(\rR\fplayersCount\x12\x1c\n" +
+	"\tmaxPlayer\x18\x04 \x01(\rR\tmaxPlayer\x12+\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x13.packets.RoomStatusR\x06status\"L\n" +
 	"\x17RoomListSnapshotMessage\x121\n" +
 	"\x05rooms\x18\x01 \x03(\v2\x1b.packets.RoomSummaryMessageR\x05rooms\"\x19\n" +
 	"\x17LeaveRoomRequestMessage\"/\n" +

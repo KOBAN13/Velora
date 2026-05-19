@@ -45,10 +45,11 @@ message RoomListRequestMessage {
 }
 
 message RoomSummaryMessage {
-  uint64 roomId = 1;
-  uint32 playersCount = 2;
-  uint32 maxPlayer = 3;
-  RoomStatus status = 4;
+  string name = 1;
+  uint64 roomId = 2;
+  uint32 playersCount = 3;
+  uint32 maxPlayer = 4;
+  RoomStatus status = 5;
 }
 
 message RoomListSnapshotMessage {

@@ -43,10 +43,10 @@ func (lobby *LobbyManager) broadcastToRoom(room *Room, msg packets.Msg) {
 }
 
 func (lobby *LobbyManager) RoomListSnapshot() packets.Msg {
-	var messages = make([]*packets.RoomSummaryMessage, lobby.rooms.Size())
+	var messages = make([]*packets.RoomSummaryMessage, 0, lobby.rooms.Size())
 
 	lobby.rooms.Foreach(func(room *Room, u uint64) {
-		var roomSummary = packets.NewRoomSummaryMessage(room.ID, uint32(len(room.Players)), room.MaxPlayers, room.Status)
+		var roomSummary = packets.NewRoomSummaryMessage(room.ID, room.Name, uint32(len(room.Players)), room.MaxPlayers, room.Status)
 
 		messages = append(messages, roomSummary)
 	})
