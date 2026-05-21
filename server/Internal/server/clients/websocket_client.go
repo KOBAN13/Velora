@@ -39,7 +39,7 @@ func (c *WebSocketClient) GetUser() *db.User {
 }
 
 func (c *WebSocketClient) IsAuthenticated() bool {
-	return c.state != nil && c.state.Name() == "Authenticated"
+	return c.user != nil
 }
 
 func (c *WebSocketClient) Lobby() contracts.LobbyService {

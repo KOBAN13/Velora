@@ -61,23 +61,13 @@ func (lobby *LobbyManager) GetRoomList() *objects.SharedCollection[*Room] {
 }
 
 func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
-	if !client.IsAuthenticated() {
-		return ErrUserIsNotAuthenticated
+	var roomId, room, player, err = lobby.validateRoom(client)
+
+	if err != nil {
+		return err
 	}
 
-	var roomId = lobby.userRoom[client.Id()]
-
-	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
-		return ErrRoomNotFound
-	}
-
-	var room, _ = lobby.rooms.Get(roomId)
-
-	if _, ok := room.Players[client.GetUser().ID]; ok {
-		return ErrUserInRoom
-	}
-
-	if !room.Players[client.GetUser().ID].IsOwner {
+	if !player.IsOwner {
 		return ErrUserInNotOwnerGame
 	}
 
@@ -100,8 +90,9 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 }
 
 func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName string, maxPlayers uint32) error {
-	if !client.IsAuthenticated() {
-		return ErrUserIsNotAuthenticated
+	var roomPlayer, err = lobby.newRoomPlayer(client)
+	if err != nil {
+		return err
 	}
 
 	if maxPlayers == 0 {
@@ -112,30 +103,17 @@ func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName
 		return ErrMaxPlayersExceeded
 	}
 
-	var roomPlayer = &RoomPlayer{
-		UserID:   client.GetUser().ID,
-		ClientID: client.Id(),
-		Username: client.GetUser().Username,
-		IsReady:  false,
-		IsOwner:  true,
-		Client:   client,
-	}
-
 	var room = &Room{
-		Name:        roomName,
-		MaxPlayers:  maxPlayers,
-		Status:      packets.RoomStatus_ROOM_STATUS_WAITING,
-		Players:     make(map[uint64]*RoomPlayer),
-		PlayerOrder: []uint64{roomPlayer.UserID},
+		Name:       roomName,
+		MaxPlayers: maxPlayers,
+		Status:     packets.RoomStatus_ROOM_STATUS_WAITING,
+		Players:    make(map[uint64]*RoomPlayer),
 	}
 
 	var roomId = lobby.rooms.Add(room, lobby.roomIdGenerator)
 	room.ID = roomId
 
-	room.Players[roomPlayer.UserID] = roomPlayer
-	syncPlayerOwner(room)
-
-	lobby.userRoom[roomPlayer.UserID] = roomId
+	lobby.addPlayerToRoom(roomId, room, roomPlayer)
 
 	var msg = lobby.buildSnapshot(room)
 
@@ -145,17 +123,17 @@ func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName
 }
 
 func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uint64) error {
-	if !client.IsAuthenticated() {
-		return ErrUserIsNotAuthenticated
+	var roomPlayer, err = lobby.newRoomPlayer(client)
+	if err != nil {
+		return err
 	}
 
-	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
+	var room, isRoomFind = lobby.rooms.Get(roomId)
+	if !isRoomFind {
 		return ErrRoomNotFound
 	}
 
-	var room, _ = lobby.rooms.Get(roomId)
-
-	if _, ok := room.Players[client.GetUser().ID]; ok {
+	if _, ok := room.Players[roomPlayer.UserID]; ok {
 		return ErrUserInRoom
 	}
 
@@ -167,20 +145,7 @@ func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uin
 		return ErrRoomIsFull
 	}
 
-	var roomPlayer = &RoomPlayer{
-		UserID:   client.GetUser().ID,
-		ClientID: client.Id(),
-		Username: client.GetUser().Username,
-		IsReady:  false,
-		IsOwner:  false,
-		Client:   client,
-	}
-
-	room.Players[roomPlayer.UserID] = roomPlayer
-	room.PlayerOrder = append(room.PlayerOrder, roomPlayer.UserID)
-	syncPlayerOwner(room)
-
-	lobby.userRoom[roomPlayer.UserID] = roomId
+	lobby.addPlayerToRoom(roomId, room, roomPlayer)
 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
@@ -189,27 +154,15 @@ func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uin
 }
 
 func (lobby *LobbyManager) LeaveRoom(client contracts.ClientInterface) error {
-	var roomId = lobby.userRoom[client.GetUser().ID]
+	var roomId, room, player, err = lobby.validateRoom(client)
 
-	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
-		return ErrRoomNotFound
+	if err != nil {
+		return err
 	}
 
-	var room, _ = lobby.rooms.Get(roomId)
-
-	if _, ok := room.Players[client.GetUser().ID]; !ok {
-		return ErrUserIsNotRoom
-	}
-
-	delete(room.Players, client.GetUser().ID)
-	delete(lobby.userRoom, client.GetUser().ID)
-
-	if len(room.Players) == 0 {
-		lobby.rooms.Remove(roomId)
+	if !lobby.removePlayerFromRoom(roomId, room, player.UserID) {
 		return nil
 	}
-
-	syncPlayerOwner(room)
 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
@@ -218,23 +171,17 @@ func (lobby *LobbyManager) LeaveRoom(client contracts.ClientInterface) error {
 }
 
 func (lobby *LobbyManager) SetReady(client contracts.ClientInterface, isReady bool) error {
-	var roomId = lobby.userRoom[client.GetUser().ID]
+	var _, room, player, err = lobby.validateRoom(client)
 
-	if _, isRoomFind := lobby.rooms.Get(roomId); !isRoomFind {
-		return ErrRoomNotFound
-	}
-
-	var room, _ = lobby.rooms.Get(roomId)
-
-	if _, ok := room.Players[client.GetUser().ID]; !ok {
-		return ErrUserIsNotRoom
+	if err != nil {
+		return err
 	}
 
 	if room.Status != packets.RoomStatus_ROOM_STATUS_WAITING {
 		return ErrRoomIsNotJoinable
 	}
 
-	room.Players[client.GetUser().ID].IsReady = isReady
+	player.IsReady = isReady
 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
@@ -247,35 +194,99 @@ func (lobby *LobbyManager) RemoveClient(client contracts.ClientInterface) error 
 		return nil
 	}
 
-	var userId = client.GetUser().ID
+	var userID = client.GetUser().ID
+	var roomsToBroadcast []*Room
 
-	var roomId, ok = lobby.userRoom[userId]
+	lobby.rooms.Foreach(func(room *Room, roomID uint64) {
+		if _, ok := room.Players[userID]; !ok {
+			return
+		}
+
+		if !lobby.removePlayerFromRoom(roomID, room, userID) {
+			return
+		}
+
+		roomsToBroadcast = append(roomsToBroadcast, room)
+	})
+
+	delete(lobby.userRoom, userID)
+
+	for _, room := range roomsToBroadcast {
+		var msg = lobby.buildSnapshot(room)
+		lobby.broadcastToRoom(room, msg)
+	}
+
+	return nil
+}
+
+func (lobby *LobbyManager) validateRoom(client contracts.ClientInterface) (uint64, *Room, *RoomPlayer, error) {
+	if !client.IsAuthenticated() {
+		return 0, nil, nil, ErrUserIsNotAuthenticated
+	}
+
+	var userID = client.GetUser().ID
+
+	var roomId, ok = lobby.userRoom[userID]
 
 	if !ok {
-		return nil
+		return 0, nil, nil, ErrUserIsNotRoom
 	}
 
 	var room, isRoomFind = lobby.rooms.Get(roomId)
 
 	if !isRoomFind {
-		delete(lobby.userRoom, userId)
-		return nil
+		delete(lobby.userRoom, userID)
+		return 0, nil, nil, ErrRoomNotFound
 	}
 
-	delete(room.Players, userId)
-	delete(lobby.userRoom, userId)
+	var player, isPlayerInRoom = room.Players[userID]
+
+	if !isPlayerInRoom {
+		delete(lobby.userRoom, userID)
+		return 0, nil, nil, ErrUserIsNotRoom
+	}
+
+	return roomId, room, player, nil
+}
+
+func (lobby *LobbyManager) newRoomPlayer(client contracts.ClientInterface) (*RoomPlayer, error) {
+	if !client.IsAuthenticated() {
+		return nil, ErrUserIsNotAuthenticated
+	}
+
+	var user = client.GetUser()
+
+	if _, ok := lobby.userRoom[user.ID]; ok {
+		return nil, ErrUserInRoom
+	}
+
+	return &RoomPlayer{
+		UserID:   user.ID,
+		ClientID: client.Id(),
+		Username: user.Username,
+		Client:   client,
+	}, nil
+}
+
+func (lobby *LobbyManager) addPlayerToRoom(roomId uint64, room *Room, player *RoomPlayer) {
+	room.Players[player.UserID] = player
+	room.PlayerOrder = append(room.PlayerOrder, player.UserID)
+	lobby.userRoom[player.UserID] = roomId
+	syncPlayerOwner(room)
+}
+
+func (lobby *LobbyManager) removePlayerFromRoom(roomId uint64, room *Room, userID uint64) bool {
+	delete(room.Players, userID)
+	delete(lobby.userRoom, userID)
 
 	if len(room.Players) == 0 {
 		lobby.rooms.Remove(roomId)
-		return nil
+		return false
 	}
 
 	syncPlayerOwner(room)
 
-	var msg = lobby.buildSnapshot(room)
-	lobby.broadcastToRoom(room, msg)
-
-	return nil
+	return true
 }
 
 func syncPlayerOwner(room *Room) {

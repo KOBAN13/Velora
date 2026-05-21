@@ -3,9 +3,9 @@ package clients
 func (c *WebSocketClient) Close(reason string) {
 	c.logger.Printf("Closing client: %s", reason)
 
-	c.SetState(nil)
-
 	c.hub.RemoveClient(c)
+
+	c.SetState(nil)
 
 	c.hub.UnregisterClient(c)
 
