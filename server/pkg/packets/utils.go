@@ -62,13 +62,13 @@ func NewReadyRequest(isReady bool) Msg {
 	}
 }
 
-func NewRoomSummaryMessage(roomId uint64, roomName string, playersCount uint32, maxPlayer uint32, status RoomStatus) *RoomSummaryMessage {
+func NewRoomSummaryMessage(roomId uint64, roomName string, players []*RoomPlayerMessage, maxPlayer uint32, status RoomStatus) *RoomSummaryMessage {
 	return &RoomSummaryMessage{
-		Name:         roomName,
-		RoomId:       roomId,
-		PlayersCount: playersCount,
-		MaxPlayer:    maxPlayer,
-		Status:       status,
+		Name:      roomName,
+		RoomId:    roomId,
+		Players:   players,
+		MaxPlayer: maxPlayer,
+		Status:    status,
 	}
 }
 

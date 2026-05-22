@@ -431,7 +431,7 @@ type RoomSummaryMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	RoomId        uint64                 `protobuf:"varint,2,opt,name=roomId,proto3" json:"roomId,omitempty"`
-	PlayersCount  uint32                 `protobuf:"varint,3,opt,name=playersCount,proto3" json:"playersCount,omitempty"`
+	Players       []*RoomPlayerMessage   `protobuf:"bytes,3,rep,name=Players,proto3" json:"Players,omitempty"`
 	MaxPlayer     uint32                 `protobuf:"varint,4,opt,name=maxPlayer,proto3" json:"maxPlayer,omitempty"`
 	Status        RoomStatus             `protobuf:"varint,5,opt,name=status,proto3,enum=packets.RoomStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -482,11 +482,11 @@ func (x *RoomSummaryMessage) GetRoomId() uint64 {
 	return 0
 }
 
-func (x *RoomSummaryMessage) GetPlayersCount() uint32 {
+func (x *RoomSummaryMessage) GetPlayers() []*RoomPlayerMessage {
 	if x != nil {
-		return x.PlayersCount
+		return x.Players
 	}
-	return 0
+	return nil
 }
 
 func (x *RoomSummaryMessage) GetMaxPlayer() uint32 {
@@ -1290,11 +1290,11 @@ const file_packets_proto_rawDesc = "" +
 	"\broomName\x18\x02 \x01(\tR\broomName\"0\n" +
 	"\x16JoinRoomRequestMessage\x12\x16\n" +
 	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\"\x18\n" +
-	"\x16RoomListRequestMessage\"\xaf\x01\n" +
+	"\x16RoomListRequestMessage\"\xc1\x01\n" +
 	"\x12RoomSummaryMessage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
-	"\x06roomId\x18\x02 \x01(\x04R\x06roomId\x12\"\n" +
-	"\fplayersCount\x18\x03 \x01(\rR\fplayersCount\x12\x1c\n" +
+	"\x06roomId\x18\x02 \x01(\x04R\x06roomId\x124\n" +
+	"\aPlayers\x18\x03 \x03(\v2\x1a.packets.RoomPlayerMessageR\aPlayers\x12\x1c\n" +
 	"\tmaxPlayer\x18\x04 \x01(\rR\tmaxPlayer\x12+\n" +
 	"\x06status\x18\x05 \x01(\x0e2\x13.packets.RoomStatusR\x06status\"L\n" +
 	"\x17RoomListSnapshotMessage\x121\n" +
@@ -1386,31 +1386,32 @@ var file_packets_proto_goTypes = []any{
 	(*Packet)(nil),                   // 19: packets.Packet
 }
 var file_packets_proto_depIdxs = []int32{
-	0,  // 0: packets.RoomSummaryMessage.status:type_name -> packets.RoomStatus
-	9,  // 1: packets.RoomListSnapshotMessage.rooms:type_name -> packets.RoomSummaryMessage
-	0,  // 2: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
-	13, // 3: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
-	1,  // 4: packets.Packet.chat:type_name -> packets.ChatMessage
-	2,  // 5: packets.Packet.id:type_name -> packets.IdMessage
-	4,  // 6: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
-	5,  // 7: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
-	17, // 8: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
-	18, // 9: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
-	6,  // 10: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
-	7,  // 11: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
-	11, // 12: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
-	12, // 13: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
-	14, // 14: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
-	16, // 15: packets.Packet.match_started:type_name -> packets.MatchStartMessage
-	3,  // 16: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
-	8,  // 17: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
-	9,  // 18: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
-	10, // 19: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	13, // 0: packets.RoomSummaryMessage.Players:type_name -> packets.RoomPlayerMessage
+	0,  // 1: packets.RoomSummaryMessage.status:type_name -> packets.RoomStatus
+	9,  // 2: packets.RoomListSnapshotMessage.rooms:type_name -> packets.RoomSummaryMessage
+	0,  // 3: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
+	13, // 4: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
+	1,  // 5: packets.Packet.chat:type_name -> packets.ChatMessage
+	2,  // 6: packets.Packet.id:type_name -> packets.IdMessage
+	4,  // 7: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
+	5,  // 8: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
+	17, // 9: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
+	18, // 10: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
+	6,  // 11: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
+	7,  // 12: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
+	11, // 13: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
+	12, // 14: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
+	14, // 15: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
+	16, // 16: packets.Packet.match_started:type_name -> packets.MatchStartMessage
+	3,  // 17: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
+	8,  // 18: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
+	9,  // 19: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
+	10, // 20: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_packets_proto_init() }

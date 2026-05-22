@@ -47,7 +47,7 @@ message RoomListRequestMessage {
 message RoomSummaryMessage {
   string name = 1;
   uint64 roomId = 2;
-  uint32 playersCount = 3;
+  repeated RoomPlayerMessage Players = 3;
   uint32 maxPlayer = 4;
   RoomStatus status = 5;
 }

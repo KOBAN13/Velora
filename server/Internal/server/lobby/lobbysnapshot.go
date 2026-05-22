@@ -6,26 +6,7 @@ import (
 )
 
 func (lobby *LobbyManager) buildSnapshot(room *Room) packets.Msg {
-	players := make([]*packets.RoomPlayerMessage, 0, len(room.Players))
-	addedPlayers := make(map[uint64]struct{}, len(room.Players))
-
-	for _, userId := range room.PlayerOrder {
-		player, ok := room.Players[userId]
-		if !ok {
-			continue
-		}
-
-		players = append(players, newRoomPlayerMessage(player))
-		addedPlayers[userId] = struct{}{}
-	}
-
-	for userId, player := range room.Players {
-		if _, ok := addedPlayers[userId]; ok {
-			continue
-		}
-
-		players = append(players, newRoomPlayerMessage(player))
-	}
+	var players = collectRoomPLayers(room)
 
 	return packets.NewRoomStateSnapshot(room.ID, room.MaxPlayers, room.Status, players)
 }
@@ -46,7 +27,8 @@ func (lobby *LobbyManager) RoomListSnapshot() packets.Msg {
 	var messages = make([]*packets.RoomSummaryMessage, 0, lobby.rooms.Size())
 
 	lobby.rooms.Foreach(func(room *Room, u uint64) {
-		var roomSummary = packets.NewRoomSummaryMessage(room.ID, room.Name, uint32(len(room.Players)), room.MaxPlayers, room.Status)
+		var players = collectRoomPLayers(room)
+		var roomSummary = packets.NewRoomSummaryMessage(room.ID, room.Name, players, room.MaxPlayers, room.Status)
 
 		messages = append(messages, roomSummary)
 	})
@@ -77,6 +59,31 @@ func roomClients(room *Room) []contracts.ClientInterface {
 	}
 
 	return clients
+}
+
+func collectRoomPLayers(room *Room) []*packets.RoomPlayerMessage {
+	players := make([]*packets.RoomPlayerMessage, 0, len(room.Players))
+	addedPlayers := make(map[uint64]struct{}, len(room.Players))
+
+	for _, userId := range room.PlayerOrder {
+		player, ok := room.Players[userId]
+		if !ok {
+			continue
+		}
+
+		players = append(players, newRoomPlayerMessage(player))
+		addedPlayers[userId] = struct{}{}
+	}
+
+	for userId, player := range room.Players {
+		if _, ok := addedPlayers[userId]; ok {
+			continue
+		}
+
+		players = append(players, newRoomPlayerMessage(player))
+	}
+
+	return players
 }
 
 func newRoomPlayerMessage(roomPlayer *RoomPlayer) *packets.RoomPlayerMessage {
