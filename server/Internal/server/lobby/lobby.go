@@ -6,7 +6,9 @@ import (
 	"Velora/server/Internal/server/contracts"
 	"Velora/server/pkg/packets"
 	"errors"
+	"math/rand/v2"
 	"sync"
+	"time"
 )
 
 var (
@@ -81,10 +83,24 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 	lobby.broadcastToRoom(room, msg)
 
 	var matchId = lobby.matchIdGenerator.Next()
+	var mapSeed = rand.Uint64()
+	var startsAtUnixMs = time.Now().UnixMilli()
 
-	var matchStarted = packets.NewMatchStarted(roomId, matchId)
+	var slot = uint32(0)
 
-	client.Broadcast(matchStarted)
+	for _, userId := range room.PlayerOrder {
+		var roomPlayer, ok = room.Players[userId]
+
+		if !ok || roomPlayer.Client == nil {
+			continue
+		}
+
+		var matchStartedMsg = packets.NewMatchStarted(roomId, matchId, roomPlayer.UserID, slot, mapSeed, startsAtUnixMs)
+
+		roomPlayer.Client.SocketSend(matchStartedMsg)
+
+		slot++
+	}
 
 	return nil
 }

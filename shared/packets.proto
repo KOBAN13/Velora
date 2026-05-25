@@ -79,14 +79,13 @@ message RoomStateSnapshotMessage {
   repeated RoomPlayerMessage Player = 4;
 }
 
-message MatchStartingMessage {
-  uint64 roomId = 1;
-  int64 startsAtUnixMs = 2;
-}
-
 message MatchStartMessage {
   uint64 roomId = 1;
   uint64 matchId = 2;
+  uint64 player_id = 3;
+  uint32 slot = 4;
+  uint64 mapSeed = 5;
+  int64 startsAtUnixMs = 6;
 }
 
 message OkResponseMessage {

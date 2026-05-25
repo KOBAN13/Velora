@@ -62,6 +62,15 @@ func NewReadyRequest(isReady bool) Msg {
 	}
 }
 
+func NewMatchStarted(roomId uint64, matchId uint64, playerId uint64, slot uint32, mapSeed uint64, startsAtUnixMs int64) Msg {
+	return &Packet_MatchStarted{
+		MatchStarted: &MatchStartMessage{
+			RoomId:  roomId,
+			MatchId: matchId,
+		},
+	}
+}
+
 func NewRoomSummaryMessage(roomId uint64, roomName string, players []*RoomPlayerMessage, maxPlayer uint32, status RoomStatus) *RoomSummaryMessage {
 	return &RoomSummaryMessage{
 		Name:      roomName,
@@ -87,15 +96,6 @@ func NewRoomStateSnapshot(roomId uint64, maxPlayer uint32, status RoomStatus, pl
 			MaxPlayer: maxPlayer,
 			Status:    status,
 			Player:    players,
-		},
-	}
-}
-
-func NewMatchStarted(roomId uint64, matchId uint64) Msg {
-	return &Packet_MatchStarted{
-		MatchStarted: &MatchStartMessage{
-			RoomId:  roomId,
-			MatchId: matchId,
 		},
 	}
 }
