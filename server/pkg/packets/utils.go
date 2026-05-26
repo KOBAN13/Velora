@@ -62,11 +62,35 @@ func NewReadyRequest(isReady bool) Msg {
 	}
 }
 
+func NewPlayerInputMessage(matchId uint64, position *Vector2Message) Msg {
+	return &Packet_PlayerInput{
+		PlayerInput: &PlayerInputMessage{
+			MatchId:      matchId,
+			MovePosition: position,
+		},
+	}
+}
+
+func NewMatchSnapshot(matchId uint64, serverTick uint64, phase MatchPhase, phaseTimeLeft int64) Msg {
+	return &Packet_MatchSnapshot{
+		MatchSnapshot: &MatchSnapshotMessage{
+			MatchId:         matchId,
+			ServerTick:      serverTick,
+			Phase:           phase,
+			PhaseTimeLeftMs: phaseTimeLeft,
+		},
+	}
+}
+
 func NewMatchStarted(roomId uint64, matchId uint64, playerId uint64, slot uint32, mapSeed uint64, startsAtUnixMs int64) Msg {
 	return &Packet_MatchStarted{
 		MatchStarted: &MatchStartMessage{
-			RoomId:  roomId,
-			MatchId: matchId,
+			RoomId:         roomId,
+			MatchId:        matchId,
+			PlayerId:       playerId,
+			Slot:           slot,
+			MapSeed:        mapSeed,
+			StartsAtUnixMs: startsAtUnixMs,
 		},
 	}
 }

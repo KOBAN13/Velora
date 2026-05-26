@@ -67,6 +67,55 @@ func (RoomStatus) EnumDescriptor() ([]byte, []int) {
 	return file_packets_proto_rawDescGZIP(), []int{0}
 }
 
+type MatchPhase int32
+
+const (
+	MatchPhase_MATCH_PHASE_PREPARE MatchPhase = 0
+	MatchPhase_MATCH_PHASE_ACTIVE  MatchPhase = 1
+	MatchPhase_MATCH_PHASE_ENDED   MatchPhase = 2
+)
+
+// Enum value maps for MatchPhase.
+var (
+	MatchPhase_name = map[int32]string{
+		0: "MATCH_PHASE_PREPARE",
+		1: "MATCH_PHASE_ACTIVE",
+		2: "MATCH_PHASE_ENDED",
+	}
+	MatchPhase_value = map[string]int32{
+		"MATCH_PHASE_PREPARE": 0,
+		"MATCH_PHASE_ACTIVE":  1,
+		"MATCH_PHASE_ENDED":   2,
+	}
+)
+
+func (x MatchPhase) Enum() *MatchPhase {
+	p := new(MatchPhase)
+	*p = x
+	return p
+}
+
+func (x MatchPhase) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MatchPhase) Descriptor() protoreflect.EnumDescriptor {
+	return file_packets_proto_enumTypes[1].Descriptor()
+}
+
+func (MatchPhase) Type() protoreflect.EnumType {
+	return &file_packets_proto_enumTypes[1]
+}
+
+func (x MatchPhase) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MatchPhase.Descriptor instead.
+func (MatchPhase) EnumDescriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{1}
+}
+
 type ChatMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Msg           string                 `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -771,69 +820,21 @@ func (x *RoomStateSnapshotMessage) GetPlayer() []*RoomPlayerMessage {
 	return nil
 }
 
-type MatchStartingMessage struct {
+type MatchStartMessage struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	RoomId         uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
-	StartsAtUnixMs int64                  `protobuf:"varint,2,opt,name=startsAtUnixMs,proto3" json:"startsAtUnixMs,omitempty"`
+	MatchId        uint64                 `protobuf:"varint,2,opt,name=matchId,proto3" json:"matchId,omitempty"`
+	PlayerId       uint64                 `protobuf:"varint,3,opt,name=player_id,json=playerId,proto3" json:"player_id,omitempty"`
+	Slot           uint32                 `protobuf:"varint,4,opt,name=slot,proto3" json:"slot,omitempty"`
+	MapSeed        uint64                 `protobuf:"varint,5,opt,name=mapSeed,proto3" json:"mapSeed,omitempty"`
+	StartsAtUnixMs int64                  `protobuf:"varint,6,opt,name=startsAtUnixMs,proto3" json:"startsAtUnixMs,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *MatchStartingMessage) Reset() {
-	*x = MatchStartingMessage{}
-	mi := &file_packets_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MatchStartingMessage) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MatchStartingMessage) ProtoMessage() {}
-
-func (x *MatchStartingMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MatchStartingMessage.ProtoReflect.Descriptor instead.
-func (*MatchStartingMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *MatchStartingMessage) GetRoomId() uint64 {
-	if x != nil {
-		return x.RoomId
-	}
-	return 0
-}
-
-func (x *MatchStartingMessage) GetStartsAtUnixMs() int64 {
-	if x != nil {
-		return x.StartsAtUnixMs
-	}
-	return 0
-}
-
-type MatchStartMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
-	MatchId       uint64                 `protobuf:"varint,2,opt,name=matchId,proto3" json:"matchId,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
 func (x *MatchStartMessage) Reset() {
 	*x = MatchStartMessage{}
-	mi := &file_packets_proto_msgTypes[15]
+	mi := &file_packets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -845,7 +846,7 @@ func (x *MatchStartMessage) String() string {
 func (*MatchStartMessage) ProtoMessage() {}
 
 func (x *MatchStartMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[15]
+	mi := &file_packets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -858,7 +859,7 @@ func (x *MatchStartMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchStartMessage.ProtoReflect.Descriptor instead.
 func (*MatchStartMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{15}
+	return file_packets_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *MatchStartMessage) GetRoomId() uint64 {
@@ -875,6 +876,518 @@ func (x *MatchStartMessage) GetMatchId() uint64 {
 	return 0
 }
 
+func (x *MatchStartMessage) GetPlayerId() uint64 {
+	if x != nil {
+		return x.PlayerId
+	}
+	return 0
+}
+
+func (x *MatchStartMessage) GetSlot() uint32 {
+	if x != nil {
+		return x.Slot
+	}
+	return 0
+}
+
+func (x *MatchStartMessage) GetMapSeed() uint64 {
+	if x != nil {
+		return x.MapSeed
+	}
+	return 0
+}
+
+func (x *MatchStartMessage) GetStartsAtUnixMs() int64 {
+	if x != nil {
+		return x.StartsAtUnixMs
+	}
+	return 0
+}
+
+type Vector2Message struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	X             float32                `protobuf:"fixed32,1,opt,name=x,proto3" json:"x,omitempty"`
+	Y             float32                `protobuf:"fixed32,2,opt,name=y,proto3" json:"y,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Vector2Message) Reset() {
+	*x = Vector2Message{}
+	mi := &file_packets_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Vector2Message) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Vector2Message) ProtoMessage() {}
+
+func (x *Vector2Message) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Vector2Message.ProtoReflect.Descriptor instead.
+func (*Vector2Message) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *Vector2Message) GetX() float32 {
+	if x != nil {
+		return x.X
+	}
+	return 0
+}
+
+func (x *Vector2Message) GetY() float32 {
+	if x != nil {
+		return x.Y
+	}
+	return 0
+}
+
+type PlayerInputMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MatchId       uint64                 `protobuf:"varint,1,opt,name=matchId,proto3" json:"matchId,omitempty"`
+	MovePosition  *Vector2Message        `protobuf:"bytes,2,opt,name=movePosition,proto3" json:"movePosition,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerInputMessage) Reset() {
+	*x = PlayerInputMessage{}
+	mi := &file_packets_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerInputMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerInputMessage) ProtoMessage() {}
+
+func (x *PlayerInputMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerInputMessage.ProtoReflect.Descriptor instead.
+func (*PlayerInputMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *PlayerInputMessage) GetMatchId() uint64 {
+	if x != nil {
+		return x.MatchId
+	}
+	return 0
+}
+
+func (x *PlayerInputMessage) GetMovePosition() *Vector2Message {
+	if x != nil {
+		return x.MovePosition
+	}
+	return nil
+}
+
+type PlayerCellEntityMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	OwnerId       uint64                 `protobuf:"varint,2,opt,name=ownerId,proto3" json:"ownerId,omitempty"`
+	Position      *Vector2Message        `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
+	Hp            uint32                 `protobuf:"varint,4,opt,name=hp,proto3" json:"hp,omitempty"`
+	Biomass       uint32                 `protobuf:"varint,5,opt,name=biomass,proto3" json:"biomass,omitempty"`
+	Level         uint32                 `protobuf:"varint,6,opt,name=level,proto3" json:"level,omitempty"`
+	Alive         bool                   `protobuf:"varint,7,opt,name=alive,proto3" json:"alive,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerCellEntityMessage) Reset() {
+	*x = PlayerCellEntityMessage{}
+	mi := &file_packets_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerCellEntityMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerCellEntityMessage) ProtoMessage() {}
+
+func (x *PlayerCellEntityMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerCellEntityMessage.ProtoReflect.Descriptor instead.
+func (*PlayerCellEntityMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *PlayerCellEntityMessage) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *PlayerCellEntityMessage) GetOwnerId() uint64 {
+	if x != nil {
+		return x.OwnerId
+	}
+	return 0
+}
+
+func (x *PlayerCellEntityMessage) GetPosition() *Vector2Message {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *PlayerCellEntityMessage) GetHp() uint32 {
+	if x != nil {
+		return x.Hp
+	}
+	return 0
+}
+
+func (x *PlayerCellEntityMessage) GetBiomass() uint32 {
+	if x != nil {
+		return x.Biomass
+	}
+	return 0
+}
+
+func (x *PlayerCellEntityMessage) GetLevel() uint32 {
+	if x != nil {
+		return x.Level
+	}
+	return 0
+}
+
+func (x *PlayerCellEntityMessage) GetAlive() bool {
+	if x != nil {
+		return x.Alive
+	}
+	return false
+}
+
+type CoreEntityMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	OwnerId       uint64                 `protobuf:"varint,2,opt,name=ownerId,proto3" json:"ownerId,omitempty"`
+	Position      *Vector2Message        `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
+	Hp            uint32                 `protobuf:"varint,4,opt,name=hp,proto3" json:"hp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CoreEntityMessage) Reset() {
+	*x = CoreEntityMessage{}
+	mi := &file_packets_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CoreEntityMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CoreEntityMessage) ProtoMessage() {}
+
+func (x *CoreEntityMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CoreEntityMessage.ProtoReflect.Descriptor instead.
+func (*CoreEntityMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CoreEntityMessage) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CoreEntityMessage) GetOwnerId() uint64 {
+	if x != nil {
+		return x.OwnerId
+	}
+	return 0
+}
+
+func (x *CoreEntityMessage) GetPosition() *Vector2Message {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *CoreEntityMessage) GetHp() uint32 {
+	if x != nil {
+		return x.Hp
+	}
+	return 0
+}
+
+type NutrientEntityMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Position      *Vector2Message        `protobuf:"bytes,2,opt,name=position,proto3" json:"position,omitempty"`
+	Value         uint32                 `protobuf:"varint,3,opt,name=value,proto3" json:"value,omitempty"`
+	Active        bool                   `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NutrientEntityMessage) Reset() {
+	*x = NutrientEntityMessage{}
+	mi := &file_packets_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NutrientEntityMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NutrientEntityMessage) ProtoMessage() {}
+
+func (x *NutrientEntityMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NutrientEntityMessage.ProtoReflect.Descriptor instead.
+func (*NutrientEntityMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *NutrientEntityMessage) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *NutrientEntityMessage) GetPosition() *Vector2Message {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *NutrientEntityMessage) GetValue() uint32 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+func (x *NutrientEntityMessage) GetActive() bool {
+	if x != nil {
+		return x.Active
+	}
+	return false
+}
+
+type WallEntityMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Open          bool                   `protobuf:"varint,2,opt,name=open,proto3" json:"open,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WallEntityMessage) Reset() {
+	*x = WallEntityMessage{}
+	mi := &file_packets_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WallEntityMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WallEntityMessage) ProtoMessage() {}
+
+func (x *WallEntityMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WallEntityMessage.ProtoReflect.Descriptor instead.
+func (*WallEntityMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *WallEntityMessage) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *WallEntityMessage) GetOpen() bool {
+	if x != nil {
+		return x.Open
+	}
+	return false
+}
+
+type MatchSnapshotMessage struct {
+	state           protoimpl.MessageState     `protogen:"open.v1"`
+	MatchId         uint64                     `protobuf:"varint,1,opt,name=matchId,proto3" json:"matchId,omitempty"`
+	ServerTick      uint64                     `protobuf:"varint,2,opt,name=serverTick,proto3" json:"serverTick,omitempty"`
+	Phase           MatchPhase                 `protobuf:"varint,3,opt,name=phase,proto3,enum=packets.MatchPhase" json:"phase,omitempty"`
+	PhaseTimeLeftMs int64                      `protobuf:"varint,4,opt,name=phaseTimeLeftMs,proto3" json:"phaseTimeLeftMs,omitempty"`
+	PlayerCells     []*PlayerCellEntityMessage `protobuf:"bytes,5,rep,name=playerCells,proto3" json:"playerCells,omitempty"`
+	Cores           []*CoreEntityMessage       `protobuf:"bytes,6,rep,name=cores,proto3" json:"cores,omitempty"`
+	Nutrients       []*NutrientEntityMessage   `protobuf:"bytes,7,rep,name=nutrients,proto3" json:"nutrients,omitempty"`
+	Walls           []*WallEntityMessage       `protobuf:"bytes,8,rep,name=walls,proto3" json:"walls,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *MatchSnapshotMessage) Reset() {
+	*x = MatchSnapshotMessage{}
+	mi := &file_packets_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MatchSnapshotMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MatchSnapshotMessage) ProtoMessage() {}
+
+func (x *MatchSnapshotMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MatchSnapshotMessage.ProtoReflect.Descriptor instead.
+func (*MatchSnapshotMessage) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *MatchSnapshotMessage) GetMatchId() uint64 {
+	if x != nil {
+		return x.MatchId
+	}
+	return 0
+}
+
+func (x *MatchSnapshotMessage) GetServerTick() uint64 {
+	if x != nil {
+		return x.ServerTick
+	}
+	return 0
+}
+
+func (x *MatchSnapshotMessage) GetPhase() MatchPhase {
+	if x != nil {
+		return x.Phase
+	}
+	return MatchPhase_MATCH_PHASE_PREPARE
+}
+
+func (x *MatchSnapshotMessage) GetPhaseTimeLeftMs() int64 {
+	if x != nil {
+		return x.PhaseTimeLeftMs
+	}
+	return 0
+}
+
+func (x *MatchSnapshotMessage) GetPlayerCells() []*PlayerCellEntityMessage {
+	if x != nil {
+		return x.PlayerCells
+	}
+	return nil
+}
+
+func (x *MatchSnapshotMessage) GetCores() []*CoreEntityMessage {
+	if x != nil {
+		return x.Cores
+	}
+	return nil
+}
+
+func (x *MatchSnapshotMessage) GetNutrients() []*NutrientEntityMessage {
+	if x != nil {
+		return x.Nutrients
+	}
+	return nil
+}
+
+func (x *MatchSnapshotMessage) GetWalls() []*WallEntityMessage {
+	if x != nil {
+		return x.Walls
+	}
+	return nil
+}
+
 type OkResponseMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -883,7 +1396,7 @@ type OkResponseMessage struct {
 
 func (x *OkResponseMessage) Reset() {
 	*x = OkResponseMessage{}
-	mi := &file_packets_proto_msgTypes[16]
+	mi := &file_packets_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -895,7 +1408,7 @@ func (x *OkResponseMessage) String() string {
 func (*OkResponseMessage) ProtoMessage() {}
 
 func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[16]
+	mi := &file_packets_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -908,7 +1421,7 @@ func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OkResponseMessage.ProtoReflect.Descriptor instead.
 func (*OkResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{16}
+	return file_packets_proto_rawDescGZIP(), []int{22}
 }
 
 type DenyResponseMessage struct {
@@ -920,7 +1433,7 @@ type DenyResponseMessage struct {
 
 func (x *DenyResponseMessage) Reset() {
 	*x = DenyResponseMessage{}
-	mi := &file_packets_proto_msgTypes[17]
+	mi := &file_packets_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -932,7 +1445,7 @@ func (x *DenyResponseMessage) String() string {
 func (*DenyResponseMessage) ProtoMessage() {}
 
 func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[17]
+	mi := &file_packets_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -945,7 +1458,7 @@ func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DenyResponseMessage.ProtoReflect.Descriptor instead.
 func (*DenyResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{17}
+	return file_packets_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DenyResponseMessage) GetReason() string {
@@ -976,6 +1489,8 @@ type Packet struct {
 	//	*Packet_RoomList
 	//	*Packet_RoomSummaryMessage
 	//	*Packet_RoomListSnapshot
+	//	*Packet_PlayerInput
+	//	*Packet_MatchSnapshot
 	Msg           isPacket_Msg `protobuf_oneof:"msg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -983,7 +1498,7 @@ type Packet struct {
 
 func (x *Packet) Reset() {
 	*x = Packet{}
-	mi := &file_packets_proto_msgTypes[18]
+	mi := &file_packets_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -995,7 +1510,7 @@ func (x *Packet) String() string {
 func (*Packet) ProtoMessage() {}
 
 func (x *Packet) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[18]
+	mi := &file_packets_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1008,7 +1523,7 @@ func (x *Packet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Packet.ProtoReflect.Descriptor instead.
 func (*Packet) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{18}
+	return file_packets_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *Packet) GetSenderId() uint64 {
@@ -1169,6 +1684,24 @@ func (x *Packet) GetRoomListSnapshot() *RoomListSnapshotMessage {
 	return nil
 }
 
+func (x *Packet) GetPlayerInput() *PlayerInputMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_PlayerInput); ok {
+			return x.PlayerInput
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetMatchSnapshot() *MatchSnapshotMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_MatchSnapshot); ok {
+			return x.MatchSnapshot
+		}
+	}
+	return nil
+}
+
 type isPacket_Msg interface {
 	isPacket_Msg()
 }
@@ -1237,6 +1770,14 @@ type Packet_RoomListSnapshot struct {
 	RoomListSnapshot *RoomListSnapshotMessage `protobuf:"bytes,17,opt,name=room_list_snapshot,json=roomListSnapshot,proto3,oneof"`
 }
 
+type Packet_PlayerInput struct {
+	PlayerInput *PlayerInputMessage `protobuf:"bytes,18,opt,name=player_input,json=playerInput,proto3,oneof"`
+}
+
+type Packet_MatchSnapshot struct {
+	MatchSnapshot *MatchSnapshotMessage `protobuf:"bytes,19,opt,name=match_snapshot,json=matchSnapshot,proto3,oneof"`
+}
+
 func (*Packet_Chat) isPacket_Msg() {}
 
 func (*Packet_Id) isPacket_Msg() {}
@@ -1268,6 +1809,10 @@ func (*Packet_RoomList) isPacket_Msg() {}
 func (*Packet_RoomSummaryMessage) isPacket_Msg() {}
 
 func (*Packet_RoomListSnapshot) isPacket_Msg() {}
+
+func (*Packet_PlayerInput) isPacket_Msg() {}
+
+func (*Packet_MatchSnapshot) isPacket_Msg() {}
 
 var File_packets_proto protoreflect.FileDescriptor
 
@@ -1312,16 +1857,56 @@ const file_packets_proto_rawDesc = "" +
 	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\x1c\n" +
 	"\tmaxPlayer\x18\x02 \x01(\rR\tmaxPlayer\x12+\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x13.packets.RoomStatusR\x06status\x122\n" +
-	"\x06Player\x18\x04 \x03(\v2\x1a.packets.RoomPlayerMessageR\x06Player\"V\n" +
-	"\x14MatchStartingMessage\x12\x16\n" +
-	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12&\n" +
-	"\x0estartsAtUnixMs\x18\x02 \x01(\x03R\x0estartsAtUnixMs\"E\n" +
+	"\x06Player\x18\x04 \x03(\v2\x1a.packets.RoomPlayerMessageR\x06Player\"\xb8\x01\n" +
 	"\x11MatchStartMessage\x12\x16\n" +
 	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\x18\n" +
-	"\amatchId\x18\x02 \x01(\x04R\amatchId\"\x13\n" +
+	"\amatchId\x18\x02 \x01(\x04R\amatchId\x12\x1b\n" +
+	"\tplayer_id\x18\x03 \x01(\x04R\bplayerId\x12\x12\n" +
+	"\x04slot\x18\x04 \x01(\rR\x04slot\x12\x18\n" +
+	"\amapSeed\x18\x05 \x01(\x04R\amapSeed\x12&\n" +
+	"\x0estartsAtUnixMs\x18\x06 \x01(\x03R\x0estartsAtUnixMs\",\n" +
+	"\x0eVector2Message\x12\f\n" +
+	"\x01x\x18\x01 \x01(\x02R\x01x\x12\f\n" +
+	"\x01y\x18\x02 \x01(\x02R\x01y\"k\n" +
+	"\x12PlayerInputMessage\x12\x18\n" +
+	"\amatchId\x18\x01 \x01(\x04R\amatchId\x12;\n" +
+	"\fmovePosition\x18\x02 \x01(\v2\x17.packets.Vector2MessageR\fmovePosition\"\xce\x01\n" +
+	"\x17PlayerCellEntityMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
+	"\aownerId\x18\x02 \x01(\x04R\aownerId\x123\n" +
+	"\bposition\x18\x03 \x01(\v2\x17.packets.Vector2MessageR\bposition\x12\x0e\n" +
+	"\x02hp\x18\x04 \x01(\rR\x02hp\x12\x18\n" +
+	"\abiomass\x18\x05 \x01(\rR\abiomass\x12\x14\n" +
+	"\x05level\x18\x06 \x01(\rR\x05level\x12\x14\n" +
+	"\x05alive\x18\a \x01(\bR\x05alive\"\x82\x01\n" +
+	"\x11CoreEntityMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
+	"\aownerId\x18\x02 \x01(\x04R\aownerId\x123\n" +
+	"\bposition\x18\x03 \x01(\v2\x17.packets.Vector2MessageR\bposition\x12\x0e\n" +
+	"\x02hp\x18\x04 \x01(\rR\x02hp\"\x8a\x01\n" +
+	"\x15NutrientEntityMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x123\n" +
+	"\bposition\x18\x02 \x01(\v2\x17.packets.Vector2MessageR\bposition\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\rR\x05value\x12\x16\n" +
+	"\x06active\x18\x04 \x01(\bR\x06active\"7\n" +
+	"\x11WallEntityMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
+	"\x04open\x18\x02 \x01(\bR\x04open\"\x8b\x03\n" +
+	"\x14MatchSnapshotMessage\x12\x18\n" +
+	"\amatchId\x18\x01 \x01(\x04R\amatchId\x12\x1e\n" +
+	"\n" +
+	"serverTick\x18\x02 \x01(\x04R\n" +
+	"serverTick\x12)\n" +
+	"\x05phase\x18\x03 \x01(\x0e2\x13.packets.MatchPhaseR\x05phase\x12(\n" +
+	"\x0fphaseTimeLeftMs\x18\x04 \x01(\x03R\x0fphaseTimeLeftMs\x12B\n" +
+	"\vplayerCells\x18\x05 \x03(\v2 .packets.PlayerCellEntityMessageR\vplayerCells\x120\n" +
+	"\x05cores\x18\x06 \x03(\v2\x1a.packets.CoreEntityMessageR\x05cores\x12<\n" +
+	"\tnutrients\x18\a \x03(\v2\x1e.packets.NutrientEntityMessageR\tnutrients\x120\n" +
+	"\x05walls\x18\b \x03(\v2\x1a.packets.WallEntityMessageR\x05walls\"\x13\n" +
 	"\x11OkResponseMessage\"-\n" +
 	"\x13DenyResponseMessage\x12\x16\n" +
-	"\x06reason\x18\x01 \x01(\tR\x06reason\"\x8e\t\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\"\x98\n" +
+	"\n" +
 	"\x06Packet\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\x04R\bsenderId\x12*\n" +
 	"\x04chat\x18\x02 \x01(\v2\x14.packets.ChatMessageH\x00R\x04chat\x12$\n" +
@@ -1342,12 +1927,19 @@ const file_packets_proto_rawDesc = "" +
 	"start_game\x18\x0e \x01(\v2 .packets.StartGameRequestMessageH\x00R\tstartGame\x12>\n" +
 	"\troom_list\x18\x0f \x01(\v2\x1f.packets.RoomListRequestMessageH\x00R\broomList\x12O\n" +
 	"\x14room_summary_message\x18\x10 \x01(\v2\x1b.packets.RoomSummaryMessageH\x00R\x12roomSummaryMessage\x12P\n" +
-	"\x12room_list_snapshot\x18\x11 \x01(\v2 .packets.RoomListSnapshotMessageH\x00R\x10roomListSnapshotB\x05\n" +
+	"\x12room_list_snapshot\x18\x11 \x01(\v2 .packets.RoomListSnapshotMessageH\x00R\x10roomListSnapshot\x12@\n" +
+	"\fplayer_input\x18\x12 \x01(\v2\x1b.packets.PlayerInputMessageH\x00R\vplayerInput\x12F\n" +
+	"\x0ematch_snapshot\x18\x13 \x01(\v2\x1d.packets.MatchSnapshotMessageH\x00R\rmatchSnapshotB\x05\n" +
 	"\x03msg*>\n" +
 	"\n" +
 	"RoomStatus\x12\x17\n" +
 	"\x13ROOM_STATUS_WAITING\x10\x00\x12\x17\n" +
-	"\x13ROOM_STATUS_STARTED\x10\x01B\rZ\vpkg/packetsb\x06proto3"
+	"\x13ROOM_STATUS_STARTED\x10\x01*T\n" +
+	"\n" +
+	"MatchPhase\x12\x17\n" +
+	"\x13MATCH_PHASE_PREPARE\x10\x00\x12\x16\n" +
+	"\x12MATCH_PHASE_ACTIVE\x10\x01\x12\x15\n" +
+	"\x11MATCH_PHASE_ENDED\x10\x02B\rZ\vpkg/packetsb\x06proto3"
 
 var (
 	file_packets_proto_rawDescOnce sync.Once
@@ -1361,57 +1953,75 @@ func file_packets_proto_rawDescGZIP() []byte {
 	return file_packets_proto_rawDescData
 }
 
-var file_packets_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_packets_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_packets_proto_goTypes = []any{
 	(RoomStatus)(0),                  // 0: packets.RoomStatus
-	(*ChatMessage)(nil),              // 1: packets.ChatMessage
-	(*IdMessage)(nil),                // 2: packets.IdMessage
-	(*StartGameRequestMessage)(nil),  // 3: packets.StartGameRequestMessage
-	(*LoginRequestMessage)(nil),      // 4: packets.LoginRequestMessage
-	(*RegisterRequestMessage)(nil),   // 5: packets.RegisterRequestMessage
-	(*CreateRoomRequestMessage)(nil), // 6: packets.CreateRoomRequestMessage
-	(*JoinRoomRequestMessage)(nil),   // 7: packets.JoinRoomRequestMessage
-	(*RoomListRequestMessage)(nil),   // 8: packets.RoomListRequestMessage
-	(*RoomSummaryMessage)(nil),       // 9: packets.RoomSummaryMessage
-	(*RoomListSnapshotMessage)(nil),  // 10: packets.RoomListSnapshotMessage
-	(*LeaveRoomRequestMessage)(nil),  // 11: packets.LeaveRoomRequestMessage
-	(*ReadyRequestMessage)(nil),      // 12: packets.ReadyRequestMessage
-	(*RoomPlayerMessage)(nil),        // 13: packets.RoomPlayerMessage
-	(*RoomStateSnapshotMessage)(nil), // 14: packets.RoomStateSnapshotMessage
-	(*MatchStartingMessage)(nil),     // 15: packets.MatchStartingMessage
+	(MatchPhase)(0),                  // 1: packets.MatchPhase
+	(*ChatMessage)(nil),              // 2: packets.ChatMessage
+	(*IdMessage)(nil),                // 3: packets.IdMessage
+	(*StartGameRequestMessage)(nil),  // 4: packets.StartGameRequestMessage
+	(*LoginRequestMessage)(nil),      // 5: packets.LoginRequestMessage
+	(*RegisterRequestMessage)(nil),   // 6: packets.RegisterRequestMessage
+	(*CreateRoomRequestMessage)(nil), // 7: packets.CreateRoomRequestMessage
+	(*JoinRoomRequestMessage)(nil),   // 8: packets.JoinRoomRequestMessage
+	(*RoomListRequestMessage)(nil),   // 9: packets.RoomListRequestMessage
+	(*RoomSummaryMessage)(nil),       // 10: packets.RoomSummaryMessage
+	(*RoomListSnapshotMessage)(nil),  // 11: packets.RoomListSnapshotMessage
+	(*LeaveRoomRequestMessage)(nil),  // 12: packets.LeaveRoomRequestMessage
+	(*ReadyRequestMessage)(nil),      // 13: packets.ReadyRequestMessage
+	(*RoomPlayerMessage)(nil),        // 14: packets.RoomPlayerMessage
+	(*RoomStateSnapshotMessage)(nil), // 15: packets.RoomStateSnapshotMessage
 	(*MatchStartMessage)(nil),        // 16: packets.MatchStartMessage
-	(*OkResponseMessage)(nil),        // 17: packets.OkResponseMessage
-	(*DenyResponseMessage)(nil),      // 18: packets.DenyResponseMessage
-	(*Packet)(nil),                   // 19: packets.Packet
+	(*Vector2Message)(nil),           // 17: packets.Vector2Message
+	(*PlayerInputMessage)(nil),       // 18: packets.PlayerInputMessage
+	(*PlayerCellEntityMessage)(nil),  // 19: packets.PlayerCellEntityMessage
+	(*CoreEntityMessage)(nil),        // 20: packets.CoreEntityMessage
+	(*NutrientEntityMessage)(nil),    // 21: packets.NutrientEntityMessage
+	(*WallEntityMessage)(nil),        // 22: packets.WallEntityMessage
+	(*MatchSnapshotMessage)(nil),     // 23: packets.MatchSnapshotMessage
+	(*OkResponseMessage)(nil),        // 24: packets.OkResponseMessage
+	(*DenyResponseMessage)(nil),      // 25: packets.DenyResponseMessage
+	(*Packet)(nil),                   // 26: packets.Packet
 }
 var file_packets_proto_depIdxs = []int32{
-	13, // 0: packets.RoomSummaryMessage.Players:type_name -> packets.RoomPlayerMessage
+	14, // 0: packets.RoomSummaryMessage.Players:type_name -> packets.RoomPlayerMessage
 	0,  // 1: packets.RoomSummaryMessage.status:type_name -> packets.RoomStatus
-	9,  // 2: packets.RoomListSnapshotMessage.rooms:type_name -> packets.RoomSummaryMessage
+	10, // 2: packets.RoomListSnapshotMessage.rooms:type_name -> packets.RoomSummaryMessage
 	0,  // 3: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
-	13, // 4: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
-	1,  // 5: packets.Packet.chat:type_name -> packets.ChatMessage
-	2,  // 6: packets.Packet.id:type_name -> packets.IdMessage
-	4,  // 7: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
-	5,  // 8: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
-	17, // 9: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
-	18, // 10: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
-	6,  // 11: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
-	7,  // 12: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
-	11, // 13: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
-	12, // 14: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
-	14, // 15: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
-	16, // 16: packets.Packet.match_started:type_name -> packets.MatchStartMessage
-	3,  // 17: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
-	8,  // 18: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
-	9,  // 19: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
-	10, // 20: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
-	21, // [21:21] is the sub-list for method output_type
-	21, // [21:21] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	14, // 4: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
+	17, // 5: packets.PlayerInputMessage.movePosition:type_name -> packets.Vector2Message
+	17, // 6: packets.PlayerCellEntityMessage.position:type_name -> packets.Vector2Message
+	17, // 7: packets.CoreEntityMessage.position:type_name -> packets.Vector2Message
+	17, // 8: packets.NutrientEntityMessage.position:type_name -> packets.Vector2Message
+	1,  // 9: packets.MatchSnapshotMessage.phase:type_name -> packets.MatchPhase
+	19, // 10: packets.MatchSnapshotMessage.playerCells:type_name -> packets.PlayerCellEntityMessage
+	20, // 11: packets.MatchSnapshotMessage.cores:type_name -> packets.CoreEntityMessage
+	21, // 12: packets.MatchSnapshotMessage.nutrients:type_name -> packets.NutrientEntityMessage
+	22, // 13: packets.MatchSnapshotMessage.walls:type_name -> packets.WallEntityMessage
+	2,  // 14: packets.Packet.chat:type_name -> packets.ChatMessage
+	3,  // 15: packets.Packet.id:type_name -> packets.IdMessage
+	5,  // 16: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
+	6,  // 17: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
+	24, // 18: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
+	25, // 19: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
+	7,  // 20: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
+	8,  // 21: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
+	12, // 22: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
+	13, // 23: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
+	15, // 24: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
+	16, // 25: packets.Packet.match_started:type_name -> packets.MatchStartMessage
+	4,  // 26: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
+	9,  // 27: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
+	10, // 28: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
+	11, // 29: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
+	18, // 30: packets.Packet.player_input:type_name -> packets.PlayerInputMessage
+	23, // 31: packets.Packet.match_snapshot:type_name -> packets.MatchSnapshotMessage
+	32, // [32:32] is the sub-list for method output_type
+	32, // [32:32] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_packets_proto_init() }
@@ -1419,7 +2029,7 @@ func file_packets_proto_init() {
 	if File_packets_proto != nil {
 		return
 	}
-	file_packets_proto_msgTypes[18].OneofWrappers = []any{
+	file_packets_proto_msgTypes[24].OneofWrappers = []any{
 		(*Packet_Chat)(nil),
 		(*Packet_Id)(nil),
 		(*Packet_LoginRequest)(nil),
@@ -1436,14 +2046,16 @@ func file_packets_proto_init() {
 		(*Packet_RoomList)(nil),
 		(*Packet_RoomSummaryMessage)(nil),
 		(*Packet_RoomListSnapshot)(nil),
+		(*Packet_PlayerInput)(nil),
+		(*Packet_MatchSnapshot)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_packets_proto_rawDesc), len(file_packets_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   19,
+			NumEnums:      2,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

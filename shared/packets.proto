@@ -172,7 +172,7 @@ message Packet {
     RoomListRequestMessage room_list = 15;
     RoomSummaryMessage room_summary_message = 16;
     RoomListSnapshotMessage room_list_snapshot = 17;
-    PlayerCellEntityMessage player_input = 18;
+    PlayerInputMessage player_input = 18;
     MatchSnapshotMessage match_snapshot = 19;
   }
 }
