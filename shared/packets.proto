@@ -9,6 +9,12 @@ enum RoomStatus {
   ROOM_STATUS_STARTED = 1;
 }
 
+enum MatchPhase {
+  MATCH_PHASE_PREPARE = 0;
+  MATCH_PHASE_ACTIVE = 1;
+  MATCH_PHASE_ENDED = 2;
+}
+
 message ChatMessage {
   string msg = 1;
 }
@@ -88,6 +94,57 @@ message MatchStartMessage {
   int64 startsAtUnixMs = 6;
 }
 
+message Vector2Message {
+  float x = 1;
+  float y = 2;
+}
+
+message PlayerInputMessage {
+  uint64 matchId = 1;
+  Vector2Message movePosition = 2;
+}
+
+message PlayerCellEntityMessage {
+  uint64 id = 1;
+  uint64 ownerId = 2;
+  Vector2Message position = 3;
+  uint32 hp = 4;
+  uint32 biomass = 5;
+  uint32 level = 6;
+  bool alive = 7;
+}
+
+message CoreEntityMessage {
+  uint64 id = 1;
+  uint64 ownerId = 2;
+  Vector2Message position = 3;
+  uint32 hp = 4;
+}
+
+message NutrientEntityMessage {
+  uint64 id = 1;
+  Vector2Message position = 2;
+  uint32 value = 3;
+  bool active = 4;
+}
+
+message WallEntityMessage {
+  uint64 id = 1;
+  bool open = 2;
+}
+
+message MatchSnapshotMessage {
+  uint64 matchId = 1;
+  uint64 serverTick = 2;
+  MatchPhase phase = 3;
+  int64 phaseTimeLeftMs = 4;
+
+  repeated PlayerCellEntityMessage playerCells = 5;
+  repeated CoreEntityMessage cores = 6;
+  repeated NutrientEntityMessage nutrients = 7;
+  repeated WallEntityMessage walls = 8;
+}
+
 message OkResponseMessage {
 
 }
@@ -115,5 +172,7 @@ message Packet {
     RoomListRequestMessage room_list = 15;
     RoomSummaryMessage room_summary_message = 16;
     RoomListSnapshotMessage room_list_snapshot = 17;
+    PlayerCellEntityMessage player_input = 18;
+    MatchSnapshotMessage match_snapshot = 19;
   }
 }
