@@ -15,10 +15,14 @@ type Position struct {
 }
 
 type PlayerCell struct {
-	ID       EntityId
-	OwnerId  uint64
-	Position Position
-	Health   Health
+	ID        EntityId
+	OwnerId   uint64
+	Position  Position
+	Health    Health
+	MaxHealth Health
+	Biomass   uint32
+	Level     uint32
+	Alive     Active
 }
 
 type Health struct {
