@@ -2,7 +2,7 @@ package match
 
 import (
 	"Velora/server/Internal"
-	"Velora/server/Internal/server/contracts"
+	"Velora/server/Internal/server/db"
 	"Velora/server/pkg/packets"
 	"math"
 	"sync"
@@ -41,13 +41,19 @@ type PlayerRef struct {
 	UserId   uint64
 	ClientId uint64
 	Slot     uint32
-	Client   contracts.ClientInterface
+	Client   Client
 }
 
 type PlayerInput struct {
 	MoveX      float32
 	MoveY      float32
 	ReceivedAt time.Time
+}
+
+type Client interface {
+	Id() uint64
+	GetUser() *db.User
+	IsAuthenticated() bool
 }
 
 func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) error {
@@ -67,6 +73,67 @@ func (m *Match) Stop() {
 	m.sync.Do(func() {
 		close(m.stop)
 	})
+}
+
+func (m *Match) HasConnectedClients() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, player := range m.players {
+		if player != nil {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (m *Match) RemoveClient(userId uint64, clientId uint64) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	var player, ok = m.players[userId]
+
+	if !ok {
+		return false
+	}
+
+	if player.ClientId != clientId {
+		return false
+	}
+
+	player.Client = nil
+
+	m.inputs[player.UserId] = PlayerInput{
+		ReceivedAt: time.Now(),
+		MoveY:      0,
+		MoveX:      0,
+	}
+
+	return true
+}
+
+func NewPlayerInput(x float32, y float32) PlayerInput {
+	if math.IsNaN(float64(x)) || math.IsInf(float64(x), 0) {
+		x = 0
+	}
+
+	if math.IsNaN(float64(y)) || math.IsInf(float64(y), 0) {
+		y = 0
+	}
+
+	var length = float32(math.Sqrt(float64(x*x + y*y)))
+
+	if length > 1 {
+		x /= length
+		y /= length
+	}
+
+	return PlayerInput{
+		MoveX:      x,
+		MoveY:      y,
+		ReceivedAt: time.Now(),
+	}
 }
 
 func (m *Match) updatePhase(now time.Time) {
@@ -97,27 +164,4 @@ func (m *Match) phaseTimeLeftMs() int64 {
 	}
 
 	return left.Milliseconds()
-}
-
-func NewPlayerInput(x float32, y float32) PlayerInput {
-	if math.IsNaN(float64(x)) || math.IsInf(float64(x), 0) {
-		x = 0
-	}
-
-	if math.IsNaN(float64(y)) || math.IsInf(float64(y), 0) {
-		y = 0
-	}
-
-	var length = float32(math.Sqrt(float64(x*x + y*y)))
-
-	if length > 1 {
-		x /= length
-		y /= length
-	}
-
-	return PlayerInput{
-		MoveX:      x,
-		MoveY:      y,
-		ReceivedAt: time.Now(),
-	}
 }

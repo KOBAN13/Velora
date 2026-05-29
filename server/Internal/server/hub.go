@@ -6,6 +6,7 @@ import (
 	"Velora/server/Internal/server/contracts"
 	"Velora/server/Internal/server/db"
 	"Velora/server/Internal/server/lobby"
+	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 	"context"
 	"fmt"
@@ -22,6 +23,8 @@ type Hub struct {
 	Generator *Internal.IdGenerator
 
 	Clients *objects.SharedCollection[contracts.Client]
+
+	Matches *match.Manager
 
 	Lobby *lobby.LobbyManager
 
@@ -53,6 +56,7 @@ func NewHub() *Hub {
 		Unregister: make(chan contracts.Client),
 		DbPool:     connect,
 		Lobby:      lobby.NewLobbyManager(),
+		Matches:    match.NewManager(),
 	}
 }
 
@@ -65,6 +69,10 @@ func (h *Hub) NewDbTx() *db.DbTx {
 
 func (h *Hub) GetLobby() contracts.LobbyService {
 	return h.Lobby
+}
+
+func (h *Hub) GetMatches() contracts.MatchService {
+	return h.Matches
 }
 
 func (h *Hub) Client(id uint64) (contracts.Client, bool) {

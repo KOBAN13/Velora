@@ -2,8 +2,13 @@ package contracts
 
 import (
 	"Velora/server/Internal/server/db"
+	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 )
+
+type MatchService interface {
+	CreateMatch(config match.MatchConfig) (*match.Match, error)
+}
 
 type LobbyService interface {
 	RoomListSnapshot() packets.Msg
@@ -37,6 +42,7 @@ type ClientInterface interface {
 	IsAuthenticated() bool
 
 	Lobby() LobbyService
+	GetMatches() MatchService
 
 	DbTx() *db.DbTx
 }
@@ -60,4 +66,5 @@ type Hub interface {
 	UnregisterClient(client Client)
 	RemoveClient(client Client)
 	GetLobby() LobbyService
+	GetMatches() MatchService
 }

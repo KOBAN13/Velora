@@ -46,6 +46,10 @@ func (c *WebSocketClient) Lobby() contracts.LobbyService {
 	return c.hub.GetLobby()
 }
 
+func (c *WebSocketClient) GetMatches() contracts.MatchService {
+	return c.hub.GetMatches()
+}
+
 func (c *WebSocketClient) DbTx() *db.DbTx {
 	return c.dBtX
 }

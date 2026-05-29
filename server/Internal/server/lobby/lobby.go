@@ -4,6 +4,7 @@ import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/objects"
 	"Velora/server/Internal/server/contracts"
+	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 	"errors"
 	"math/rand/v2"
@@ -77,29 +78,64 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 		return ErrOwnerIsNotStartGame
 	}
 
-	room.Status = packets.RoomStatus_ROOM_STATUS_STARTED
-
-	var msg = lobby.buildSnapshot(room)
-	lobby.broadcastToRoom(room, msg)
-
 	var matchId = lobby.matchIdGenerator.Next()
 	var mapSeed = rand.Uint64()
 	var startsAtUnixMs = time.Now().UnixMilli()
 
 	var slot = uint32(0)
 
+	var matchService = client.GetMatches()
+
+	var matchConfig = match.MatchConfig{
+		RoomId:  roomId,
+		MatchId: matchId,
+		MapSeed: mapSeed,
+		Players: make([]match.PlayerRef, 0, len(room.Players)),
+	}
+
 	for _, userId := range room.PlayerOrder {
 		var roomPlayer, ok = room.Players[userId]
+
+		if !ok {
+			continue
+		}
+
+		matchConfig.Players = append(matchConfig.Players, match.PlayerRef{
+			UserId:   roomPlayer.UserID,
+			ClientId: roomPlayer.ClientID,
+			Client:   roomPlayer.Client,
+			Slot:     slot,
+		})
+
+		slot++
+	}
+
+	_, err = matchService.CreateMatch(matchConfig)
+
+	if err != nil {
+		room.Status = packets.RoomStatus_ROOM_STATUS_WAITING
+
+		var msg = lobby.buildSnapshot(room)
+		lobby.broadcastToRoom(room, msg)
+
+		return err
+	}
+
+	room.Status = packets.RoomStatus_ROOM_STATUS_STARTED
+
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
+
+	for _, playerRef := range matchConfig.Players {
+		var roomPlayer, ok = room.Players[playerRef.UserId]
 
 		if !ok || roomPlayer.Client == nil {
 			continue
 		}
 
-		var matchStartedMsg = packets.NewMatchStarted(roomId, matchId, roomPlayer.UserID, slot, mapSeed, startsAtUnixMs)
+		var matchStartedMsg = packets.NewMatchStarted(roomId, matchId, roomPlayer.UserID, playerRef.Slot, mapSeed, startsAtUnixMs)
 
 		roomPlayer.Client.SocketSend(matchStartedMsg)
-
-		slot++
 	}
 
 	return nil

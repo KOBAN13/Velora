@@ -2,8 +2,6 @@ package match
 
 import (
 	"Velora/server/Internal"
-	"Velora/server/Internal/server/contracts"
-	"Velora/server/Internal/server/lobby"
 	"Velora/server/pkg/packets"
 	"errors"
 	"sync"
@@ -11,9 +9,10 @@ import (
 )
 
 var (
-	ErrCreateMatch      = errors.New("Create Match Error")
-	ErrMatchNotFound    = errors.New("Match Not Found")
-	ErrPlayerNotInMatch = errors.New("Player Not In Match")
+	ErrCreateMatch            = errors.New("Create Match Error")
+	ErrMatchNotFound          = errors.New("Match Not Found")
+	ErrPlayerNotInMatch       = errors.New("Player Not In Match")
+	ErrUserIsNotAuthenticated = errors.New("user is not authenticated")
 )
 
 const (
@@ -29,14 +28,30 @@ type Manager struct {
 	userMatches   map[uint64]uint64
 }
 
+func NewManager() *Manager {
+	return &Manager{
+		matches:       make(map[uint64]*Match),
+		clientMatches: make(map[uint64]uint64),
+		userMatches:   make(map[uint64]uint64),
+	}
+}
+
 func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	if len(config.Players) == 0 {
+		return nil, ErrCreateMatch
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.matches[config.MatchId]; ok {
 		return nil, ErrCreateMatch
 	}
 
 	var match = &Match{
 		mu:          sync.Mutex{},
 		ID:          config.MatchId,
+		RoomId:      config.RoomId,
 		MapSeed:     config.MapSeed,
 		ServerTick:  uint64(0),
 		Phase:       packets.MatchPhase_MATCH_PHASE_PREPARE,
@@ -65,12 +80,14 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		m.userMatches[player.UserId] = match.ID
 	}
 
+	m.matches[match.ID] = match
+
 	return match, nil
 }
 
-func (m *Manager) HandleInput(client contracts.ClientInterface, input *packets.PlayerInputMessage) error {
+func (m *Manager) HandleInput(client Client, input *packets.PlayerInputMessage) error {
 	if !client.IsAuthenticated() {
-		return lobby.ErrUserIsNotAuthenticated
+		return ErrUserIsNotAuthenticated
 	}
 
 	var userId = client.GetUser().ID
@@ -86,7 +103,7 @@ func (m *Manager) HandleInput(client contracts.ClientInterface, input *packets.P
 	return match.HandleInput(userId, input)
 }
 
-func (m *Manager) RemoveClient(client contracts.ClientInterface) {
+func (m *Manager) RemoveClient(client Client) {
 	if !client.IsAuthenticated() {
 		return
 	}
@@ -118,5 +135,17 @@ func (m *Manager) RemoveClient(client contracts.ClientInterface) {
 }
 
 func (m *Manager) StopMatch(matchId uint64) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
+	var match, ok = m.matches[matchId]
+
+	if !ok {
+		return
+	}
+
+	if !match.HasConnectedClients() {
+		match.Stop()
+		delete(m.matches, matchId)
+	}
 }
