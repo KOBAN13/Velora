@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"Velora/server/Internal"
 	"maps"
 	"sync"
 )
@@ -23,15 +22,15 @@ func NewSharedCollection[T any](capacity ...int) *SharedCollection[T] {
 
 	return &SharedCollection[T]{
 		objectsMap: objectsMap,
-		nextID:     1,
 	}
 }
 
-func (c *SharedCollection[T]) Add(object T, idGenerator *Internal.IdGenerator) uint64 {
+func (c *SharedCollection[T]) Add(object T) uint64 {
 	defer c.mapMutex.Unlock()
 	c.mapMutex.Lock()
 
-	var id = idGenerator.Next()
+	c.nextID++
+	var id = c.nextID
 
 	c.objectsMap[id] = object
 

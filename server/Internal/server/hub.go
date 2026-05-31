@@ -1,8 +1,8 @@
 package server
 
 import (
-	"Velora/server/Internal"
 	"Velora/server/Internal/objects"
+	"Velora/server/Internal/server/config"
 	"Velora/server/Internal/server/contracts"
 	"Velora/server/Internal/server/db"
 	"Velora/server/Internal/server/lobby"
@@ -20,7 +20,7 @@ import (
 var _ contracts.Hub = (*Hub)(nil)
 
 type Hub struct {
-	Generator *Internal.IdGenerator
+	AppConfig *config.AppConfig
 
 	Clients *objects.SharedCollection[contracts.Client]
 
@@ -38,7 +38,6 @@ type Hub struct {
 }
 
 func NewHub() *Hub {
-	var idGenerator = &Internal.IdGenerator{}
 	var clients = objects.NewSharedCollection[contracts.Client]()
 
 	var connect, errConnect = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
@@ -49,7 +48,6 @@ func NewHub() *Hub {
 	}
 
 	return &Hub{
-		Generator:  idGenerator,
 		Clients:    clients,
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan contracts.Client),
@@ -106,7 +104,7 @@ func (h *Hub) Run() {
 		select {
 		case client := <-h.Register:
 			log.Println("register client")
-			var id = h.Clients.Add(client, h.Generator)
+			var id = h.Clients.Add(client)
 			client.Initialize(id)
 
 		case client := <-h.Unregister:

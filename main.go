@@ -3,12 +3,17 @@ package main
 import (
 	"Velora/server/Internal/server"
 	"Velora/server/Internal/server/clients"
+	"Velora/server/Internal/server/config"
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
+	"google.golang.org/api/sheets/v4"
 )
 
 var (
@@ -22,7 +27,19 @@ func main() {
 		log.Fatalf("Error loading config.env file")
 	}
 
-	var hub = server.NewHub()
+	var ctx = context.Background()
+
+	var sheetService, err = sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsReadonlyScope))
+	if err != nil {
+		log.Fatalf("Unable to create Sheets client: %v", err)
+	}
+
+	appConfig, err := config.NewAppConfig(ctx, sheetService, os.Getenv)
+	if err != nil {
+		log.Fatalf("Unable to load app config: %v", err)
+	}
+
+	var hub = server.NewHub(appConfig)
 
 	http.HandleFunc("/velora", func(writer http.ResponseWriter, reader *http.Request) {
 		hub.Serve(clients.NewWebsocketConnection, writer, reader)
@@ -32,7 +49,7 @@ func main() {
 
 	var addr = fmt.Sprintf(":%d", *port)
 
-	var err = http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, nil)
 
 	if err != nil {
 		log.Fatalf("Failed start server %v: ", err)

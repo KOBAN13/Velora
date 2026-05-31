@@ -37,11 +37,11 @@ func LoadKeyValueConfig(
 			return nil, fmt.Errorf("%s row %d: empty KEY", sheetName, rowNumber)
 		}
 
-		if _, exists := result[key]; exists {
+		if _, exists := result[ConfigKey(key)]; exists {
 			return nil, fmt.Errorf("%s row %d: duplicate KEY %q", sheetName, rowNumber, key)
 		}
 
-		result[key] = value
+		result[ConfigKey(key)] = value
 	}
 
 	return result, nil

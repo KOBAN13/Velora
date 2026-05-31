@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-type RawConfig map[string]string
+type RawConfig map[ConfigKey]string
 
-func (c RawConfig) Int(key string) (int, error) {
+func (c RawConfig) Int(key ConfigKey) (int, error) {
 	value, err := c.String(key)
 
 	if err != nil {
@@ -23,7 +23,7 @@ func (c RawConfig) Int(key string) (int, error) {
 	return parsed, nil
 }
 
-func (c RawConfig) Float(key string) (float64, error) {
+func (c RawConfig) Float(key ConfigKey) (float64, error) {
 	value, err := c.String(key)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (c RawConfig) Float(key string) (float64, error) {
 	return parsed, nil
 }
 
-func (c RawConfig) Bool(key string) (bool, error) {
+func (c RawConfig) Bool(key ConfigKey) (bool, error) {
 	value, err := c.String(key)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func (c RawConfig) Bool(key string) (bool, error) {
 	return parsed, nil
 }
 
-func (c RawConfig) String(key string) (string, error) {
+func (c RawConfig) String(key ConfigKey) (string, error) {
 	var value, ok = c[key]
 
 	if !ok {

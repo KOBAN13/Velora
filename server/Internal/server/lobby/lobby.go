@@ -28,7 +28,6 @@ func NewLobbyManager() *LobbyManager {
 	return &LobbyManager{
 		rooms:            objects.NewSharedCollection[*Room](),
 		userRoom:         make(map[uint64]uint64),
-		roomIdGenerator:  &Internal.IdGenerator{},
 		matchIdGenerator: &Internal.IdGenerator{},
 	}
 }
@@ -37,7 +36,6 @@ type LobbyManager struct {
 	mutex            sync.Mutex
 	rooms            *objects.SharedCollection[*Room]
 	userRoom         map[uint64]uint64
-	roomIdGenerator  *Internal.IdGenerator
 	matchIdGenerator *Internal.IdGenerator
 }
 
@@ -162,7 +160,7 @@ func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName
 		Players:    make(map[uint64]*RoomPlayer),
 	}
 
-	var roomId = lobby.rooms.Add(room, lobby.roomIdGenerator)
+	var roomId = lobby.rooms.Add(room)
 	room.ID = roomId
 
 	lobby.addPlayerToRoom(roomId, room, roomPlayer)
