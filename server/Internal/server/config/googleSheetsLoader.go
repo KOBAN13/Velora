@@ -13,7 +13,7 @@ func LoadKeyValueConfig(
 	srv *sheets.Service,
 	spreadsheetID string,
 	sheetName string) (RawConfig, error) {
-	var readRange = fmt.Sprintf("'%s'!A2:C", sheetName)
+	var readRange = fmt.Sprintf("'%s'!A2:D", sheetName)
 
 	var resp, err = srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 
@@ -31,7 +31,7 @@ func LoadKeyValueConfig(
 		}
 
 		var key = strings.TrimSpace(fmt.Sprint(row[0]))
-		var value = strings.TrimSpace(fmt.Sprint(row[2]))
+		var value = strings.TrimSpace(fmt.Sprint(row[3]))
 
 		if key == "" {
 			return nil, fmt.Errorf("%s row %d: empty KEY", sheetName, rowNumber)

@@ -13,6 +13,7 @@ Velora - серверная основа на Go для сетевых игр и
 - PostgreSQL-репозиторий пользователей поверх `pgxpool`.
 - Хеширование паролей через `bcrypt`.
 - In-memory lobby manager с комнатами, владельцем комнаты, ready-флагами и стартом матча.
+- Загрузка стартовых игровых параметров из Google Sheets.
 - Protobuf snapshots для состояния комнаты и краткого списка комнат.
 - Настраиваемый порт запуска через CLI-флаг `-port`.
 
@@ -24,6 +25,7 @@ Velora - серверная основа на Go для сетевых игр и
 - `github.com/jackc/pgx/v5`
 - `github.com/joho/godotenv`
 - `golang.org/x/crypto/bcrypt`
+- `google.golang.org/api/sheets/v4`
 
 ## Структура проекта
 
@@ -42,6 +44,7 @@ Velora - серверная основа на Go для сетевых игр и
     │   └── server
     │       ├── hub.go                   # центральный хаб, клиенты, lobby и БД
     │       ├── clients                  # WebSocket-клиент, чтение, запись и закрытие
+    │       ├── config                   # загрузка env и игровых параметров из Google Sheets
     │       ├── contracts                # интерфейсы hub/client/lobby/state
     │       ├── db                       # модели и запросы пользователей
     │       ├── lobby                    # комнаты, игроки, snapshots и match start
@@ -57,6 +60,12 @@ Velora - серверная основа на Go для сетевых игр и
 ```env
 DATABASE_URL=postgres://user:password@localhost:5432/velora?sslmode=disable
 USERS_TABLE=users
+GOOGLE_SHEETS_SPREADSHEET_ID=spreadsheet-id
+GOOGLE_SHEETS_CONFIG_SHEET_PLAYER_PARAMETERS=PlayerParameters_Default
+GOOGLE_SHEETS_CONFIG_SHEET_CORE_ENTITY=Core_Entity
+GOOGLE_SHEETS_CONFIG_SHEET_NUTRIENT=Nutrient
+GOOGLE_SHEETS_CONFIG_SHEET_PLAYER_WALLS=Walls
+GOOGLE_SERVICE_ACCOUNT_FILE=./service-account.json
 ```
 
 Таблица пользователей должна содержать поля, которые использует репозиторий:
@@ -70,6 +79,15 @@ CREATE TABLE users (
 ```
 
 `USERS_TABLE` задает имя таблицы. Значение экранируется как SQL-идентификатор перед подстановкой в запросы.
+
+Игровой конфиг собирается при старте через `config.NewAppConfig`. Сервер создает Google Sheets client по `GOOGLE_SERVICE_ACCOUNT_FILE`, затем читает четыре листа из таблицы `GOOGLE_SHEETS_SPREADSHEET_ID`:
+
+- `GOOGLE_SHEETS_CONFIG_SHEET_PLAYER_PARAMETERS` - параметры стартовой player cell.
+- `GOOGLE_SHEETS_CONFIG_SHEET_CORE_ENTITY` - параметры core entity.
+- `GOOGLE_SHEETS_CONFIG_SHEET_NUTRIENT` - параметры nutrient.
+- `GOOGLE_SHEETS_CONFIG_SHEET_PLAYER_WALLS` - параметры walls.
+
+Файл service account должен быть доступен по пути из `GOOGLE_SERVICE_ACCOUNT_FILE`, а у service account должен быть доступ на чтение указанной Google Sheets таблицы.
 
 ## Запуск
 
@@ -97,7 +115,7 @@ WebSocket endpoint:
 ws://localhost:8080/velora
 ```
 
-При запуске сервер создает пул PostgreSQL и проверяет подключение через `Ping` и `SELECT 1`. Если `config.env`, `DATABASE_URL`, `USERS_TABLE` или база недоступны, процесс завершится с ошибкой.
+При запуске сервер загружает игровой конфиг из Google Sheets, создает пул PostgreSQL и проверяет подключение через `Ping` и `SELECT 1`. Если `config.env`, обязательные env-переменные, service account, Google Sheets таблица или база недоступны, процесс завершится с ошибкой.
 
 ## Деплой
 

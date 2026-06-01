@@ -6,8 +6,8 @@ type AppConfig struct {
 	DatabaseUrl string
 	UserTable   string
 
-	GoogleSheets objects.SharedCollection[GoogleSheetsConfig]
-	Game         GameConfig
+	GoogleSheets *objects.SharedCollection[GoogleSheetsConfig]
+	Game         *GameConfig
 }
 
 type GoogleSheetsConfig struct {
@@ -123,37 +123,4 @@ func NewWallConfig(raw RawConfig) (WallConfig, error) {
 	return WallConfig{
 		Open: wallOpen,
 	}, err
-}
-
-func NewGameConfig(raw RawConfig) (GameConfig, error) {
-	playerCell, err := NewPlayerCellConfig(raw)
-
-	if err != nil {
-		return GameConfig{}, err
-	}
-
-	core, err := NewCoreConfig(raw)
-
-	if err != nil {
-		return GameConfig{}, err
-	}
-
-	nutrient, err := NewNutrientConfig(raw)
-
-	if err != nil {
-		return GameConfig{}, err
-	}
-
-	wall, err := NewWallConfig(raw)
-
-	if err != nil {
-		return GameConfig{}, err
-	}
-
-	return GameConfig{
-		PlayerCell: playerCell,
-		Core:       core,
-		Nutrient:   nutrient,
-		Wall:       wall,
-	}, nil
 }

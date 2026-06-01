@@ -37,7 +37,7 @@ type Hub struct {
 	DbPool *pgxpool.Pool
 }
 
-func NewHub() *Hub {
+func NewHub(appConfig *config.AppConfig) *Hub {
 	var clients = objects.NewSharedCollection[contracts.Client]()
 
 	var connect, errConnect = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
@@ -49,6 +49,7 @@ func NewHub() *Hub {
 
 	return &Hub{
 		Clients:    clients,
+		AppConfig:  appConfig,
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan contracts.Client),
 		Unregister: make(chan contracts.Client),

@@ -29,7 +29,7 @@ func main() {
 
 	var ctx = context.Background()
 
-	var sheetService, err = sheets.NewService(ctx, option.WithScopes(sheets.SpreadsheetsReadonlyScope))
+	sheetService, err := newSheetsService(ctx, os.Getenv("GOOGLE_SERVICE_ACCOUNT_FILE"))
 	if err != nil {
 		log.Fatalf("Unable to create Sheets client: %v", err)
 	}
@@ -54,4 +54,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed start server %v: ", err)
 	}
+}
+
+func newSheetsService(ctx context.Context, credentialsPath string) (*sheets.Service, error) {
+	return sheets.NewService(
+		ctx,
+		option.WithCredentialsFile(credentialsPath),
+		option.WithScopes(sheets.SpreadsheetsScope))
 }
