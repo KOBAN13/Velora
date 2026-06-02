@@ -26,6 +26,8 @@ type Match struct {
 	players map[uint64]*PlayerRef
 	inputs  map[uint64]PlayerInput
 
+	nutrientSpawner NutrientSpawner
+
 	stop chan struct{}
 	sync sync.Once
 }
@@ -60,7 +62,7 @@ func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) er
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if _, ok := m.inputs[userId]; ok {
+	if _, ok := m.inputs[userId]; !ok {
 		return ErrPlayerNotInMatch
 	}
 

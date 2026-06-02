@@ -12,8 +12,10 @@ const (
 	KeyCoreHP    ConfigKey = "core.hp"
 	KeyCoreMaxHP ConfigKey = "core.max_hp"
 
-	KeyNutrientValue ConfigKey = "nutrient.value"
-	KeyNutrientAlive ConfigKey = "nutrient.active"
+	KeyMaxNutrient        ConfigKey = "max.nutrients"
+	KeySpawnInterval      ConfigKey = "spawn.interval"
+	KeySpawnBatchNutrient ConfigKey = "spawn.batch"
+	KeyNutrientAlive      ConfigKey = "nutrient.active"
 
 	KeyWallOpen ConfigKey = "wall.open"
 )

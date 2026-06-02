@@ -2,6 +2,7 @@ package match
 
 import (
 	"Velora/server/Internal"
+	"Velora/server/Internal/server/config"
 	"Velora/server/pkg/packets"
 	"errors"
 	"sync"
@@ -21,24 +22,34 @@ const (
 )
 
 type Manager struct {
-	mu      sync.Mutex
-	matches map[uint64]*Match
+	mu         sync.Mutex
+	matches    map[uint64]*Match
+	gameConfig config.GameConfig
 
 	clientMatches map[uint64]uint64
 	userMatches   map[uint64]uint64
 }
 
-func NewManager() *Manager {
+func NewManager(gameConfig config.GameConfig) *Manager {
 	return &Manager{
+		mu:            sync.Mutex{},
 		matches:       make(map[uint64]*Match),
 		clientMatches: make(map[uint64]uint64),
 		userMatches:   make(map[uint64]uint64),
+		gameConfig:    gameConfig,
 	}
 }
 
 func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	if len(config.Players) == 0 {
 		return nil, ErrCreateMatch
+	}
+
+	var entityIds = &Internal.IdGenerator{}
+	var world, err = NewWorld(config.Players, m.gameConfig, entityIds)
+
+	if err != nil {
+		return nil, err
 	}
 
 	m.mu.Lock()
@@ -56,9 +67,10 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		ServerTick:  uint64(0),
 		Phase:       packets.MatchPhase_MATCH_PHASE_PREPARE,
 		PhaseEndsAt: time.Now().Add(PrepareDuration),
-		entityIds:   &Internal.IdGenerator{},
+		entityIds:   entityIds,
 		players:     make(map[uint64]*PlayerRef),
 		inputs:      make(map[uint64]PlayerInput),
+		entities:    world,
 
 		stop: make(chan struct{}),
 		sync: sync.Once{},

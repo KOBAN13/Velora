@@ -37,8 +37,10 @@ type CoreConfig struct {
 }
 
 type NutrientConfig struct {
-	Value int
-	Alive bool
+	MaxNutrients  int
+	SpawnInterval float64
+	SpawnBatch    int
+	Alive         bool
 }
 
 type WallConfig struct {
@@ -98,7 +100,7 @@ func NewCoreConfig(raw RawConfig) (CoreConfig, error) {
 }
 
 func NewNutrientConfig(raw RawConfig) (NutrientConfig, error) {
-	nutrientValue, err := raw.Int(KeyNutrientValue)
+	nutrientMax, err := raw.Int(KeyMaxNutrient)
 	if err != nil {
 		return NutrientConfig{}, err
 	}
@@ -108,9 +110,21 @@ func NewNutrientConfig(raw RawConfig) (NutrientConfig, error) {
 		return NutrientConfig{}, err
 	}
 
+	nutrientSpawnInterval, err := raw.Float(KeySpawnInterval)
+	if err != nil {
+		return NutrientConfig{}, err
+	}
+
+	nutrientSpawnBatch, err := raw.Int(KeySpawnBatchNutrient)
+	if err != nil {
+		return NutrientConfig{}, err
+	}
+
 	return NutrientConfig{
-		Value: nutrientValue,
-		Alive: nutrientActive,
+		MaxNutrients:  nutrientMax,
+		SpawnInterval: nutrientSpawnInterval,
+		SpawnBatch:    nutrientSpawnBatch,
+		Alive:         nutrientActive,
 	}, nil
 }
 

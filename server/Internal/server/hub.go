@@ -55,7 +55,7 @@ func NewHub(appConfig *config.AppConfig) *Hub {
 		Unregister: make(chan contracts.Client),
 		DbPool:     connect,
 		Lobby:      lobby.NewLobbyManager(),
-		Matches:    match.NewManager(),
+		Matches:    match.NewManager(*appConfig.Game),
 	}
 }
 
