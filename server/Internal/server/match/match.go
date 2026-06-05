@@ -20,13 +20,13 @@ type Match struct {
 	Phase       packets.MatchPhase
 	PhaseEndsAt time.Time
 
-	entityIds *Internal.IdGenerator
-	entities  *World
+	Entities *World
 
 	players map[uint64]*PlayerRef
 	inputs  map[uint64]PlayerInput
 
-	nutrientSpawner NutrientSpawner
+	EntityIds       *Internal.IdGenerator
+	NutrientSpawner NutrientSpawner
 
 	stop chan struct{}
 	sync sync.Once
@@ -64,6 +64,11 @@ func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) er
 
 	if _, ok := m.inputs[userId]; !ok {
 		return ErrPlayerNotInMatch
+	}
+
+	if input.MovePosition == nil {
+		m.inputs[userId] = NewPlayerInput(0, 0)
+		return nil
 	}
 
 	m.inputs[userId] = NewPlayerInput(input.MovePosition.X, input.MovePosition.Y)

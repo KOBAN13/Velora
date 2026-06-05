@@ -46,7 +46,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var entityIds = &Internal.IdGenerator{}
-	var world, err = NewWorld(config.Players, m.gameConfig, entityIds)
+	var world, nutrientSpawner, err = NewWorld(config.Players, m.gameConfig, config.MapSeed, entityIds)
 
 	if err != nil {
 		return nil, err
@@ -67,10 +67,12 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		ServerTick:  uint64(0),
 		Phase:       packets.MatchPhase_MATCH_PHASE_PREPARE,
 		PhaseEndsAt: time.Now().Add(PrepareDuration),
-		entityIds:   entityIds,
 		players:     make(map[uint64]*PlayerRef),
 		inputs:      make(map[uint64]PlayerInput),
-		entities:    world,
+		Entities:    world,
+
+		EntityIds:       entityIds,
+		NutrientSpawner: nutrientSpawner,
 
 		stop: make(chan struct{}),
 		sync: sync.Once{},
@@ -87,6 +89,8 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 			Slot:     player.Slot,
 			Client:   player.Client,
 		}
+
+		match.inputs[player.UserId] = NewPlayerInput(0, 0)
 
 		m.clientMatches[player.ClientId] = match.ID
 		m.userMatches[player.UserId] = match.ID
