@@ -3,6 +3,7 @@ package match
 import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/config"
+	"Velora/server/Internal/server/match/systems"
 	"Velora/server/pkg/packets"
 	"errors"
 	"sync"
@@ -77,6 +78,10 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		stop: make(chan struct{}),
 		sync: sync.Once{},
 	}
+
+	var systemRunner = systems.NewSystemRunner(match)
+
+	match.SystemRunner = systemRunner
 
 	for _, player := range config.Players {
 		if _, ok := match.players[player.UserId]; ok {

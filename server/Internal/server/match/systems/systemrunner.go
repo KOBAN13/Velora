@@ -11,6 +11,7 @@ type SystemRunner struct {
 
 func NewSystemRunner(match *match.Match) *SystemRunner {
 	return &SystemRunner{
+		match:             match,
 		updateSystems:     []Update{},
 		initializeSystems: []Initialize{},
 	}

@@ -1,6 +1,9 @@
 package match
 
-import "time"
+import (
+	"Velora/server/pkg/packets"
+	"time"
+)
 
 const (
 	TickRate         = 20
@@ -24,5 +27,22 @@ func (m *Match) Run() {
 }
 
 func (m *Match) Tick(now time.Time) {
+	var snapshot packets.Msg
+	var clients []Client
 
+	m.mu.Lock()
+
+	m.ServerTick++
+	currentTick := float64(m.ServerTick)
+
+	m.SystemRunner.UpdateSystems(currentTick, m.Entities)
+
+	snapshot = m.BuildSnapshot(now)
+	clients = m.connectedClientsLocked()
+
+	m.mu.Unlock()
+
+	for _, client := range clients {
+		client.SocketSend(snapshot)
+	}
 }

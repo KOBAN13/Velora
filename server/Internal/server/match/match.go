@@ -3,6 +3,7 @@ package match
 import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/db"
+	"Velora/server/Internal/server/match/systems"
 	"Velora/server/pkg/packets"
 	"math"
 	"sync"
@@ -17,8 +18,9 @@ type Match struct {
 	MapSeed    uint64
 	ServerTick uint64
 
-	Phase       packets.MatchPhase
-	PhaseEndsAt time.Time
+	SystemRunner *systems.SystemRunner
+	Phase        packets.MatchPhase
+	PhaseEndsAt  time.Time
 
 	Entities *World
 
@@ -56,6 +58,7 @@ type Client interface {
 	Id() uint64
 	GetUser() *db.User
 	IsAuthenticated() bool
+	SocketSend(message packets.Msg)
 }
 
 func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) error {
