@@ -71,13 +71,25 @@ func NewPlayerInputMessage(matchId uint64, position *Vector2Message) Msg {
 	}
 }
 
-func NewMatchSnapshot(matchId uint64, serverTick uint64, phase MatchPhase, phaseTimeLeft int64) Msg {
+func NewMatchSnapshot(
+	matchId uint64,
+	serverTick uint64,
+	phase MatchPhase,
+	phaseTimeLeft int64,
+	playerCells []*PlayerCellEntityMessage,
+	cores []*CoreEntityMessage,
+	nutrients []*NutrientEntityMessage,
+	walls []*WallEntityMessage) Msg {
 	return &Packet_MatchSnapshot{
 		MatchSnapshot: &MatchSnapshotMessage{
 			MatchId:         matchId,
 			ServerTick:      serverTick,
 			Phase:           phase,
 			PhaseTimeLeftMs: phaseTimeLeft,
+			PlayerCells:     playerCells,
+			Cores:           cores,
+			Nutrients:       nutrients,
+			Walls:           walls,
 		},
 	}
 }
