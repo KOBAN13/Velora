@@ -32,6 +32,9 @@ func (runner *SystemRunner) UpdateSystems(tick float64, world *match.World) {
 }
 
 func (runner *SystemRunner) InitializeSystems(world *match.World) error {
+	runner.match.Mu.Lock()
+	defer runner.match.Mu.Unlock()
+
 	for _, initializeSystem := range runner.initializeSystems {
 		var err = initializeSystem.Start(world)
 

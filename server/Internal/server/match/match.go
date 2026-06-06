@@ -11,7 +11,7 @@ import (
 )
 
 type Match struct {
-	mu sync.Mutex
+	Mu sync.Mutex
 
 	ID         uint64
 	RoomId     uint64
@@ -62,8 +62,8 @@ type Client interface {
 }
 
 func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
 
 	if _, ok := m.inputs[userId]; !ok {
 		return ErrPlayerNotInMatch
@@ -86,8 +86,8 @@ func (m *Match) Stop() {
 }
 
 func (m *Match) HasConnectedClients() bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
 
 	for _, player := range m.players {
 		if player != nil {
@@ -99,8 +99,8 @@ func (m *Match) HasConnectedClients() bool {
 }
 
 func (m *Match) RemoveClient(userId uint64, clientId uint64) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.Mu.Lock()
+	defer m.Mu.Unlock()
 
 	var player, ok = m.players[userId]
 
@@ -144,6 +144,20 @@ func NewPlayerInput(x float32, y float32) PlayerInput {
 		MoveY:      y,
 		ReceivedAt: time.Now(),
 	}
+}
+
+func (m *Match) connectedClientsLocked() []Client {
+	var clients = make([]Client, 0, len(m.players))
+
+	for _, player := range m.players {
+		if player == nil || player.Client == nil {
+			continue
+		}
+
+		clients = append(clients, player.Client)
+	}
+
+	return clients
 }
 
 func (m *Match) updatePhase(now time.Time) {

@@ -30,17 +30,17 @@ func (m *Match) Tick(now time.Time) {
 	var snapshot packets.Msg
 	var clients []Client
 
-	m.mu.Lock()
+	m.Mu.Lock()
 
 	m.ServerTick++
 	currentTick := float64(m.ServerTick)
 
 	m.SystemRunner.UpdateSystems(currentTick, m.Entities)
 
-	snapshot = m.BuildSnapshot(now)
+	snapshot = BuildMatchSnapshot(m, m.Entities, now)
 	clients = m.connectedClientsLocked()
 
-	m.mu.Unlock()
+	m.Mu.Unlock()
 
 	for _, client := range clients {
 		client.SocketSend(snapshot)

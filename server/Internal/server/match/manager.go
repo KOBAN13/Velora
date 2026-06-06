@@ -61,7 +61,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var match = &Match{
-		mu:          sync.Mutex{},
+		Mu:          sync.Mutex{},
 		ID:          config.MatchId,
 		RoomId:      config.RoomId,
 		MapSeed:     config.MapSeed,
