@@ -25,7 +25,7 @@ type Match struct {
 	Entities *World
 
 	players map[uint64]*PlayerRef
-	inputs  map[uint64]PlayerInput
+	Inputs  map[uint64]PlayerInput
 
 	EntityIds       *Internal.IdGenerator
 	NutrientSpawner NutrientSpawner
@@ -65,16 +65,16 @@ func (m *Match) HandleInput(userId uint64, input *packets.PlayerInputMessage) er
 	m.Mu.Lock()
 	defer m.Mu.Unlock()
 
-	if _, ok := m.inputs[userId]; !ok {
+	if _, ok := m.Inputs[userId]; !ok {
 		return ErrPlayerNotInMatch
 	}
 
 	if input.MovePosition == nil {
-		m.inputs[userId] = NewPlayerInput(0, 0)
+		m.Inputs[userId] = NewPlayerInput(0, 0)
 		return nil
 	}
 
-	m.inputs[userId] = NewPlayerInput(input.MovePosition.X, input.MovePosition.Y)
+	m.Inputs[userId] = NewPlayerInput(input.MovePosition.X, input.MovePosition.Y)
 
 	return nil
 }
@@ -114,7 +114,7 @@ func (m *Match) RemoveClient(userId uint64, clientId uint64) bool {
 
 	player.Client = nil
 
-	m.inputs[player.UserId] = PlayerInput{
+	m.Inputs[player.UserId] = PlayerInput{
 		ReceivedAt: time.Now(),
 		MoveY:      0,
 		MoveX:      0,
@@ -158,23 +158,6 @@ func (m *Match) connectedClientsLocked() []Client {
 	}
 
 	return clients
-}
-
-func (m *Match) updatePhase(now time.Time) {
-	switch m.Phase {
-	case packets.MatchPhase_MATCH_PHASE_PREPARE:
-		if now.After(m.PhaseEndsAt) || now.Equal(m.PhaseEndsAt) {
-			m.Phase = packets.MatchPhase_MATCH_PHASE_ACTIVE
-			m.PhaseEndsAt = now.Add(ActiveDuration)
-		}
-
-	case packets.MatchPhase_MATCH_PHASE_ACTIVE:
-		if now.After(m.PhaseEndsAt) || now.Equal(m.PhaseEndsAt) {
-			m.Phase = packets.MatchPhase_MATCH_PHASE_ENDED
-			m.PhaseEndsAt = time.Time{}
-		}
-	case packets.MatchPhase_MATCH_PHASE_ENDED:
-	}
 }
 
 func (m *Match) phaseTimeLeftMs() int64 {

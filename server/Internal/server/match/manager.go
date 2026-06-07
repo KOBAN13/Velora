@@ -17,11 +17,6 @@ var (
 	ErrUserIsNotAuthenticated = errors.New("user is not authenticated")
 )
 
-const (
-	PrepareDuration = 3 * time.Second
-	ActiveDuration  = 180 * time.Second
-)
-
 type Manager struct {
 	mu         sync.Mutex
 	matches    map[uint64]*Match
@@ -69,7 +64,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		Phase:       packets.MatchPhase_MATCH_PHASE_PREPARE,
 		PhaseEndsAt: time.Now().Add(PrepareDuration),
 		players:     make(map[uint64]*PlayerRef),
-		inputs:      make(map[uint64]PlayerInput),
+		Inputs:      make(map[uint64]PlayerInput),
 		Entities:    world,
 
 		EntityIds:       entityIds,
@@ -95,7 +90,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 			Client:   player.Client,
 		}
 
-		match.inputs[player.UserId] = NewPlayerInput(0, 0)
+		match.Inputs[player.UserId] = NewPlayerInput(0, 0)
 
 		m.clientMatches[player.ClientId] = match.ID
 		m.userMatches[player.UserId] = match.ID

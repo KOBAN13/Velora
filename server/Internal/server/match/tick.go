@@ -5,12 +5,6 @@ import (
 	"time"
 )
 
-const (
-	TickRate         = 20
-	TickDuration     = 50 * time.Millisecond
-	TimeDeltaSeconds = float32(0.05)
-)
-
 func (m *Match) Run() {
 	var ticker = time.NewTicker(TickDuration)
 

@@ -16,14 +16,6 @@ var (
 	ErrPlayerUsed        = errors.New("player already used")
 )
 
-const (
-	defaultNutrientMaxAttempts         = 1500
-	defaultNutrientArenaHalfSize       = 22
-	defaultNutrientMinPlayerDistance   = 4
-	defaultNutrientMinCoreDistance     = 5
-	defaultNutrientMinNutrientDistance = 2
-)
-
 type EntityId uint64
 
 type World struct {
@@ -32,6 +24,7 @@ type World struct {
 	Nutrients   map[EntityId]Nutrient
 	Walls       map[EntityId]Wall
 
+	Directions     map[EntityId]MoveDirection
 	Positions      map[EntityId]Position
 	Owners         map[EntityId]Owner
 	Health         map[EntityId]Health
@@ -52,6 +45,11 @@ type Nutrient struct{}
 type Wall struct{}
 
 type Position struct {
+	X float32
+	Y float32
+}
+
+type MoveDirection struct {
 	X float32
 	Y float32
 }
@@ -170,6 +168,7 @@ func NewEmptyWorld(playerCount int) *World {
 		Nutrients:   make(map[EntityId]Nutrient),
 		Walls:       make(map[EntityId]Wall, 1),
 
+		Directions:     make(map[EntityId]MoveDirection),
 		Positions:      make(map[EntityId]Position, playerCount*2+1),
 		Owners:         make(map[EntityId]Owner, playerCount*2),
 		Health:         make(map[EntityId]Health, playerCount*2),
