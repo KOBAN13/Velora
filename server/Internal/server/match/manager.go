@@ -136,32 +136,42 @@ func (m *Manager) RemoveClient(client Client) {
 		return
 	}
 
-	match.RemoveClient(userID, clientId)
+	if !match.RemoveClient(userID, clientId) {
+		return
+	}
 
 	m.mu.Lock()
 	delete(m.clientMatches, clientId)
 	delete(m.userMatches, userID)
+	m.mu.Unlock()
 
 	if !match.HasConnectedClients() {
-		match.Stop()
-		delete(m.matches, matchId)
+		m.StopMatch(matchId)
 	}
-
-	m.mu.Unlock()
 }
 
 func (m *Manager) StopMatch(matchId uint64) {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 
 	var match, ok = m.matches[matchId]
 
 	if !ok {
+		m.mu.Unlock()
 		return
 	}
 
-	if !match.HasConnectedClients() {
-		match.Stop()
-		delete(m.matches, matchId)
+	delete(m.matches, matchId)
+
+	for _, player := range match.players {
+		if player == nil {
+			continue
+		}
+
+		delete(m.clientMatches, player.ClientId)
+		delete(m.userMatches, player.UserId)
 	}
+
+	m.mu.Unlock()
+
+	match.Stop()
 }

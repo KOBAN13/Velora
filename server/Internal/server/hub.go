@@ -92,6 +92,8 @@ func (h *Hub) RemoveClient(client contracts.Client) {
 	if err != nil {
 		log.Printf("Unable to remove client: %v\n", err)
 	}
+
+	h.Matches.RemoveClient(client)
 }
 
 func (h *Hub) Run() {
@@ -110,9 +112,7 @@ func (h *Hub) Run() {
 
 		case client := <-h.Unregister:
 			log.Println("unregister client")
-			if err := h.Lobby.RemoveClient(client); err != nil {
-				log.Printf("failed to remove client from lobby: %v", err)
-			}
+			h.RemoveClient(client)
 			h.Clients.Remove(client.Id())
 
 		case packet := <-h.Broadcast:

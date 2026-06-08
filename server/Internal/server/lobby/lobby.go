@@ -108,26 +108,27 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 		slot++
 	}
 
-	var errWithMatchInit = func() error {
+	var rollbackMatchStart = func(startErr error) error {
 		room.Status = packets.RoomStatus_ROOM_STATUS_WAITING
 
 		var msg = lobby.buildSnapshot(room)
 		lobby.broadcastToRoom(room, msg)
 
-		return err
+		return startErr
 	}
 
 	var createMatch, errCreateMatch = matchService.CreateMatch(matchConfig)
 
 	if errCreateMatch != nil {
-		return errWithMatchInit()
+		return rollbackMatchStart(errCreateMatch)
 	}
 
 	createMatch.SystemRunner.BuildSystems()
 	var errInitializeSystems = createMatch.SystemRunner.InitializeSystems(createMatch.Entities)
 
 	if errInitializeSystems != nil {
-		return errWithMatchInit()
+		matchService.StopMatch(matchId)
+		return rollbackMatchStart(errInitializeSystems)
 	}
 
 	room.Status = packets.RoomStatus_ROOM_STATUS_STARTED

@@ -8,6 +8,9 @@ import (
 
 type MatchService interface {
 	CreateMatch(config match.MatchConfig) (*match.Match, error)
+	HandleInput(client match.Client, input *packets.PlayerInputMessage) error
+	RemoveClient(client match.Client)
+	StopMatch(matchId uint64)
 }
 
 type LobbyService interface {

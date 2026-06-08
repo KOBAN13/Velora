@@ -90,7 +90,7 @@ func (m *Match) HasConnectedClients() bool {
 	defer m.Mu.Unlock()
 
 	for _, player := range m.players {
-		if player != nil {
+		if player != nil && player.Client != nil {
 			return true
 		}
 	}

@@ -25,9 +25,12 @@ func (m *Match) SetClient(client contracts.ClientInterface) {
 }
 
 func (m *Match) HandleMessage(id uint64, msg packets.Msg) {
-	switch msg.(type) {
+	switch message := msg.(type) {
 	case *packets.Packet_Chat:
 		m.handleChatMessage(id, msg)
+
+	case *packets.Packet_PlayerInput:
+		m.handleInputMessage(message.PlayerInput)
 	}
 }
 
@@ -46,4 +49,14 @@ func (m *Match) handleChatMessage(id uint64, msg packets.Msg) {
 	}
 
 	m.client.SocketSendAs(msg, id)
+}
+
+func (m *Match) handleInputMessage(message *packets.PlayerInputMessage) {
+	var matches = m.client.GetMatches()
+
+	var err = matches.HandleInput(m.client, message)
+
+	if err != nil {
+		m.client.SocketSend(packets.NewDenyResponse(err.Error()))
+	}
 }
