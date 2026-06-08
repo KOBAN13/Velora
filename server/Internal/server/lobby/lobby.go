@@ -147,7 +147,7 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 		roomPlayer.Client.SocketSend(matchStartedMsg)
 	}
 
-	createMatch.Run()
+	go createMatch.Run()
 
 	return nil
 }

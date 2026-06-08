@@ -20,6 +20,7 @@ func NewNutrientSystem(match *match.Match) *NutrientSystem {
 }
 
 func (s *NutrientSystem) Update(tick float64, world *match.World) {
+	s.PlayerPickUpNutrient(world)
 	s.SpawnForTick(world, tick)
 }
 
@@ -44,6 +45,45 @@ func (s *NutrientSystem) Fill(world *match.World) error {
 	}
 
 	return nil
+}
+
+func (s *NutrientSystem) PlayerPickUpNutrient(world *match.World) {
+	for entityId := range world.PlayerCells {
+		if !world.Active[entityId].IsActive {
+			continue
+		}
+
+		var playerPosition = world.Positions[entityId]
+
+		for nutrientId := range world.Nutrients {
+			if !world.Active[nutrientId].IsActive {
+				continue
+			}
+
+			var nutrientPosition = world.Positions[nutrientId]
+
+			var distance = playerPosition.DistanceTo(nutrientPosition)
+
+			if distance <= match.DefaultNutrientPickUpDistance {
+				var activeComponent = world.Active[nutrientId]
+				activeComponent.IsActive = false
+				world.Active[nutrientId] = activeComponent
+
+				var nutrientValue = world.NutrientValues[nutrientId].Value
+				var biomassComponent = world.Biomass[entityId]
+
+				biomassComponent.Value += nutrientValue
+
+				world.Biomass[entityId] = biomassComponent
+
+				var levelComponent = world.Levels[entityId]
+
+				levelComponent.Value = 1 + biomassComponent.Value/100
+
+				world.Levels[entityId] = levelComponent
+			}
+		}
+	}
 }
 
 func (s *NutrientSystem) SpawnForTick(world *match.World, serverTick float64) {

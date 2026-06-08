@@ -159,16 +159,3 @@ func (m *Match) connectedClientsLocked() []Client {
 
 	return clients
 }
-
-func (m *Match) phaseTimeLeftMs() int64 {
-	if m.Phase == packets.MatchPhase_MATCH_PHASE_ENDED || m.PhaseEndsAt.IsZero() {
-		return 0
-	}
-
-	left := time.Until(m.PhaseEndsAt)
-	if left < 0 {
-		return 0
-	}
-
-	return left.Milliseconds()
-}

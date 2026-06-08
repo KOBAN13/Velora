@@ -19,6 +19,7 @@ const (
 	defaultNutrientMinPlayerDistance   = 4
 	defaultNutrientMinCoreDistance     = 5
 	defaultNutrientMinNutrientDistance = 2
+	DefaultNutrientPickUpDistance      = 1.5
 )
 
 const (
