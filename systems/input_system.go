@@ -1,6 +1,9 @@
 package systems
 
-import "Velora/server/Internal/server/match"
+import (
+	"Velora/esc"
+	"Velora/server/Internal/server/match"
+)
 
 type InputSystem struct {
 	match *match.Match
@@ -12,15 +15,15 @@ func NewInputSystem(match *match.Match) *InputSystem {
 	}
 }
 
-func (i *InputSystem) Update(tick float64, world *match.World) {
+func (i *InputSystem) Update(tick float64, world *esc.World) {
 	for entityId := range world.PlayerCells {
 		var owner = world.Owners[entityId]
 		var input = i.match.Inputs[owner.UserId]
 
 		if world.Active[entityId].IsActive == false {
-			world.Directions[entityId] = match.Zero()
+			world.Directions[entityId] = esc.Zero()
 		} else {
-			world.Directions[entityId] = match.MoveDirection{
+			world.Directions[entityId] = esc.MoveDirection{
 				X: input.MoveX,
 				Y: input.MoveY,
 			}

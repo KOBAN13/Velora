@@ -1,6 +1,8 @@
-package match
+package esc
 
-import "math"
+import (
+	"math"
+)
 
 func (a Position) DistanceTo(b Position) float64 {
 	dx := a.X - b.X

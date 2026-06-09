@@ -1,6 +1,9 @@
 package systems
 
-import "Velora/server/Internal/server/match"
+import (
+	"Velora/esc"
+	"Velora/server/Internal/server/match"
+)
 
 type SystemRunner struct {
 	match *match.Match
@@ -35,13 +38,13 @@ func (runner *SystemRunner) BuildSystems() {
 	runner.updateSystems = append(runner.updateSystems, deathSystem)
 }
 
-func (runner *SystemRunner) UpdateSystems(tick float64, world *match.World) {
+func (runner *SystemRunner) UpdateSystems(tick float64, world *esc.World) {
 	for _, update := range runner.updateSystems {
 		update.Update(tick, world)
 	}
 }
 
-func (runner *SystemRunner) InitializeSystems(world *match.World) error {
+func (runner *SystemRunner) InitializeSystems(world *esc.World) error {
 	runner.match.Mu.Lock()
 	defer runner.match.Mu.Unlock()
 

@@ -1,6 +1,9 @@
 package systems
 
-import "Velora/server/Internal/server/match"
+import (
+	"Velora/esc"
+	"Velora/server/Internal/server/match"
+)
 
 type MovementSystem struct {
 	match *match.Match
@@ -12,7 +15,7 @@ func NewMovementSystem(match *match.Match) *MovementSystem {
 	}
 }
 
-func (m *MovementSystem) Update(tick float64, world *match.World) {
+func (m *MovementSystem) Update(tick float64, world *esc.World) {
 	for entityId := range world.PlayerCells {
 		if !world.Active[entityId].IsActive {
 			continue

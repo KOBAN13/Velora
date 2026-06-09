@@ -1,6 +1,8 @@
-package match
+package esc
 
-import "math"
+import (
+	"math"
+)
 
 func (d MoveDirection) IsZero() bool {
 	return d.X == 0 && d.Y == 0

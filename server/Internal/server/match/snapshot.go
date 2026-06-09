@@ -1,12 +1,13 @@
 package match
 
 import (
+	"Velora/esc"
 	"Velora/server/pkg/packets"
 	"slices"
 	"time"
 )
 
-func BuildMatchSnapshot(m *Match, world *World, now time.Time) packets.Msg {
+func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
 	var playerCells = make([]*packets.PlayerCellEntityMessage, 0, len(world.PlayerCells))
 	var cores = make([]*packets.CoreEntityMessage, 0, len(world.Cores))
 	var nutrients = make([]*packets.NutrientEntityMessage, 0, len(world.Nutrients))
@@ -77,8 +78,8 @@ func BuildMatchSnapshot(m *Match, world *World, now time.Time) packets.Msg {
 		walls)
 }
 
-func sortedEntityIds[T any](entities map[EntityId]T) []EntityId {
-	var ids = make([]EntityId, 0, len(entities))
+func sortedEntityIds[T any](entities map[esc.EntityId]T) []esc.EntityId {
+	var ids = make([]esc.EntityId, 0, len(entities))
 
 	for id := range entities {
 		ids = append(ids, id)
@@ -89,7 +90,7 @@ func sortedEntityIds[T any](entities map[EntityId]T) []EntityId {
 	return ids
 }
 
-func newVector2Message(position Position) *packets.Vector2Message {
+func newVector2Message(position esc.Position) *packets.Vector2Message {
 	return &packets.Vector2Message{
 		X: position.X,
 		Y: position.Y,

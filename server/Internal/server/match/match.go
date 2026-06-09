@@ -1,10 +1,11 @@
 package match
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/db"
-	"Velora/server/Internal/server/match/systems"
 	"Velora/server/pkg/packets"
+	"Velora/systems"
 	"math"
 	"sync"
 	"time"
@@ -22,13 +23,13 @@ type Match struct {
 	Phase        packets.MatchPhase
 	PhaseEndsAt  time.Time
 
-	Entities *World
+	Entities *esc.World
 
 	players map[uint64]*PlayerRef
 	Inputs  map[uint64]PlayerInput
 
 	EntityIds       *Internal.IdGenerator
-	NutrientSpawner NutrientSpawner
+	NutrientSpawner esc.NutrientSpawner
 
 	stop chan struct{}
 	sync sync.Once

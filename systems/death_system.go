@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal/server/match"
 )
 
@@ -14,7 +15,7 @@ func NewDeathSystem(match *match.Match) *DeathSystem {
 	}
 }
 
-func (wall *DeathSystem) Update(tick float64, world *match.World) {
+func (wall *DeathSystem) Update(tick float64, world *esc.World) {
 	for entityId := range world.PlayerCells {
 		var hpComponent = world.Health[entityId]
 

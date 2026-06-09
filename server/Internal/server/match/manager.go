@@ -1,10 +1,11 @@
 package match
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/config"
-	"Velora/server/Internal/server/match/systems"
 	"Velora/server/pkg/packets"
+	"Velora/systems"
 	"errors"
 	"sync"
 	"time"
@@ -42,7 +43,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var entityIds = &Internal.IdGenerator{}
-	var world, nutrientSpawner, err = NewWorld(config.Players, m.gameConfig, config.MapSeed, entityIds)
+	var world, nutrientSpawner, err = esc.NewWorld(config.Players, m.gameConfig, config.MapSeed, entityIds)
 
 	if err != nil {
 		return nil, err

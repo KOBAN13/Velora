@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal/server/match"
 	"errors"
 )
@@ -19,12 +20,12 @@ func NewNutrientSystem(match *match.Match) *NutrientSystem {
 	}
 }
 
-func (s *NutrientSystem) Update(tick float64, world *match.World) {
+func (s *NutrientSystem) Update(tick float64, world *esc.World) {
 	s.PlayerPickUpNutrient(world)
 	s.SpawnForTick(world, tick)
 }
 
-func (s *NutrientSystem) Start(world *match.World) error {
+func (s *NutrientSystem) Start(world *esc.World) error {
 	if err := s.Fill(world); err != nil {
 		return err
 	}
@@ -32,7 +33,7 @@ func (s *NutrientSystem) Start(world *match.World) error {
 	return nil
 }
 
-func (s *NutrientSystem) Fill(world *match.World) error {
+func (s *NutrientSystem) Fill(world *esc.World) error {
 	var spawner = &s.match.NutrientSpawner
 	var missing = spawner.MaxNutrients - s.ActiveNutrientCount(world)
 
@@ -47,7 +48,7 @@ func (s *NutrientSystem) Fill(world *match.World) error {
 	return nil
 }
 
-func (s *NutrientSystem) PlayerPickUpNutrient(world *match.World) {
+func (s *NutrientSystem) PlayerPickUpNutrient(world *esc.World) {
 	for entityId := range world.PlayerCells {
 		if !world.Active[entityId].IsActive {
 			continue
@@ -86,7 +87,7 @@ func (s *NutrientSystem) PlayerPickUpNutrient(world *match.World) {
 	}
 }
 
-func (s *NutrientSystem) SpawnForTick(world *match.World, serverTick float64) {
+func (s *NutrientSystem) SpawnForTick(world *esc.World, serverTick float64) {
 	var spawner = &s.match.NutrientSpawner
 
 	if spawner.SpawnInterval > 0 && serverTick-spawner.LastSpawnTick < spawner.SpawnInterval {
@@ -108,7 +109,7 @@ func (s *NutrientSystem) SpawnForTick(world *match.World, serverTick float64) {
 	s.spawn(world, min(missing, spawner.SpawnBatch))
 }
 
-func (s *NutrientSystem) spawn(world *match.World, count int) int {
+func (s *NutrientSystem) spawn(world *esc.World, count int) int {
 	if count <= 0 {
 		return 0
 	}
@@ -126,24 +127,24 @@ func (s *NutrientSystem) spawn(world *match.World, count int) int {
 			continue
 		}
 
-		world.CreateNutrient(match.EntityId(s.match.EntityIds.Next()), position, 0, spawner.NutrientActive)
+		world.CreateNutrient(esc.EntityId(s.match.EntityIds.Next()), position, 0, spawner.NutrientActive)
 		spawned++
 	}
 
 	return spawned
 }
 
-func (s *NutrientSystem) randomPosition() match.Position {
+func (s *NutrientSystem) randomPosition() esc.Position {
 	var spawner = &s.match.NutrientSpawner
 	var size = spawner.ArenaHalfSize * 2
 
-	return match.Position{
+	return esc.Position{
 		X: spawner.Rng.Float32()*size - spawner.ArenaHalfSize,
 		Y: spawner.Rng.Float32()*size - spawner.ArenaHalfSize,
 	}
 }
 
-func (s *NutrientSystem) canPlace(world *match.World, position match.Position) bool {
+func (s *NutrientSystem) canPlace(world *esc.World, position esc.Position) bool {
 	var spawner = &s.match.NutrientSpawner
 
 	for id := range world.PlayerCells {
@@ -171,7 +172,7 @@ func (s *NutrientSystem) canPlace(world *match.World, position match.Position) b
 	return true
 }
 
-func (s *NutrientSystem) ActiveNutrientCount(world *match.World) int {
+func (s *NutrientSystem) ActiveNutrientCount(world *esc.World) int {
 	var count = 0
 
 	for id := range world.Nutrients {
@@ -183,7 +184,7 @@ func (s *NutrientSystem) ActiveNutrientCount(world *match.World) int {
 	return count
 }
 
-func distanceSquared(a match.Position, b match.Position) float32 {
+func distanceSquared(a esc.Position, b esc.Position) float32 {
 	var dx = a.X - b.X
 	var dy = a.Y - b.Y
 

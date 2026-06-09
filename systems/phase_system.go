@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 	"time"
@@ -16,7 +17,7 @@ func NewPhaseSystem(match *match.Match) *PhaseSystem {
 	}
 }
 
-func (phase *PhaseSystem) Update(tick float64, world *match.World) {
+func (phase *PhaseSystem) Update(tick float64, world *esc.World) {
 	phase.updatePhase(time.Now())
 }
 

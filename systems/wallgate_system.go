@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"Velora/esc"
 	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 )
@@ -15,7 +16,7 @@ func NewWallGateSystem(match *match.Match) *WallGateSystem {
 	}
 }
 
-func (wall *WallGateSystem) Update(tick float64, world *match.World) {
+func (wall *WallGateSystem) Update(tick float64, world *esc.World) {
 	var openState bool
 
 	if wall.match.Phase == packets.MatchPhase_MATCH_PHASE_PREPARE {

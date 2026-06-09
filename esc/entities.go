@@ -1,8 +1,9 @@
-package match
+package esc
 
 import (
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/config"
+	"Velora/server/Internal/server/match"
 	"cmp"
 	"errors"
 	"math/rand/v2"
@@ -113,7 +114,7 @@ var startPositions = []startPosition{
 }
 
 func NewWorld(
-	players []PlayerRef,
+	players []match.PlayerRef,
 	gameConfig config.GameConfig,
 	mapSeed uint64,
 	idGenerator *Internal.IdGenerator,
@@ -125,7 +126,7 @@ func NewWorld(
 	var world = NewEmptyWorld(len(players))
 	var sortedPlayers = slices.Clone(players)
 
-	slices.SortFunc(sortedPlayers, func(a, b PlayerRef) int {
+	slices.SortFunc(sortedPlayers, func(a, b match.PlayerRef) int {
 		return cmp.Compare(a.Slot, b.Slot)
 	})
 
@@ -235,12 +236,12 @@ func NewNutrientSpawner(mapSeed uint64, nutrientConfig config.NutrientConfig) Nu
 		SpawnInterval: nutrientConfig.SpawnInterval,
 		MaxNutrients:  nutrientConfig.MaxNutrients,
 		SpawnBatch:    nutrientConfig.SpawnBatch,
-		MaxAttempts:   defaultNutrientMaxAttempts,
+		MaxAttempts:   match.defaultNutrientMaxAttempts,
 
-		ArenaHalfSize:       defaultNutrientArenaHalfSize,
-		MinPlayerDistance:   defaultNutrientMinPlayerDistance,
-		MinCoreDistance:     defaultNutrientMinCoreDistance,
-		MinNutrientDistance: defaultNutrientMinNutrientDistance,
+		ArenaHalfSize:       match.defaultNutrientArenaHalfSize,
+		MinPlayerDistance:   match.defaultNutrientMinPlayerDistance,
+		MinCoreDistance:     match.defaultNutrientMinCoreDistance,
+		MinNutrientDistance: match.defaultNutrientMinNutrientDistance,
 
 		NutrientActive: nutrientConfig.Alive,
 	}
