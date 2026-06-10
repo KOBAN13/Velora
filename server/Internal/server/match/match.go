@@ -29,7 +29,7 @@ type Match struct {
 	Inputs  map[uint64]PlayerInput
 
 	EntityIds       *Internal.IdGenerator
-	NutrientSpawner esc.NutrientSpawner
+	NutrientSpawner NutrientSpawner
 
 	stop chan struct{}
 	sync sync.Once

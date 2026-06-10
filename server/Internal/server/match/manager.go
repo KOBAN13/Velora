@@ -43,7 +43,31 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var entityIds = &Internal.IdGenerator{}
-	var world, nutrientSpawner, err = esc.NewWorld(config.Players, m.gameConfig, config.MapSeed, entityIds)
+	var players, err = sortedValidPlayers(config.Players)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var capacity = esc.WorldCapacity{
+		PlayerCells: len(players),
+		Cores:       len(players),
+		Nutrients:   m.gameConfig.Nutrient.MaxNutrients,
+		Walls:       len(players),
+	}
+
+	var world = esc.NewWorld(capacity)
+
+	for _, player := range players {
+		var start = startPositions[player.Slot]
+
+		world.CreatePlayerCell(esc.EntityId(entityIds.Next()), player.UserId, start.Cell, m.gameConfig.PlayerCell)
+		world.CreateCore(esc.EntityId(entityIds.Next()), player.UserId, start.Core, m.gameConfig.Core)
+	}
+
+	world.CreateWall(esc.EntityId(entityIds.Next()), m.gameConfig.Wall)
+
+	nutrientSpawner, err := NewNutrientSpawn(config.Players, m.gameConfig, config.MapSeed)
 
 	if err != nil {
 		return nil, err
