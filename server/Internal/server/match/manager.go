@@ -50,10 +50,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var capacity = esc.WorldCapacity{
-		PlayerCells: len(players),
-		Cores:       len(players),
-		Nutrients:   m.gameConfig.Nutrient.MaxNutrients,
-		Walls:       len(players),
+		Entities: len(players)*2 + 1 + m.gameConfig.Nutrient.MaxNutrients,
 	}
 
 	var world = esc.NewWorld(capacity)

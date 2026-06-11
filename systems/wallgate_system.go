@@ -25,9 +25,7 @@ func (wall *WallGateSystem) Update(tick float64, world *esc.World) {
 		openState = true
 	}
 
-	for id := range world.Walls {
-		var state = world.WallStates[id]
-		state.Open = openState
-		world.WallStates[id] = state
+	for _, wallEntity := range world.Walls() {
+		wallEntity.Open.Open = openState
 	}
 }

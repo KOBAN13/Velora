@@ -8,62 +8,50 @@ import (
 )
 
 func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
-	var playerCells = make([]*packets.PlayerCellEntityMessage, 0, len(world.PlayerCells))
-	var cores = make([]*packets.CoreEntityMessage, 0, len(world.Cores))
-	var nutrients = make([]*packets.NutrientEntityMessage, 0, len(world.Nutrients))
-	var walls = make([]*packets.WallEntityMessage, 0, len(world.Walls))
+	var playerEntities = sortedEntitiesById(world.PlayerCells())
+	var coreEntities = sortedEntitiesById(world.Cores())
+	var nutrientEntities = sortedEntitiesById(world.Nutrients())
+	var wallEntities = sortedEntitiesById(world.Walls())
 
-	for _, id := range sortedEntityIds(world.PlayerCells) {
-		var position = world.Positions[id]
-		var owner = world.Owners[id]
-		var health = world.Health[id]
-		var biomass = world.Biomass[id]
-		var level = world.Levels[id]
-		var active = world.Active[id]
+	var playerCells = make([]*packets.PlayerCellEntityMessage, 0, len(playerEntities))
+	var cores = make([]*packets.CoreEntityMessage, 0, len(coreEntities))
+	var nutrients = make([]*packets.NutrientEntityMessage, 0, len(nutrientEntities))
+	var walls = make([]*packets.WallEntityMessage, 0, len(wallEntities))
 
+	for _, player := range playerEntities {
 		playerCells = append(playerCells, &packets.PlayerCellEntityMessage{
-			Id:       uint64(id),
-			OwnerId:  owner.UserId,
-			Position: newVector2Message(position),
-			Hp:       uint32(health.HP),
-			Biomass:  biomass.Value,
-			Level:    level.Value,
-			Alive:    active.IsActive,
+			Id:       uint64(player.Id),
+			OwnerId:  player.OwnerId.UserId,
+			Position: newVector2Message(player.Position),
+			Hp:       uint32(player.HP.HP),
+			Biomass:  player.Biomass.Value,
+			Level:    player.Level.Value,
+			Alive:    player.Active.IsActive,
 		})
 	}
 
-	for _, id := range sortedEntityIds(world.Cores) {
-		var position = world.Positions[id]
-		var owner = world.Owners[id]
-		var health = world.Health[id]
-
+	for _, core := range coreEntities {
 		cores = append(cores, &packets.CoreEntityMessage{
-			Id:       uint64(id),
-			OwnerId:  owner.UserId,
-			Position: newVector2Message(position),
-			Hp:       uint32(health.HP),
+			Id:       uint64(core.Id),
+			OwnerId:  core.OwnerId.UserId,
+			Position: newVector2Message(core.Position),
+			Hp:       uint32(core.HP.HP),
 		})
 	}
 
-	for _, id := range sortedEntityIds(world.Nutrients) {
-		var position = world.Positions[id]
-		var value = world.NutrientValues[id]
-		var active = world.Active[id]
-
+	for _, nutrient := range nutrientEntities {
 		nutrients = append(nutrients, &packets.NutrientEntityMessage{
-			Id:       uint64(id),
-			Position: newVector2Message(position),
-			Value:    value.Value,
-			Active:   active.IsActive,
+			Id:       uint64(nutrient.Id),
+			Position: newVector2Message(nutrient.Position),
+			Value:    nutrient.Value.Value,
+			Active:   nutrient.Active.IsActive,
 		})
 	}
 
-	for _, id := range sortedEntityIds(world.Walls) {
-		var state = world.WallStates[id]
-
+	for _, wall := range wallEntities {
 		walls = append(walls, &packets.WallEntityMessage{
-			Id:   uint64(id),
-			Open: state.Open,
+			Id:   uint64(wall.Id),
+			Open: wall.Open.Open,
 		})
 	}
 
@@ -78,16 +66,18 @@ func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
 		walls)
 }
 
-func sortedEntityIds[T any](entities map[esc.EntityId]T) []esc.EntityId {
-	var ids = make([]esc.EntityId, 0, len(entities))
+func sortedEntitiesById[T esc.Entity](entities []T) []T {
+	slices.SortFunc(entities, func(a T, b T) int {
+		if a.EntityID() < b.EntityID() {
+			return -1
+		}
+		if a.EntityID() > b.EntityID() {
+			return 1
+		}
+		return 0
+	})
 
-	for id := range entities {
-		ids = append(ids, id)
-	}
-
-	slices.Sort(ids)
-
-	return ids
+	return entities
 }
 
 func newVector2Message(position esc.Position) *packets.Vector2Message {

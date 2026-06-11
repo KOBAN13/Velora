@@ -2,14 +2,14 @@ package esc
 
 type PlayerCell struct {
 	Id        EntityId
-	OwnerId   uint64
+	OwnerId   Owner
 	Position  Position
 	Direction MoveDirection
-	HP        int32
-	MaxHP     int32
-	Biomass   uint32
-	Level     uint32
-	Active    bool
+	HP        Health
+	MaxHP     Health
+	Biomass   Biomass
+	Level     Level
+	Active    Active
 }
 
 func (e *PlayerCell) EntityID() EntityId {
@@ -22,10 +22,10 @@ func (e *PlayerCell) EntityKind() EntityKind {
 
 type Core struct {
 	Id       EntityId
-	OwnerId  uint64
+	OwnerId  Owner
 	Position Position
-	HP       int32
-	MaxHP    int32
+	HP       Health
+	MaxHP    Health
 }
 
 func (e *Core) EntityID() EntityId {
@@ -39,8 +39,8 @@ func (e *Core) EntityKind() EntityKind {
 type Nutrient struct {
 	Id       EntityId
 	Position Position
-	Value    uint32
-	Active   bool
+	Value    NutrientValue
+	Active   Active
 }
 
 func (e *Nutrient) EntityID() EntityId {
@@ -53,7 +53,7 @@ func (e *Nutrient) EntityKind() EntityKind {
 
 type Wall struct {
 	Id   EntityId
-	Open bool
+	Open WallState
 }
 
 func (e *Wall) EntityID() EntityId {

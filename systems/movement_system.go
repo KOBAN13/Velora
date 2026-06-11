@@ -16,21 +16,18 @@ func NewMovementSystem(match *match.Match) *MovementSystem {
 }
 
 func (m *MovementSystem) Update(tick float64, world *esc.World) {
-	for entityId := range world.PlayerCells {
-		if !world.Active[entityId].IsActive {
+	for _, player := range world.PlayerCells() {
+		if !player.Active.IsActive {
 			continue
 		}
 
-		var direction = world.Directions[entityId]
+		var direction = player.Direction
 
 		if direction.IsZero() {
 			continue
 		}
 
-		var position = world.Positions[entityId]
-
-		position.X += direction.X * match.BaseSpeed * match.TimeDeltaSeconds
-		position.Y += direction.Y * match.BaseSpeed * match.TimeDeltaSeconds
-		world.Positions[entityId] = position
+		player.Position.X += direction.X * match.BaseSpeed * match.TimeDeltaSeconds
+		player.Position.Y += direction.Y * match.BaseSpeed * match.TimeDeltaSeconds
 	}
 }

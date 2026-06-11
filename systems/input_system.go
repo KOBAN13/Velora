@@ -16,14 +16,13 @@ func NewInputSystem(match *match.Match) *InputSystem {
 }
 
 func (i *InputSystem) Update(tick float64, world *esc.World) {
-	for entityId := range world.PlayerCells {
-		var owner = world.Owners[entityId]
-		var input = i.match.Inputs[owner.UserId]
+	for _, player := range world.PlayerCells() {
+		var input = i.match.Inputs[player.OwnerId.UserId]
 
-		if world.Active[entityId].IsActive == false {
-			world.Directions[entityId] = esc.Zero()
+		if player.Active.IsActive == false {
+			player.Direction = esc.Zero()
 		} else {
-			world.Directions[entityId] = esc.MoveDirection{
+			player.Direction = esc.MoveDirection{
 				X: input.MoveX,
 				Y: input.MoveY,
 			}

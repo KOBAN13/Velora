@@ -49,39 +49,30 @@ func (s *NutrientSystem) Fill(world *esc.World) error {
 }
 
 func (s *NutrientSystem) PlayerPickUpNutrient(world *esc.World) {
-	for entityId := range world.PlayerCells {
-		if !world.Active[entityId].IsActive {
+	for _, player := range world.PlayerCells() {
+		if !player.Active.IsActive {
 			continue
 		}
 
-		var playerPosition = world.Positions[entityId]
+		var playerPosition = player.Position
 
-		for nutrientId := range world.Nutrients {
-			if !world.Active[nutrientId].IsActive {
+		for _, nutrient := range world.Nutrients() {
+			if !nutrient.Active.IsActive {
 				continue
 			}
 
-			var nutrientPosition = world.Positions[nutrientId]
+			var nutrientPosition = nutrient.Position
 
 			var distance = playerPosition.DistanceTo(nutrientPosition)
 
 			if distance <= match.DefaultNutrientPickUpDistance {
-				var activeComponent = world.Active[nutrientId]
-				activeComponent.IsActive = false
-				world.Active[nutrientId] = activeComponent
+				nutrient.Active.IsActive = false
 
-				var nutrientValue = world.NutrientValues[nutrientId].Value
-				var biomassComponent = world.Biomass[entityId]
+				var nutrientValue = nutrient.Value.Value
 
-				biomassComponent.Value += nutrientValue
+				player.Biomass.Value += nutrientValue
 
-				world.Biomass[entityId] = biomassComponent
-
-				var levelComponent = world.Levels[entityId]
-
-				levelComponent.Value = 1 + biomassComponent.Value/100
-
-				world.Levels[entityId] = levelComponent
+				player.Level.Value = 1 + player.Biomass.Value/100
 			}
 		}
 	}
@@ -147,24 +138,24 @@ func (s *NutrientSystem) randomPosition() esc.Position {
 func (s *NutrientSystem) canPlace(world *esc.World, position esc.Position) bool {
 	var spawner = &s.match.NutrientSpawner
 
-	for id := range world.PlayerCells {
-		if distanceSquared(position, world.Positions[id]) < square(spawner.MinPlayerDistance) {
+	for _, player := range world.PlayerCells() {
+		if distanceSquared(position, player.Position) < square(spawner.MinPlayerDistance) {
 			return false
 		}
 	}
 
-	for id := range world.Cores {
-		if distanceSquared(position, world.Positions[id]) < square(spawner.MinCoreDistance) {
+	for _, core := range world.Cores() {
+		if distanceSquared(position, core.Position) < square(spawner.MinCoreDistance) {
 			return false
 		}
 	}
 
-	for id := range world.Nutrients {
-		if !world.Active[id].IsActive {
+	for _, nutrient := range world.Nutrients() {
+		if !nutrient.Active.IsActive {
 			continue
 		}
 
-		if distanceSquared(position, world.Positions[id]) < square(spawner.MinNutrientDistance) {
+		if distanceSquared(position, nutrient.Position) < square(spawner.MinNutrientDistance) {
 			return false
 		}
 	}
@@ -175,8 +166,8 @@ func (s *NutrientSystem) canPlace(world *esc.World, position esc.Position) bool 
 func (s *NutrientSystem) ActiveNutrientCount(world *esc.World) int {
 	var count = 0
 
-	for id := range world.Nutrients {
-		if world.Active[id].IsActive {
+	for _, nutrient := range world.Nutrients() {
+		if nutrient.Active.IsActive {
 			count++
 		}
 	}

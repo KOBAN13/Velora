@@ -16,13 +16,9 @@ func NewDeathSystem(match *match.Match) *DeathSystem {
 }
 
 func (wall *DeathSystem) Update(tick float64, world *esc.World) {
-	for entityId := range world.PlayerCells {
-		var hpComponent = world.Health[entityId]
-
-		if hpComponent.HP <= 0 {
-			var activeComponent = world.Active[entityId]
-			activeComponent.IsActive = false
-			world.Active[entityId] = activeComponent
+	for _, player := range world.PlayerCells() {
+		if player.HP.HP <= 0 {
+			player.Active.IsActive = false
 		}
 	}
 }

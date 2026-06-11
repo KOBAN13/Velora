@@ -27,6 +27,46 @@ func (w *World) RemoveEntity(entity EntityId) {
 	delete(w.Entities, entity)
 }
 
+func (w *World) PlayerCells() []*PlayerCell {
+	result := make([]*PlayerCell, 0)
+	for _, entity := range w.Entities {
+		if typed, ok := entity.(*PlayerCell); ok {
+			result = append(result, typed)
+		}
+	}
+	return result
+}
+
+func (w *World) Cores() []*Core {
+	result := make([]*Core, 0)
+	for _, entity := range w.Entities {
+		if typed, ok := entity.(*Core); ok {
+			result = append(result, typed)
+		}
+	}
+	return result
+}
+
+func (w *World) Nutrients() []*Nutrient {
+	result := make([]*Nutrient, 0)
+	for _, entity := range w.Entities {
+		if typed, ok := entity.(*Nutrient); ok {
+			result = append(result, typed)
+		}
+	}
+	return result
+}
+
+func (w *World) Walls() []*Wall {
+	result := make([]*Wall, 0)
+	for _, entity := range w.Entities {
+		if typed, ok := entity.(*Wall); ok {
+			result = append(result, typed)
+		}
+	}
+	return result
+}
+
 func (w *World) CreatePlayerCell(
 	id EntityId,
 	ownerId uint64,
@@ -35,13 +75,13 @@ func (w *World) CreatePlayerCell(
 ) {
 	w.Entities[id] = &PlayerCell{
 		Id:       id,
-		OwnerId:  ownerId,
+		OwnerId:  Owner{ownerId},
 		Position: position,
-		HP:       int32(playerConfig.HP),
-		MaxHP:    int32(playerConfig.MaxHP),
-		Biomass:  uint32(playerConfig.Biomass),
-		Level:    uint32(playerConfig.Level),
-		Active:   playerConfig.Alive,
+		HP:       Health{int32(playerConfig.HP)},
+		MaxHP:    Health{int32(playerConfig.MaxHP)},
+		Biomass:  Biomass{uint32(playerConfig.Biomass)},
+		Level:    Level{uint32(playerConfig.Level)},
+		Active:   Active{playerConfig.Alive},
 	}
 }
 
@@ -53,10 +93,10 @@ func (w *World) CreateCore(
 ) {
 	w.Entities[id] = &Core{
 		Id:       id,
-		OwnerId:  ownerId,
+		OwnerId:  Owner{ownerId},
 		Position: position,
-		HP:       int32(coreConfig.HP),
-		MaxHP:    int32(coreConfig.MaxHP),
+		HP:       Health{int32(coreConfig.HP)},
+		MaxHP:    Health{int32(coreConfig.MaxHP)},
 	}
 }
 
@@ -69,14 +109,14 @@ func (w *World) CreateNutrient(
 	w.Entities[id] = &Nutrient{
 		Id:       id,
 		Position: position,
-		Value:    value,
-		Active:   active,
+		Value:    NutrientValue{value},
+		Active:   Active{active},
 	}
 }
 
 func (w *World) CreateWall(id EntityId, wallConfig config.WallConfig) {
 	w.Entities[id] = &Wall{
 		Id:   id,
-		Open: wallConfig.Open,
+		Open: WallState{wallConfig.Open},
 	}
 }
