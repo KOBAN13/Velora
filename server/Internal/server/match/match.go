@@ -4,11 +4,22 @@ import (
 	"Velora/esc"
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/db"
+	"Velora/server/Internal/server/spawners"
 	"Velora/server/pkg/packets"
 	"Velora/systems"
+	"cmp"
+	"errors"
 	"math"
+	"slices"
 	"sync"
 	"time"
+)
+
+var (
+	ErrPlayerNotFound    = errors.New("player not found")
+	ErrPlayerSlotInvalid = errors.New("player slot invalid")
+	ErrPlayerSlotUsed    = errors.New("player slot already used")
+	ErrPlayerUsed        = errors.New("player already used")
 )
 
 type Match struct {
@@ -29,7 +40,7 @@ type Match struct {
 	Inputs  map[uint64]PlayerInput
 
 	EntityIds       *Internal.IdGenerator
-	NutrientSpawner NutrientSpawner
+	NutrientSpawner spawners.NutrientSpawner
 
 	stop chan struct{}
 	sync sync.Once
@@ -47,12 +58,6 @@ type PlayerRef struct {
 	ClientId uint64
 	Slot     uint32
 	Client   Client
-}
-
-type PlayerInput struct {
-	MoveX      float32
-	MoveY      float32
-	ReceivedAt time.Time
 }
 
 type Client interface {
@@ -159,4 +164,34 @@ func (m *Match) connectedClientsLocked() []Client {
 	}
 
 	return clients
+}
+
+func SortedValidPlayers(players []PlayerRef) ([]PlayerRef, error) {
+	if len(players) == 0 {
+		return nil, ErrPlayerNotFound
+	}
+
+	var sortedPlayers = slices.Clone(players)
+
+	slices.SortFunc(sortedPlayers, func(a, b PlayerRef) int {
+		return cmp.Compare(a.Slot, b.Slot)
+	})
+
+	var usedPlayers = make(map[uint64]struct{}, len(sortedPlayers))
+	var usedSlots = make(map[uint32]struct{}, len(sortedPlayers))
+
+	for _, player := range sortedPlayers {
+		if _, ok := usedPlayers[player.UserId]; ok {
+			return nil, ErrPlayerUsed
+		}
+
+		if _, ok := usedSlots[player.Slot]; ok {
+			return nil, ErrPlayerSlotUsed
+		}
+
+		usedPlayers[player.UserId] = struct{}{}
+		usedSlots[player.Slot] = struct{}{}
+	}
+
+	return sortedPlayers, nil
 }

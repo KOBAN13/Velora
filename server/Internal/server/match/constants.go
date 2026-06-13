@@ -14,14 +14,5 @@ const (
 )
 
 const (
-	defaultNutrientMaxAttempts         = 1500
-	defaultNutrientArenaHalfSize       = 22
-	defaultNutrientMinPlayerDistance   = 4
-	defaultNutrientMinCoreDistance     = 5
-	defaultNutrientMinNutrientDistance = 2
-	DefaultNutrientPickUpDistance      = 1.5
-)
-
-const (
 	BaseSpeed = 5
 )

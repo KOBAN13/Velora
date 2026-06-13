@@ -4,6 +4,7 @@ import (
 	"Velora/esc"
 	"Velora/server/Internal"
 	"Velora/server/Internal/server/config"
+	"Velora/server/Internal/server/spawners"
 	"Velora/server/pkg/packets"
 	"Velora/systems"
 	"errors"
@@ -43,7 +44,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	}
 
 	var entityIds = &Internal.IdGenerator{}
-	var players, err = sortedValidPlayers(config.Players)
+	var players, err = SortedValidPlayers(config.Players)
 
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 	var world = esc.NewWorld(capacity)
 
 	for _, player := range players {
-		var start = startPositions[player.Slot]
+		var start = spawners.StartPositions[player.Slot]
 
 		world.CreatePlayerCell(esc.EntityId(entityIds.Next()), player.UserId, start.Cell, m.gameConfig.PlayerCell)
 		world.CreateCore(esc.EntityId(entityIds.Next()), player.UserId, start.Core, m.gameConfig.Core)
@@ -64,7 +65,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 
 	world.CreateWall(esc.EntityId(entityIds.Next()), m.gameConfig.Wall)
 
-	nutrientSpawner, err := NewNutrientSpawn(config.Players, m.gameConfig, config.MapSeed)
+	nutrientSpawner, err := spawners.NewNutrientSpawn(m.gameConfig, config.MapSeed)
 
 	if err != nil {
 		return nil, err
