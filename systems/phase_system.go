@@ -2,37 +2,45 @@ package systems
 
 import (
 	"Velora/esc"
-	"Velora/server/Internal/server/match"
 	"Velora/server/pkg/packets"
 	"time"
 )
 
+const (
+	ActiveDuration = 180 * time.Second
+)
+
 type PhaseSystem struct {
-	match *match.Match
 }
 
-func NewPhaseSystem(match *match.Match) *PhaseSystem {
-	return &PhaseSystem{
-		match: match,
-	}
+func (*PhaseSystem) Name() string {
+	return "DeathSystem"
 }
 
-func (phase *PhaseSystem) Update(tick float64, world *esc.World) {
-	phase.updatePhase(time.Now())
+func (*PhaseSystem) Stage() Stage {
+	return StagePhase
 }
 
-func (phase *PhaseSystem) updatePhase(now time.Time) {
-	switch phase.match.Phase {
+func NewPhaseSystem() *PhaseSystem {
+	return &PhaseSystem{}
+}
+
+func (phase *PhaseSystem) Update(ctx *esc.SystemContext, world *esc.World) {
+	phase.updatePhase(ctx)
+}
+
+func (phase *PhaseSystem) updatePhase(ctx *esc.SystemContext) {
+	switch ctx.Phase {
 	case packets.MatchPhase_MATCH_PHASE_PREPARE:
-		if now.After(phase.match.PhaseEndsAt) || now.Equal(phase.match.PhaseEndsAt) {
-			phase.match.Phase = packets.MatchPhase_MATCH_PHASE_ACTIVE
-			phase.match.PhaseEndsAt = now.Add(match.ActiveDuration)
+		if ctx.Now.After(ctx.PhaseEndsAt) || ctx.Now.Equal(ctx.PhaseEndsAt) {
+			ctx.Phase = packets.MatchPhase_MATCH_PHASE_ACTIVE
+			ctx.PhaseEndsAt = ctx.Now.Add(ActiveDuration)
 		}
 
 	case packets.MatchPhase_MATCH_PHASE_ACTIVE:
-		if now.After(phase.match.PhaseEndsAt) || now.Equal(phase.match.PhaseEndsAt) {
-			phase.match.Phase = packets.MatchPhase_MATCH_PHASE_ENDED
-			phase.match.PhaseEndsAt = time.Time{}
+		if ctx.Now.After(ctx.PhaseEndsAt) || ctx.Now.Equal(ctx.PhaseEndsAt) {
+			ctx.Phase = packets.MatchPhase_MATCH_PHASE_ENDED
+			ctx.PhaseEndsAt = time.Time{}
 		}
 	case packets.MatchPhase_MATCH_PHASE_ENDED:
 	}

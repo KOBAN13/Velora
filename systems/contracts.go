@@ -4,10 +4,23 @@ import (
 	"Velora/esc"
 )
 
-type Update interface {
-	Update(tick float64, world *esc.World)
+type Stage int
+
+const (
+	StagePhase Stage = iota
+	StageInput
+	StageMovement
+	StageSpawn
+	StageRules
+	StageCleanup
+)
+
+type System interface {
+	Name() string
+	Stage() Stage
+	Update(ctx *esc.SystemContext, world *esc.World) error
 }
 
-type Initialize interface {
-	Start(world *esc.World) error
+type Initializer interface {
+	Start(ctx *esc.SystemContext, world *esc.World) error
 }

@@ -18,5 +18,5 @@ type Entity interface {
 }
 
 type EntityAllocator interface {
-	Next() uint64
+	Next() EntityId
 }

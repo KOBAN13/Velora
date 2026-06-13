@@ -15,7 +15,7 @@ type Owner struct {
 }
 
 type Health struct {
-	HP int32
+	Value int32
 }
 
 type Biomass struct {

@@ -2,22 +2,25 @@ package systems
 
 import (
 	"Velora/esc"
-	"Velora/server/Internal/server/match"
 )
 
-type InputSystem struct {
-	match *match.Match
+type InputSystem struct{}
+
+func (*InputSystem) Name() string {
+	return "DeathSystem"
 }
 
-func NewInputSystem(match *match.Match) *InputSystem {
-	return &InputSystem{
-		match: match,
-	}
+func (*InputSystem) Stage() Stage {
+	return StageInput
 }
 
-func (i *InputSystem) Update(tick float64, world *esc.World) {
-	for _, player := range world.PlayerCells() {
-		var input = i.match.Inputs[player.OwnerId.UserId]
+func NewInputSystem() *InputSystem {
+	return &InputSystem{}
+}
+
+func (i *InputSystem) Update(ctx *esc.SystemContext, world *esc.World) {
+	for _, player := range world.QueryActivePlayerCells() {
+		var input = ctx.Resources.Inputs.Inputs[player.OwnerId.UserId]
 
 		if player.Active.IsActive == false {
 			player.Direction = esc.Zero()

@@ -11,9 +11,17 @@ func NewDeathSystem() *DeathSystem {
 	return &DeathSystem{}
 }
 
-func (wall *DeathSystem) Update(tick float64, world *esc.World) {
-	for _, player := range world.PlayerCells() {
-		if player.HP.HP <= 0 {
+func (*DeathSystem) Name() string {
+	return "DeathSystem"
+}
+
+func (*DeathSystem) Stage() Stage {
+	return StageCleanup
+}
+
+func (*DeathSystem) Update(ctx *esc.SystemContext, world *esc.World) {
+	for _, player := range world.QueryActivePlayerCells() {
+		if player.HP.Value <= 0 {
 			player.Active.IsActive = false
 		}
 	}
