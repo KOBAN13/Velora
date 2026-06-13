@@ -27,46 +27,6 @@ func (w *World) RemoveEntity(entity EntityId) {
 	delete(w.Entities, entity)
 }
 
-func (w *World) PlayerCells() []*PlayerCell {
-	result := make([]*PlayerCell, 0)
-	for _, entity := range w.Entities {
-		if typed, ok := entity.(*PlayerCell); ok {
-			result = append(result, typed)
-		}
-	}
-	return result
-}
-
-func (w *World) Cores() []*Core {
-	result := make([]*Core, 0)
-	for _, entity := range w.Entities {
-		if typed, ok := entity.(*Core); ok {
-			result = append(result, typed)
-		}
-	}
-	return result
-}
-
-func (w *World) Nutrients() []*Nutrient {
-	result := make([]*Nutrient, 0)
-	for _, entity := range w.Entities {
-		if typed, ok := entity.(*Nutrient); ok {
-			result = append(result, typed)
-		}
-	}
-	return result
-}
-
-func (w *World) Walls() []*Wall {
-	result := make([]*Wall, 0)
-	for _, entity := range w.Entities {
-		if typed, ok := entity.(*Wall); ok {
-			result = append(result, typed)
-		}
-	}
-	return result
-}
-
 func (w *World) CreatePlayerCell(
 	id EntityId,
 	ownerId uint64,
