@@ -13,8 +13,11 @@ Velora - серверная основа на Go для сетевых игр и
 - PostgreSQL-репозиторий пользователей поверх `pgxpool`.
 - Хеширование паролей через `bcrypt`.
 - In-memory lobby manager с комнатами, владельцем комнаты, ready-флагами и стартом матча.
+- In-memory match runtime с фиксированным tick rate, фазами матча и рассылкой `MatchSnapshotMessage`.
+- ECS-слой для игровых сущностей: player cells, cores, nutrients и walls.
+- System runner для фаз, input, movement, nutrient spawn, wall gate и cleanup-логики.
 - Загрузка стартовых игровых параметров из Google Sheets.
-- Protobuf snapshots для состояния комнаты и краткого списка комнат.
+- Protobuf snapshots для состояния комнаты, краткого списка комнат и состояния матча.
 - Настраиваемый порт запуска через CLI-флаг `-port`.
 
 ## Стек
@@ -34,6 +37,8 @@ Velora - серверная основа на Go для сетевых игр и
 ├── main.go                              # точка входа, HTTP-сервер и endpoint /velora
 ├── Makefile                             # proto generation и deploy-команды
 ├── docker-compose.yml                   # production-контейнер
+├── esc                                  # ECS world, components, resources, commands и queries
+├── systems                              # gameplay systems и system runner
 ├── shared
 │   └── packets.proto                    # protobuf-контракт пакетов
 └── server
@@ -48,6 +53,8 @@ Velora - серверная основа на Go для сетевых игр и
     │       ├── contracts                # интерфейсы hub/client/lobby/state
     │       ├── db                       # модели и запросы пользователей
     │       ├── lobby                    # комнаты, игроки, snapshots и match start
+    │       ├── match                    # lifecycle матча, tick loop и match snapshots
+    │       ├── spawners                 # стартовые позиции и ресурсы спавна
     │       └── states                   # Connection и Authenticated states
     └── pkg
         └── packets                      # сгенерированный protobuf-код и хелперы
@@ -168,6 +175,8 @@ message Packet {
     RoomListRequestMessage room_list = 15;
     RoomSummaryMessage room_summary_message = 16;
     RoomListSnapshotMessage room_list_snapshot = 17;
+    PlayerInputMessage player_input = 18;
+    MatchSnapshotMessage match_snapshot = 19;
   }
 }
 ```
@@ -188,13 +197,19 @@ Lobby сообщения:
 - `StartGameRequestMessage` - стартовать матч владельцем комнаты.
 - `RoomListRequestMessage` - запросить список комнат.
 
+Match сообщения:
+
+- `MatchStartMessage` - уведомление о старте матча: `roomId`, `matchId`, `player_id`, `slot`, `mapSeed`, `startsAtUnixMs`.
+- `PlayerInputMessage` - ввод игрока для матча: `matchId` и направление движения `movePosition`.
+- `MatchSnapshotMessage` - серверный snapshot матча: `matchId`, `serverTick`, `phase`, `phaseTimeLeftMs`, `playerCells`, `cores`, `nutrients`, `walls`.
+- `MatchPhase` - фаза матча: `MATCH_PHASE_PREPARE`, `MATCH_PHASE_ACTIVE`, `MATCH_PHASE_ENDED`.
+
 Snapshots и ответы:
 
 - `RoomStateSnapshotMessage` - состояние одной комнаты: `roomId`, `maxPlayer`, `status`, список игроков.
 - `RoomPlayerMessage` - игрок комнаты: `userId`, `clientId`, `username`, `isReady`, `owner`.
 - `RoomListSnapshotMessage` - краткий список комнат.
-- `RoomSummaryMessage` - summary комнаты: `name`, `roomId`, `playersCount`, `maxPlayer`, `status`.
-- `MatchStartMessage` - уведомление о старте матча с `roomId` и `matchId`.
+- `RoomSummaryMessage` - summary комнаты: `name`, `roomId`, `Players`, `maxPlayer`, `status`.
 - `OkResponseMessage` - успешный ответ на команду.
 - `DenyResponseMessage` - отказ с текстовой причиной.
 
@@ -220,10 +235,29 @@ Snapshots и ответы:
 5. Игроки меняют готовность через `ReadyRequestMessage`.
 6. Владелец отправляет `StartGameRequestMessage`.
 7. Если комната в статусе `ROOM_STATUS_WAITING` и все игроки готовы, сервер переводит комнату в `ROOM_STATUS_STARTED` и отправляет `MatchStartMessage`.
+8. Матч инициализирует ECS systems, стартовые сущности и начальные nutrients.
+9. После старта `Match.Run` запускает tick loop с частотой `20` тиков в секунду.
+10. На каждом тике сервер синхронизирует inputs в ECS resources, выполняет systems по стадиям, применяет command buffer и рассылает `MatchSnapshotMessage` подключенным игрокам.
+
+### Match tick flow
+
+`Match.Tick` работает под mutex матча, чтобы inputs, ECS world и список подключенных клиентов оставались согласованными в рамках одного тика.
+
+Порядок обработки:
+
+1. Увеличить `ServerTick`.
+2. Скопировать актуальные inputs игроков в `esc.Resources`.
+3. Создать `esc.SystemContext` с tick, delta time, временем, фазой, command buffer и resources.
+4. Выполнить `SystemRunner.UpdateSystems` по стадиям: phase, input, movement, spawn, rules, cleanup.
+5. После каждой стадии применить накопленные ECS commands к world.
+6. Сохранить обновленные `Phase` и `PhaseEndsAt` обратно в `Match`.
+7. Собрать и разослать `MatchSnapshotMessage`.
+
+Игровые системы сейчас отвечают за смену фаз, перенос player input в direction, движение активных player cells, подбор и спавн nutrients, открытие walls после prepare-фазы и деактивацию умерших player cells.
 
 ### Список комнат
 
-`RoomListRequestMessage` предназначен для получения краткого списка комнат. Сервер отвечает `RoomListSnapshotMessage`, где каждая комната содержит `name`, `roomId`, `playersCount`, `maxPlayer` и `status`. Список игроков в summary не передается; подробный состав комнаты приходит через `RoomStateSnapshotMessage` для конкретной комнаты.
+`RoomListRequestMessage` предназначен для получения списка комнат. Сервер отвечает `RoomListSnapshotMessage`, где каждая комната содержит `name`, `roomId`, `Players`, `maxPlayer` и `status`. Подробный состав конкретной комнаты также приходит через `RoomStateSnapshotMessage`.
 
 ## Разработка
 
@@ -254,7 +288,8 @@ make proto
 - Нет миграций базы данных.
 - Нет проверки origin при WebSocket upgrade: `CheckOrigin` сейчас разрешает любые источники.
 - Нет TLS, rate limiting и отдельного слоя валидации размера/частоты сообщений.
-- Нет отдельного matchmaking/gameplay слоя после `MatchStartMessage`.
+- Match runtime хранится только в памяти и останавливается при потере всех подключенных клиентов.
+- Нет механизма восстановления клиента в уже запущенный матч после реконнекта.
 
 ## Лицензия
 
