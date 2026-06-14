@@ -1,33 +1,39 @@
 package systems
 
-import (
-	"Velora/esc"
-	"Velora/server/Internal/server/match"
+import "Velora/esc"
+
+const (
+	DefaultPlayerSpeed = 5
 )
 
 type MovementSystem struct {
-	match *match.Match
 }
 
-func NewMovementSystem(match *match.Match) *MovementSystem {
-	return &MovementSystem{
-		match: match,
-	}
+func (*MovementSystem) Name() string {
+	return "MovementSystem"
 }
 
-func (m *MovementSystem) Update(tick float64, world *esc.World) {
-	for _, player := range world.PlayerCells() {
-		if !player.Active.IsActive {
-			continue
-		}
+func (*MovementSystem) Stage() Stage {
+	return StageMovement
+}
 
+func NewMovementSystem() *MovementSystem {
+	return &MovementSystem{}
+}
+
+func (m *MovementSystem) Update(ctx *esc.SystemContext, world *esc.World) {
+	for _, player := range world.QueryActivePlayerCells() {
 		var direction = player.Direction
 
 		if direction.IsZero() {
 			continue
 		}
 
-		player.Position.X += direction.X * match.BaseSpeed * match.TimeDeltaSeconds
-		player.Position.Y += direction.Y * match.BaseSpeed * match.TimeDeltaSeconds
+		var position = player.Position
+
+		position.X += direction.X * DefaultPlayerSpeed * ctx.DeltaSeconds
+		position.Y += direction.Y * DefaultPlayerSpeed * ctx.DeltaSeconds
+
+		world.SetPosition(player.EntityID(), position)
 	}
 }

@@ -54,6 +54,18 @@ func (w *World) QueryActiveNutrients() []*Nutrient {
 	return result
 }
 
+func (w *World) QueryInactiveNutrients() []*Nutrient {
+	result := make([]*Nutrient, 0)
+	for _, entity := range w.Entities {
+		if typed, ok := entity.(*Nutrient); ok {
+			if typed.Active.IsActive == false {
+				result = append(result, typed)
+			}
+		}
+	}
+	return result
+}
+
 func (w *World) QueryWalls() []*Wall {
 	result := make([]*Wall, 0)
 	for _, entity := range w.Entities {
@@ -138,6 +150,19 @@ func (w *World) SetLevel(id EntityId, value Level) {
 
 	if typed, ok := entity.(*PlayerCell); ok {
 		typed.Level = value
+	}
+}
+
+func (w *World) SetNutrient(id EntityId, position Position, value uint32, active bool) {
+	entity, ok := w.Entities[id]
+	if !ok {
+		return
+	}
+
+	if typed, ok := entity.(*Nutrient); ok {
+		typed.Position = position
+		typed.Value = NutrientValue{value}
+		typed.Active = Active{active}
 	}
 }
 

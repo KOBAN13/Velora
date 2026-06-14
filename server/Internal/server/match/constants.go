@@ -10,9 +10,4 @@ const (
 
 const (
 	PrepareDuration = 3 * time.Second
-	ActiveDuration  = 180 * time.Second
-)
-
-const (
-	BaseSpeed = 5
 )

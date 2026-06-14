@@ -14,7 +14,7 @@ type PhaseSystem struct {
 }
 
 func (*PhaseSystem) Name() string {
-	return "DeathSystem"
+	return "PhaseSystem"
 }
 
 func (*PhaseSystem) Stage() Stage {

@@ -31,6 +31,7 @@ type NutrientSpawnerResource struct {
 	MaxNutrients  int
 	SpawnBatch    int
 	MaxAttempts   int
+	NutrientValue uint32
 
 	ArenaHalfSize       float32
 	MinPlayerDistance   float32

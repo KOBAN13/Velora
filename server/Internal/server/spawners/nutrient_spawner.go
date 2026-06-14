@@ -13,6 +13,7 @@ const (
 	defaultNutrientMinPlayerDistance   = 4
 	defaultNutrientMinCoreDistance     = 5
 	defaultNutrientMinNutrientDistance = 2
+	defaultNutrientValue               = 1
 	DefaultNutrientPickUpDistance      = 1.5
 )
 
@@ -46,6 +47,7 @@ func NewNutrientSpawner(mapSeed uint64, nutrientConfig config.NutrientConfig) Nu
 		MaxNutrients:  nutrientConfig.MaxNutrients,
 		SpawnBatch:    nutrientConfig.SpawnBatch,
 		MaxAttempts:   defaultNutrientMaxAttempts,
+		NutrientValue: defaultNutrientValue,
 
 		ArenaHalfSize:       defaultNutrientArenaHalfSize,
 		MinPlayerDistance:   defaultNutrientMinPlayerDistance,

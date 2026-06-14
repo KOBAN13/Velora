@@ -13,10 +13,12 @@ func (c *CommandBuffer) Add(command Command) {
 }
 
 func (c *CommandBuffer) Execute(world *World, resources *Resources) {
-
+	for _, command := range c.commands {
+		command.Apply(world, resources)
+	}
 }
 
-func (c *CommandBuffer) Clear(world *World, resources *Resources) {
+func (c *CommandBuffer) Clear() {
 	clear(c.commands)
 	c.commands = c.commands[:0]
 }
@@ -28,7 +30,18 @@ type SpawnNutrientCommand struct {
 }
 
 func (c *SpawnNutrientCommand) Apply(world *World, resources *Resources) {
-	world.CreateNutrient(resources.EntityIds.Next(), c.Position, c.Value, c.Active)
+	world.CreateNutrient(EntityId(resources.EntityIds.Next()), c.Position, c.Value, c.Active)
+}
+
+type RespawnNutrientCommand struct {
+	EntityId EntityId
+	Position Position
+	Value    uint32
+	Active   bool
+}
+
+func (c *RespawnNutrientCommand) Apply(world *World, resources *Resources) {
+	world.SetNutrient(c.EntityId, c.Position, c.Value, c.Active)
 }
 
 type RemoveEntityCommand struct {

@@ -22,7 +22,7 @@ func (*DeathSystem) Stage() Stage {
 func (*DeathSystem) Update(ctx *esc.SystemContext, world *esc.World) {
 	for _, player := range world.QueryActivePlayerCells() {
 		if player.HP.Value <= 0 {
-			player.Active.IsActive = false
+			ctx.Commands.Add(&esc.SetActiveCommand{EntityId: player.EntityID(), Active: false})
 		}
 	}
 }
