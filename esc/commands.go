@@ -30,7 +30,7 @@ type SpawnNutrientCommand struct {
 }
 
 func (c *SpawnNutrientCommand) Apply(world *World, resources *Resources) {
-	world.CreateNutrient(EntityId(resources.EntityIds.Next()), c.Position, c.Value, c.Active)
+	world.CreateNutrient(resources.EntityIds.Next(), c.Position, c.Value, c.Active)
 }
 
 type RespawnNutrientCommand struct {
@@ -59,4 +59,13 @@ type SetActiveCommand struct {
 
 func (c *SetActiveCommand) Apply(world *World, resources *Resources) {
 	world.SetActive(c.EntityId, Active{c.Active})
+}
+
+type SetWallStateCommand struct {
+	EntityId EntityId
+	Open     bool
+}
+
+func (c *SetWallStateCommand) Apply(world *World, resources *Resources) {
+	world.SetWallState(c.EntityId, WallState{Open: c.Open})
 }

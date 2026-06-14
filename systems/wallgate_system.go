@@ -30,6 +30,6 @@ func (wall *WallGateSystem) Update(ctx *esc.SystemContext, world *esc.World) {
 	}
 
 	for _, wallEntity := range world.QueryWalls() {
-		ctx.Commands.Add(&esc.SetActiveCommand{EntityId: wallEntity.EntityID(), Active: openState})
+		ctx.Commands.Add(&esc.SetWallStateCommand{EntityId: wallEntity.EntityID(), Open: openState})
 	}
 }

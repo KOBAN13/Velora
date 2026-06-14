@@ -87,7 +87,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		Phase:       packets.MatchPhase_MATCH_PHASE_PREPARE,
 		PhaseEndsAt: time.Now().Add(PrepareDuration),
 		players:     make(map[uint64]*PlayerRef),
-		Inputs:      make(map[uint64]PlayerInput),
+		Inputs:      make(map[uint64]esc.PlayerInput),
 		Entities:    world,
 
 		EntityIds:       entityIds,
@@ -97,7 +97,15 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		sync: sync.Once{},
 	}
 
-	var systemRunner = systems.NewSystemRunner(match)
+	match.Resources = &esc.Resources{
+		Inputs: &esc.InputResource{
+			Inputs: make(map[uint64]esc.PlayerInput, len(players)),
+		},
+		NutrientSpawner: &match.NutrientSpawner,
+		EntityIds:       esc.EntityIdAllocator{Generator: entityIds},
+	}
+
+	var systemRunner = systems.NewSystemRunner()
 
 	match.SystemRunner = systemRunner
 

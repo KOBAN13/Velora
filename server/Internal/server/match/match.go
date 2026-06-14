@@ -30,14 +30,15 @@ type Match struct {
 	MapSeed    uint64
 	ServerTick uint64
 
-	SystemRunner *systems.SystemRunner
-	Phase        packets.MatchPhase
-	PhaseEndsAt  time.Time
+	Phase       packets.MatchPhase
+	PhaseEndsAt time.Time
 
-	Entities *esc.World
+	Entities     *esc.World
+	Resources    *esc.Resources
+	SystemRunner *systems.SystemRunner
 
 	players map[uint64]*PlayerRef
-	Inputs  map[uint64]PlayerInput
+	Inputs  map[uint64]esc.PlayerInput
 
 	EntityIds       *Internal.IdGenerator
 	NutrientSpawner spawners.NutrientSpawner
@@ -120,7 +121,7 @@ func (m *Match) RemoveClient(userId uint64, clientId uint64) bool {
 
 	player.Client = nil
 
-	m.Inputs[player.UserId] = PlayerInput{
+	m.Inputs[player.UserId] = esc.PlayerInput{
 		ReceivedAt: time.Now(),
 		MoveY:      0,
 		MoveX:      0,
@@ -129,7 +130,7 @@ func (m *Match) RemoveClient(userId uint64, clientId uint64) bool {
 	return true
 }
 
-func NewPlayerInput(x float32, y float32) PlayerInput {
+func NewPlayerInput(x float32, y float32) esc.PlayerInput {
 	if math.IsNaN(float64(x)) || math.IsInf(float64(x), 0) {
 		x = 0
 	}
@@ -145,7 +146,7 @@ func NewPlayerInput(x float32, y float32) PlayerInput {
 		y /= length
 	}
 
-	return PlayerInput{
+	return esc.PlayerInput{
 		MoveX:      x,
 		MoveY:      y,
 		ReceivedAt: time.Now(),

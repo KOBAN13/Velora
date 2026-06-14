@@ -8,10 +8,10 @@ import (
 )
 
 func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
-	var playerEntities = sortedEntitiesById(world.PlayerCells())
-	var coreEntities = sortedEntitiesById(world.Cores())
-	var nutrientEntities = sortedEntitiesById(world.Nutrients())
-	var wallEntities = sortedEntitiesById(world.Walls())
+	var playerEntities = sortedEntitiesById(world.QueryPlayerCells())
+	var coreEntities = sortedEntitiesById(world.QueryCores())
+	var nutrientEntities = sortedEntitiesById(world.QueryNutrients())
+	var wallEntities = sortedEntitiesById(world.QueryWalls())
 
 	var playerCells = make([]*packets.PlayerCellEntityMessage, 0, len(playerEntities))
 	var cores = make([]*packets.CoreEntityMessage, 0, len(coreEntities))
@@ -23,7 +23,7 @@ func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
 			Id:       uint64(player.Id),
 			OwnerId:  player.OwnerId.UserId,
 			Position: newVector2Message(player.Position),
-			Hp:       uint32(player.HP.HP),
+			Hp:       uint32(player.HP.Value),
 			Biomass:  player.Biomass.Value,
 			Level:    player.Level.Value,
 			Alive:    player.Active.IsActive,
@@ -35,7 +35,7 @@ func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
 			Id:       uint64(core.Id),
 			OwnerId:  core.OwnerId.UserId,
 			Position: newVector2Message(core.Position),
-			Hp:       uint32(core.HP.HP),
+			Hp:       uint32(core.HP.Value),
 		})
 	}
 

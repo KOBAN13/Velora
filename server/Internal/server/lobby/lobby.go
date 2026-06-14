@@ -123,8 +123,7 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 		return rollbackMatchStart(errCreateMatch)
 	}
 
-	createMatch.SystemRunner.BuildSystems()
-	var errInitializeSystems = createMatch.SystemRunner.InitializeSystems(createMatch.Entities)
+	var errInitializeSystems = createMatch.InitializeSystems(time.Now())
 
 	if errInitializeSystems != nil {
 		matchService.StopMatch(matchId)

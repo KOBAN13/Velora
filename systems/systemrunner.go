@@ -34,7 +34,7 @@ func (runner *SystemRunner) BuildSystems() {
 	runner.updateSystems = append(runner.updateSystems, deathSystem)
 }
 
-func (runner *SystemRunner) UpdateSystems(ctx *esc.SystemContext, world *esc.World) error {
+func (runner *SystemRunner) UpdateSystems(ctx *esc.SystemContext, world *esc.World) {
 	stages := []Stage{
 		StagePhase,
 		StageInput,
@@ -58,8 +58,6 @@ func (runner *SystemRunner) UpdateSystems(ctx *esc.SystemContext, world *esc.Wor
 			ctx.Commands.Clear()
 		}
 	}
-
-	return nil
 }
 
 func (runner *SystemRunner) InitializeSystems(ctx *esc.SystemContext, world *esc.World) error {
