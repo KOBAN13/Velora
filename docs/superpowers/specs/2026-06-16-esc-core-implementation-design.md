@@ -258,16 +258,26 @@ Next stage sees updated world
 
 Внутри stage мир структурно стабилен. Это защищает query iterators от invalidation.
 
-## 6. Go API constraint
+## 6. Go API constraint and chosen fluent syntax
 
-Текущая версия Go не поддерживает generic methods:
+Нельзя получить syntax вроде `builder.Read[T]()` установкой более новой стабильной версии Go.
+
+Официальная спецификация Go 1.26 по-прежнему не разрешает methods с собственными type parameters. Accepted generics design также прямо фиксирует правило: methods могут использовать type parameters receiver type, но не могут объявлять дополнительные type parameters.
+
+То есть это не ограничение локальной машины и не проблема версии `go.mod`. Это ограничение языка.
 
 ```go
 // This does not compile:
 func (b *QueryBuilder) Read[T any]() {}
 ```
 
-Поэтому все typed операции, которым нужен `[T]`, должны быть package-level generic functions.
+Нежелательные варианты:
+
+- ждать будущую версию Go с parameterized methods - сроков и гарантии нет;
+- использовать fork/experimental compiler - плохая идея для server runtime и портфолио;
+- писать `.go` файлы с `builder.Read[T]()` и прогонять preprocessor - IDE, tooling, `go test` и stack traces станут хуже.
+
+Решение v1: сохранить fluent builder API, но перенести generic часть в component token function.
 
 Вместо:
 
@@ -280,14 +290,15 @@ esc_core.Query(world).
 используем:
 
 ```go
-builder := esc_core.NewQuery(world, "players")
-esc_core.QueryWith[PlayerTag](builder)
-esc_core.QueryWrite[Position](builder)
-esc_core.QueryRead[MoveDirection](builder)
-esc_core.QueryRead[Active](builder)
-
-players, err := builder.Build()
+players, err := esc_core.NewQuery(world, "players").
+	With(esc_core.Component[PlayerTag]()).
+	Write(esc_core.Component[Position]()).
+	Read(esc_core.Component[MoveDirection]()).
+	Read(esc_core.Component[Active]()).
+	Build()
 ```
+
+Generic syntax остается, но только на package-level function `Component[T]()`, что поддерживается Go.
 
 Для iterator:
 
@@ -299,10 +310,37 @@ pos, err := esc_core.Write[Position](it)
 Для component type tokens:
 
 ```go
-component := esc_core.ComponentType[Poisoned]()
+component := esc_core.Component[Poisoned]()
 ```
 
-Это менее красиво, чем generic methods, но компилируемо и сохраняет type-safety на границе API.
+Builder methods are not generic:
+
+```go
+func (b *QueryBuilder) With(component ComponentToken) *QueryBuilder
+func (b *QueryBuilder) Without(component ComponentToken) *QueryBuilder
+func (b *QueryBuilder) Read(component ComponentToken) *QueryBuilder
+func (b *QueryBuilder) Write(component ComponentToken) *QueryBuilder
+```
+
+Это компилируется в обычном Go, сохраняет chaining и оставляет type-safe регистрацию component type.
+
+Если в будущей версии Go появятся generic methods, можно будет заменить token-based builder на typed sugar или добавить отдельный typed builder API:
+
+```go
+// Future only, not v1.
+// Cannot coexist with Read(ComponentToken) under the same method name unless
+// the token-based method is renamed, because Go does not support overloads.
+func (b *QueryBuilder) Read[T any]() *QueryBuilder {
+	return b.readComponent(esc_core.Component[T]())
+}
+```
+
+Storage, query planner и runner от этого не изменятся; поменяется только API facade.
+
+Reference links:
+
+- https://go.dev/ref/spec
+- https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#Methods-may-not-take-additional-type-arguments
 
 ## 7. Entity model
 
@@ -378,6 +416,11 @@ type ComponentInfo struct {
 	Size uintptr
 	IsTag bool
 }
+
+type ComponentToken struct {
+	Type reflect.Type
+	Name string
+}
 ```
 
 Регистрация происходит lazy через generic function:
@@ -389,8 +432,22 @@ id := esc_core.ComponentIDOf[Position](world)
 или через helper:
 
 ```go
-typ := esc_core.ComponentType[Position]()
+typ := esc_core.Component[Position]()
 ```
+
+`Component[T]()` does not assign a global id. It creates a type token. The world registry resolves that token into this world's `ComponentID`.
+
+Implementation note:
+
+```go
+func Component[T any]() ComponentToken {
+	return ComponentToken{
+		Type: reflect.TypeOf((*T)(nil)).Elem(),
+	}
+}
+```
+
+Do not use `reflect.TypeOf(zero T)` here. Nil-able zero values can produce a nil `reflect.Type` before validation has a chance to return a useful error.
 
 Важно: component registry принадлежит `World` или `Registry`, а не global singleton. Это делает tests независимыми.
 
@@ -513,7 +570,7 @@ func Spawn(world *World, components ...any) (Entity, error)
 func Despawn(world *World, entity Entity) error
 
 func Add(world *World, entity Entity, components ...any) error
-func Remove(world *World, entity Entity, componentTypes ...ComponentType) error
+func Remove(world *World, entity Entity, componentTypes ...ComponentToken) error
 
 func Has[T any](world *World, entity Entity) (bool, error)
 func Get[T any](world *World, entity Entity) (T, bool, error)
@@ -525,7 +582,7 @@ func EntityCount(world *World) int
 func ArchetypeCount(world *World) int
 ```
 
-Because Go has no generic methods, all typed operations are package-level functions.
+Because Go has no generic methods, direct typed access uses package-level generic functions. Fluent builders use non-generic methods plus `Component[T]()` tokens.
 
 Direct structural mutation guard:
 
@@ -550,13 +607,12 @@ const (
 Query создается один раз при setup системы.
 
 ```go
-builder := esc_core.NewQuery(world, "players")
-esc_core.QueryWith[PlayerTag](builder)
-esc_core.QueryWrite[Position](builder)
-esc_core.QueryRead[MoveDirection](builder)
-esc_core.QueryRead[Active](builder)
-
-players, err := builder.Build()
+players, err := esc_core.NewQuery(world, "players").
+	With(esc_core.Component[PlayerTag]()).
+	Write(esc_core.Component[Position]()).
+	Read(esc_core.Component[MoveDirection]()).
+	Read(esc_core.Component[Active]()).
+	Build()
 ```
 
 Builder накапливает:
@@ -573,23 +629,23 @@ type QueryDescriptor struct {
 
 Rules:
 
-- `Read[T]` also implies component presence.
-- `Write[T]` also implies component presence.
-- `With[T]` requires component presence but does not count as read/write access.
-- `Without[T]` excludes archetypes containing component.
+- `Read(Component[T]())` also implies component presence.
+- `Write(Component[T]())` also implies component presence.
+- `With(Component[T]())` requires component presence but does not count as read/write access.
+- `Without(Component[T]())` excludes archetypes containing component.
 - Same component cannot be both read and write in one query.
 - Duplicate entries return error at `Build`.
 
 Recommended tag usage:
 
 ```go
-esc_core.QueryWith[PlayerTag](builder)
+builder.With(esc_core.Component[PlayerTag]())
 ```
 
 not:
 
 ```go
-esc_core.QueryRead[PlayerTag](builder)
+builder.Read(esc_core.Component[PlayerTag]())
 ```
 
 Tags are filters, not data dependencies.
@@ -781,13 +837,12 @@ type MovementSystem struct {
 }
 
 func NewMovementSystem(world *esc_core.World) (*MovementSystem, error) {
-	builder := esc_core.NewQuery(world, "players")
-	esc_core.QueryWith[PlayerTag](builder)
-	esc_core.QueryWrite[Position](builder)
-	esc_core.QueryRead[MoveDirection](builder)
-	esc_core.QueryRead[Active](builder)
-
-	players, err := builder.Build()
+	players, err := esc_core.NewQuery(world, "players").
+		With(esc_core.Component[PlayerTag]()).
+		Write(esc_core.Component[Position]()).
+		Read(esc_core.Component[MoveDirection]()).
+		Read(esc_core.Component[Active]()).
+		Build()
 	if err != nil {
 		return nil, err
 	}
@@ -920,7 +975,7 @@ Remove:
 
 ```go
 remove := ctx.Commands.Remove(entity)
-remove.Component(esc_core.ComponentType[Poisoned]())
+remove.Component(esc_core.Component[Poisoned]())
 err := remove.Commit()
 ```
 
@@ -1158,12 +1213,12 @@ Snapshot output should remain deterministic. Since archetype row order is not st
 Setup:
 
 ```go
-builder := esc_core.NewQuery(world, "players")
-esc_core.QueryWith[PlayerTag](builder)
-esc_core.QueryWrite[Position](builder)
-esc_core.QueryRead[MoveDirection](builder)
-esc_core.QueryRead[Active](builder)
-players, err := builder.Build()
+players, err := esc_core.NewQuery(world, "players").
+	With(esc_core.Component[PlayerTag]()).
+	Write(esc_core.Component[Position]()).
+	Read(esc_core.Component[MoveDirection]()).
+	Read(esc_core.Component[Active]()).
+	Build()
 ```
 
 Update:
@@ -1263,7 +1318,8 @@ Required tests:
 Implement:
 
 - `ComponentID`;
-- `ComponentType[T]`;
+- `Component[T]`;
+- `ComponentToken`;
 - `ComponentRegistry`;
 - struct-only validation;
 - signature sorting/keying.
