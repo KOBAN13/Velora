@@ -1,5 +1,7 @@
 package esc
 
+//
+
 type CommandBuffer struct {
 	commands []Command
 }
