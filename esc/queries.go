@@ -1,5 +1,7 @@
 package esc
 
+//Rework
+
 func (w *World) QueryPlayerCells() []*PlayerCell {
 	result := make([]*PlayerCell, 0)
 	for _, entity := range w.Entities {
