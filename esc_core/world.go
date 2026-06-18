@@ -37,7 +37,34 @@ func NewWorld(options ...WorldOption) *World {
 }
 
 func Spawn(world *World, components ...any) (Entity, error) {
-	var entity Entity
+	if world.mutationPhase == MutationRunningSystem {
+		return Entity{}, ErrInvalidMutationPhase
+	}
+
+	values, signature, err := world.collectComponentValues(components)
+	if err != nil {
+		return Entity{}, err
+	}
+
+	archetype, err := world.archetypeFor(signature)
+	if err != nil {
+		return Entity{}, err
+	}
+
+	entity := world.allocateEntity()
+
+	row, err := archetype.appendEntity(entity, values)
+	if err != nil {
+		world.releaseEntity(entity)
+		return Entity{}, err
+	}
+
+	world.slots[entity.index].location = entityLocation{
+		archetype: archetype,
+		row:       row,
+	}
+
+	return entity, nil
 }
 
 func (world *World) allocateEntity() Entity {
@@ -63,7 +90,17 @@ func (world *World) releaseEntity(entity Entity) {
 }
 
 func (world *World) validateAlive(entity Entity) (*entitySlot, error) {
+	if int(entity.index) >= len(world.slots) {
+		return nil, ErrInvalidEntity
+	}
 
+	slot := &world.slots[entity.index]
+
+	if !slot.alive || slot.generation != entity.generation {
+		return nil, ErrInvalidEntity
+	}
+
+	return slot, nil
 }
 
 func (world *World) collectComponentValues(components []any) (map[ComponentID]any, componentSignature, error) {
@@ -100,13 +137,97 @@ func (world *World) collectComponentValues(components []any) (map[ComponentID]an
 }
 
 func (world *World) archetypeFor(signature componentSignature) (*archetype, error) {
+	if archetype, ok := world.archetypeByKey[signature.key]; ok {
+		return archetype, nil
+	}
 
+	var columns = make(map[ComponentID]column, len(signature.ids))
+
+	for _, id := range signature.ids {
+		var info, ok = world.registry.InfoById(id)
+
+		if !ok {
+			return nil, fmt.Errorf("%w: component id %d", ErrComponentNotFound, id)
+		}
+
+		columns[id] = newReflectColumn(info.Type)
+	}
+
+	archetype := newArchetype(
+		archetypeID(len(world.archetypes)),
+		signature,
+		columns,
+	)
+
+	world.archetypes = append(world.archetypes, archetype)
+	world.archetypeByKey[signature.key] = archetype
+	world.archetypeVersion++
+
+	return archetype, nil
 }
 
 func (world *World) moveEntity(entity Entity, target *archetype, values map[ComponentID]any) error {
+	slot, err := world.validateAlive(entity)
 
+	if err != nil {
+		return err
+	}
+
+	var source = slot.location.archetype
+	var sourceRow = slot.location.row
+
+	var targetValues = make(map[ComponentID]any, len(target.signature.ids))
+
+	for _, id := range target.signature.ids {
+		if value, ok := values[id]; ok {
+			targetValues[id] = value
+			continue
+		}
+
+		var sourceColumn, ok = source.column(id)
+
+		if !ok {
+			continue
+		}
+
+		targetValues[id] = sourceColumn.ValueAny(sourceRow)
+	}
+
+	targetRow, err := target.appendEntity(entity, targetValues)
+
+	if err != nil {
+		return err
+	}
+
+	if source != nil {
+		moved, movedRow, hadMove := source.removeEntity(sourceRow)
+		if hadMove {
+			world.slots[moved.index].location = entityLocation{
+				archetype: source,
+				row:       movedRow,
+			}
+		}
+	}
+
+	slot.location = entityLocation{
+		archetype: target,
+		row:       targetRow,
+	}
+
+	return nil
 }
 
-func (world *World) removeFromCurrentArchetype(entity Entity, slot *entitySlot) {
+func (world *World) removeFromCurrentArchetype(slot *entitySlot) {
+	var source = slot.location.archetype
 
+	var moved, movedRow, hadMove = source.removeEntity(slot.location.row)
+
+	if hadMove {
+		world.slots[moved.index].location = entityLocation{
+			archetype: source,
+			row:       movedRow,
+		}
+	}
+
+	slot.location = entityLocation{}
 }

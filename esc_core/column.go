@@ -1,10 +1,9 @@
 package esc_core
 
-import "fmt"
-
-type typedColumn[T any] struct {
-	values []T
-}
+import (
+	"fmt"
+	"reflect"
+)
 
 type column interface {
 	Len() int
@@ -17,68 +16,62 @@ type column interface {
 	SetAny(row int, value any) error
 }
 
-func newTypedColumn[T any]() *typedColumn[T] {
-	return &typedColumn[T]{}
+type reflectColumn struct {
+	typ    reflect.Type
+	values reflect.Value
 }
 
-func (c *typedColumn[T]) Len() int {
-	return len(c.values)
+func newReflectColumn(typ reflect.Type) *reflectColumn {
+	return &reflectColumn{
+		typ:    typ,
+		values: reflect.MakeSlice(reflect.SliceOf(typ), 0, 0),
+	}
 }
 
-func (c *typedColumn[T]) AppendZero() {
-	var zero T
-	c.values = append(c.values, zero)
+func (c *reflectColumn) Len() int {
+	return c.values.Len()
 }
 
-func (c *typedColumn[T]) AppendAny(value any) error {
-	var v, ok = value.(T)
+func (c *reflectColumn) AppendZero() {
+	c.values = reflect.Append(c.values, reflect.Zero(c.typ))
+}
 
-	if !ok {
-		return fmt.Errorf("%w: column append got %T, want %T",
-			ErrInvalidComponentType,
-			value,
-			*new(T),
-		)
+func (c *reflectColumn) AppendAny(value any) error {
+	got := reflect.TypeOf(value)
+	if got != c.typ {
+		return fmt.Errorf("%w: column append got %v, want %v", ErrInvalidComponentType, got, c.typ)
 	}
 
-	c.values = append(c.values, v)
+	c.values = reflect.Append(c.values, reflect.ValueOf(value))
 	return nil
 }
 
-func (c *typedColumn[T]) SwapRemove(row int) {
-	var last = len(c.values) - 1
+func (c *reflectColumn) SwapRemove(row int) {
+	last := c.values.Len() - 1
 
-	var zero T
-
-	c.values[row] = c.values[last]
-	c.values[last] = zero
-	c.values = c.values[:last]
+	c.values.Index(row).Set(c.values.Index(last))
+	c.values.Index(last).Set(reflect.Zero(c.typ))
+	c.values = c.values.Slice(0, last)
 }
 
-func (c *typedColumn[T]) CopyValueTo(row int, targetColumn column) error {
-	return targetColumn.AppendAny(c.values[row])
+func (c *reflectColumn) CopyValueTo(row int, targetColumn column) error {
+	return targetColumn.AppendAny(c.ValueAny(row))
 }
 
-func (c *typedColumn[T]) ValueAny(row int) any {
-	return c.values[row]
+func (c *reflectColumn) ValueAny(row int) any {
+	return c.values.Index(row).Interface()
 }
 
-func (c *typedColumn[T]) PtrAny(row int) any {
-	return &c.values[row]
+func (c *reflectColumn) PtrAny(row int) any {
+	return c.values.Index(row).Addr().Interface()
 }
 
-func (c *typedColumn[T]) SetAny(row int, value any) error {
-	var v, ok = value.(T)
-
-	if !ok {
-		return fmt.Errorf("%w: column append got %T, want %T",
-			ErrInvalidComponentType,
-			value,
-			*new(T),
-		)
+func (c *reflectColumn) SetAny(row int, value any) error {
+	got := reflect.TypeOf(value)
+	if got != c.typ {
+		return fmt.Errorf("%w: column set got %v, want %v", ErrInvalidComponentType, got, c.typ)
 	}
 
-	c.values[row] = v
-
+	c.values.Index(row).Set(reflect.ValueOf(value))
 	return nil
 }

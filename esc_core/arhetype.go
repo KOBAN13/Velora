@@ -26,11 +26,13 @@ func (a *archetype) appendEntity(entity Entity, values map[ComponentID]any) (int
 	var row = a.Len()
 
 	a.entities = append(a.entities, entity)
-	appended := make([]column, 0, len(a.columns))
+	var appended = make([]column, 0, len(a.columns))
 
-	for componentId, col := range a.columns {
-		if _, ok := values[componentId]; ok {
-			if err := col.AppendAny(values[componentId]); err != nil {
+	for _, componentId := range a.signature.ids {
+		var col = a.columns[componentId]
+
+		if value, ok := values[componentId]; ok {
+			if err := col.AppendAny(value); err != nil {
 				a.entities = a.entities[:row]
 
 				for i := len(appended) - 1; i >= 0; i-- {
@@ -42,6 +44,8 @@ func (a *archetype) appendEntity(entity Entity, values map[ComponentID]any) (int
 		} else {
 			col.AppendZero()
 		}
+
+		appended = append(appended, col)
 	}
 
 	return row, nil
@@ -63,7 +67,7 @@ func (a *archetype) removeEntity(row int) (moved Entity, movedRow int, hadMove b
 
 	a.entities = a.entities[:last]
 
-	return moved, last, hadMove
+	return moved, movedRow, hadMove
 }
 
 func (a *archetype) column(id ComponentID) (column, bool) {
