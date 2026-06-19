@@ -40,6 +40,11 @@ func (component *componentSignature) containsAll(ids []ComponentID) bool {
 	return true
 }
 
+func (component *componentSignature) containsComponent(id ComponentID) bool {
+	_, ok := slices.BinarySearch(component.ids, id)
+	return ok
+}
+
 func (component *componentSignature) excludesAll(ids []ComponentID) bool {
 	for _, id := range ids {
 		if _, ok := slices.BinarySearch(component.ids, id); ok {

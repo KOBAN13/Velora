@@ -67,6 +67,135 @@ func Spawn(world *World, components ...any) (Entity, error) {
 	return entity, nil
 }
 
+func Despawn(world *World, entity Entity) error {
+	if world.mutationPhase == MutationRunningSystem {
+		return ErrInvalidMutationPhase
+	}
+
+	var slot, err = world.validateAlive(entity)
+
+	if err != nil {
+		return err
+	}
+
+	world.removeFromCurrentArchetype(slot)
+	world.releaseEntity(entity)
+
+	return nil
+}
+
+func Add(world *World, entity Entity, components ...any) error {
+	if world.mutationPhase == MutationRunningSystem {
+		return ErrInvalidMutationPhase
+	}
+
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return err
+	}
+
+	if len(components) == 0 {
+		return nil
+	}
+
+	values, signature, err := world.collectComponentValues(components)
+
+	if err != nil {
+		return err
+	}
+
+	var source = slot.location.archetype
+
+	if source == nil {
+		return ErrInvalidEntity
+	}
+
+	for _, id := range signature.ids {
+		if source.signature.containsComponent(id) {
+			var info, _ = world.registry.InfoById(id)
+			return fmt.Errorf("%w: %s", ErrDuplicateComponent, info.Name)
+		}
+	}
+
+	var targetsId = make([]ComponentID, 0, len(source.signature.ids)+len(signature.ids))
+
+	targetsId = append(targetsId, source.signature.ids...)
+	targetsId = append(targetsId, signature.ids...)
+
+	var targetSignature = newComponentSignature(targetsId)
+
+	target, err := world.archetypeFor(*targetSignature)
+
+	if err != nil {
+		return err
+	}
+
+	return world.moveEntity(entity, target, values)
+}
+
+func Remove(world *World, entity Entity, componentTokens ...ComponentToken) error {
+	if world.mutationPhase == MutationRunningSystem {
+		return ErrInvalidMutationPhase
+	}
+
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return err
+	}
+
+	if len(componentTokens) == 0 {
+		return nil
+	}
+
+	var source = slot.location.archetype
+
+	if source == nil {
+		return ErrInvalidEntity
+	}
+
+	var removeIds = make([]ComponentID, 0, len(componentTokens))
+	var seen = make(map[ComponentID]struct{}, len(componentTokens))
+
+	for _, token := range componentTokens {
+		info, err := world.registry.Info(token)
+
+		if err != nil {
+			return err
+		}
+
+		seen[info.Id] = struct{}{}
+
+		if !source.signature.containsComponent(info.Id) {
+			return fmt.Errorf("%w: %s", ErrComponentNotFound, info.Name)
+		}
+
+		removeIds = append(removeIds, info.Id)
+	}
+
+	var resultIds = make([]ComponentID, 0, len(source.signature.ids)-len(removeIds))
+
+	for _, id := range source.signature.ids {
+		if _, shouldDelete := seen[id]; !shouldDelete {
+			resultIds = append(resultIds, id)
+		}
+	}
+
+	var targetSignature = newComponentSignature(resultIds)
+	target, err := world.archetypeFor(*targetSignature)
+
+	if err != nil {
+		return err
+	}
+
+	return world.moveEntity(entity, target, map[ComponentID]any{})
+}
+
+func Has[T any](world *World, entity Entity, componentTokens ...ComponentToken) (bool, error) {
+
+}
+
 func (world *World) allocateEntity() Entity {
 	if n := len(world.freeEntityIndexes); n > 0 {
 		var index = world.freeEntityIndexes[n-1]
@@ -90,7 +219,7 @@ func (world *World) releaseEntity(entity Entity) {
 }
 
 func (world *World) validateAlive(entity Entity) (*entitySlot, error) {
-	if int(entity.index) >= len(world.slots) {
+	if entity.IsZero() || int(entity.index) >= len(world.slots) {
 		return nil, ErrInvalidEntity
 	}
 
