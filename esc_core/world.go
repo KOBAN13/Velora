@@ -192,8 +192,169 @@ func Remove(world *World, entity Entity, componentTokens ...ComponentToken) erro
 	return world.moveEntity(entity, target, map[ComponentID]any{})
 }
 
-func Has[T any](world *World, entity Entity, componentTokens ...ComponentToken) (bool, error) {
+func Has[T any](world *World, entity Entity) (bool, error) {
+	if world.mutationPhase == MutationRunningSystem {
+		return false, ErrInvalidMutationPhase
+	}
 
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return false, err
+	}
+
+	var source = slot.location.archetype
+
+	if source == nil {
+		return false, ErrInvalidEntity
+	}
+
+	info, err := world.registry.Info(Component[T]())
+
+	if err != nil {
+		return false, err
+	}
+
+	return source.signature.containsComponent(info.Id), nil
+}
+
+func Get[T any](world *World, entity Entity) (T, bool, error) {
+	var zeroValue T
+
+	if world.mutationPhase == MutationRunningSystem {
+		return zeroValue, false, ErrInvalidMutationPhase
+	}
+
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return zeroValue, false, err
+	}
+
+	var source = slot.location.archetype
+
+	if source == nil {
+		return zeroValue, false, ErrInvalidEntity
+	}
+
+	info, err := world.registry.Info(Component[T]())
+
+	if err != nil {
+		return zeroValue, false, err
+	}
+
+	col, ok := source.column(info.Id)
+
+	if !ok {
+		return zeroValue, false, nil
+	}
+
+	value, ok := col.ValueAny(slot.location.row).(T)
+
+	if !ok {
+		return zeroValue, false, fmt.Errorf(
+			"%w: column get got %T, want %v",
+			ErrInvalidComponentType,
+			col.ValueAny(slot.location.row),
+			info.Type,
+		)
+	}
+
+	return value, true, nil
+}
+
+func GetWrite[T any](world *World, entity Entity) (*T, bool, error) {
+	var zeroValue *T
+
+	if world.mutationPhase == MutationRunningSystem {
+		return zeroValue, false, ErrInvalidMutationPhase
+	}
+
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return zeroValue, false, err
+	}
+
+	var source = slot.location.archetype
+	if source == nil {
+		return zeroValue, false, ErrInvalidEntity
+	}
+
+	info, err := world.registry.Info(Component[T]())
+
+	if err != nil {
+		return zeroValue, false, err
+	}
+
+	col, ok := source.column(info.Id)
+	if !ok {
+		return zeroValue, false, nil
+	}
+
+	value, ok := col.PtrAny(slot.location.row).(T)
+
+	if !ok {
+		return zeroValue, false, fmt.Errorf(
+			"%w: column get got %T, want %v",
+			ErrInvalidComponentType,
+			col.PtrAny(slot.location.row),
+			info.Type,
+		)
+	}
+
+	return &value, true, nil
+}
+
+func Set[T any](world *World, entity Entity, value T) error {
+	if world.mutationPhase == MutationRunningSystem {
+		return ErrInvalidMutationPhase
+	}
+
+	slot, err := world.validateAlive(entity)
+
+	if err != nil {
+		return err
+	}
+
+	var source = slot.location.archetype
+
+	if source == nil {
+		return ErrInvalidEntity
+	}
+
+	info, err := world.registry.Info(Component[T]())
+
+	if err != nil {
+		return err
+	}
+
+	col, ok := source.column(info.Id)
+	if !ok {
+		return ErrInvalidComponentType
+	}
+
+	err = col.SetAny(slot.location.row, value)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func IsAlive(world *World, entity Entity) bool {
+	if world.mutationPhase == MutationRunningSystem {
+		return false
+	}
+
+	var slot, err = world.validateAlive(entity)
+
+	if err != nil {
+		return false
+	}
+
+	return slot.alive
 }
 
 func (world *World) allocateEntity() Entity {
