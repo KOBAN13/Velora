@@ -32,11 +32,6 @@ type Query struct {
 	access      AccessSet
 }
 
-type AccessSet struct {
-	Reads  []ComponentID
-	Writes []ComponentID
-}
-
 type queryArchetypePlan struct {
 	archetype *archetype
 }
@@ -51,29 +46,6 @@ func NewQuery(world *World, name string) *QueryBuilder {
 		writes:     []ComponentID{},
 		buildError: nil,
 	}
-}
-
-func NewAccessSet(reads, writes []ComponentID) AccessSet {
-	return AccessSet{
-		Reads:  append([]ComponentID(nil), reads...),
-		Writes: append([]ComponentID(nil), writes...),
-	}
-}
-
-func (a AccessSet) ConflictWith(other AccessSet) bool {
-	for _, write := range a.Writes {
-		if containsComponent(write, other.Writes) || containsComponent(write, other.Reads) {
-			return true
-		}
-	}
-
-	for _, read := range a.Reads {
-		if containsComponent(read, other.Writes) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (builder *QueryBuilder) With(component ComponentToken) *QueryBuilder {
@@ -202,11 +174,17 @@ func (builder *QueryBuilder) Build() (*Query, error) {
 			Reads:   append([]ComponentID{}, builder.reads...),
 			Writes:  append([]ComponentID{}, builder.writes...),
 		},
-		access: NewAccessSet(builder.reads, builder.writes),
+		access: NewAccessSet(),
 	}, nil
 }
 
 func containsComponent(id ComponentID, ids []ComponentID) bool {
 	_, ok := slices.BinarySearch(ids, id)
+	return ok
+}
+
+func containsComponentSet(id ComponentID, ids ComponentSet) bool {
+	_, ok := ids[id]
+
 	return ok
 }
