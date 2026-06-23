@@ -183,6 +183,27 @@ func containsComponent(id ComponentID, ids []ComponentID) bool {
 	return ok
 }
 
+func containsComponentAny(id any, ids []any) error {
+	var componentId, ok = id.(ComponentID)
+
+	if !ok {
+		return fmt.Errorf("%w: got %T, want %T", ErrInvalidComponentID, id, ComponentID(0))
+	}
+
+	for _, raw := range ids {
+		var item, ok = raw.(ComponentID)
+		if !ok {
+			return fmt.Errorf("%w: ids contains %T, want %T", ErrInvalidComponentID, raw, ComponentID(0))
+		}
+
+		if item == componentId {
+			return nil
+		}
+	}
+
+	return nil
+}
+
 func containsComponentSet(id ComponentID, ids ComponentSet) bool {
 	_, ok := ids[id]
 

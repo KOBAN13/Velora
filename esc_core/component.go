@@ -14,6 +14,7 @@ var (
 	ErrInvalidMutationPhase = errors.New("invalid mutation phase")
 	ErrAccessConflict       = errors.New("access conflict")
 	ErrQueryAccess          = errors.New("query access violation")
+	ErrInvalidComponentID   = errors.New("invalid component id")
 )
 
 type ComponentID uint32
