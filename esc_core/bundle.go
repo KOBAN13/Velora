@@ -18,6 +18,13 @@ type Bundle interface {
 
 type BundleFunc func(*BundleBuilder) error
 
+func NewBundleBuilder() *BundleBuilder {
+	return &BundleBuilder{
+		components: make([]any, 0),
+		seen:       make(map[ComponentID]struct{}),
+	}
+}
+
 func (f BundleFunc) Apply(builder *BundleBuilder) error {
 	return f(builder)
 }
