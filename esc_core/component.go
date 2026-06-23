@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	ErrResourcesNotFound    = errors.New("resources not found")
 	ErrInvalidEntity        = errors.New("invalid entity")
 	ErrComponentNotFound    = errors.New("component not found")
 	ErrDuplicateComponent   = errors.New("duplicate component")
