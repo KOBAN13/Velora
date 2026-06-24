@@ -3,6 +3,7 @@ package esc_core
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type WorldOption func(*World)
@@ -355,6 +356,55 @@ func IsAlive(world *World, entity Entity) bool {
 	}
 
 	return slot.alive
+}
+
+func (world *World) InspectArchetypes() ArchetypeReport {
+	var result ArchetypeReport
+
+	for _, archetype := range world.archetypes {
+		var archetypeInfo = ArchetypeInfo{
+			ID:         uint32(archetype.id),
+			Components: make([]string, len(archetype.entities)),
+			Entities:   archetype.Len(),
+		}
+
+		for _, componentId := range archetype.signature.ids {
+			var info, ok = world.registry.InfoById(componentId)
+
+			if !ok {
+				archetypeInfo.Components = append(
+					archetypeInfo.Components,
+					fmt.Sprintf("unknown archetype: %d", componentId))
+
+				continue
+			}
+
+			archetypeInfo.Components = append(archetypeInfo.Components, info.Name)
+		}
+	}
+
+	return result
+}
+
+func (world *World) DebugArchetypes() string {
+	var archetypeReport = world.InspectArchetypes()
+
+	var builder strings.Builder
+
+	_, _ = fmt.Fprintf(&builder, "Archetypes: %d\n", len(archetypeReport.Archetypes))
+
+	for _, archetype := range archetypeReport.Archetypes {
+		var components = "<empty>"
+
+		if len(archetype.Components) > 0 {
+			components = strings.Join(archetype.Components, ", ")
+		}
+
+		_, _ = fmt.Fprintf(&builder, "\n#%d %s\n", archetype.ID, components)
+		_, _ = fmt.Fprintf(&builder, "  entities: %d\n", archetype.Entities)
+	}
+
+	return builder.String()
 }
 
 func (world *World) allocateEntity() Entity {

@@ -1,13 +1,11 @@
 package esc_core
 
-import "Velora/esc"
-
 type StageID uint16
 
 type Context struct {
 	World        *World
-	Commands     *esc.CommandBuffer //old
-	Resources    *esc.Resources     //old
+	Commands     *CommandBuffer
+	Resources    *Resources
 	Tick         uint64
 	DeltaSeconds float32
 	Stage        StageID
