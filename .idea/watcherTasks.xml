@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectTasksOptions">
-    <TaskOptions isEnabled="true">
+    <TaskOptions isEnabled="false">
       <option name="arguments" value="-I=&quot;shared&quot; --plugin=protoc-gen-go=/home/daniil/go/bin/protoc-gen-go --go_out=&quot;server&quot; &quot;shared/packets.proto&quot;" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
