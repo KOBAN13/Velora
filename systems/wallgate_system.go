@@ -3,9 +3,12 @@ package systems
 import (
 	"Velora/esc"
 	"Velora/server/pkg/packets"
+
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
 type WallGateSystem struct {
+	wall *esc_core.Query
 }
 
 func NewWallGateSystem() *WallGateSystem {
@@ -16,11 +19,21 @@ func (*WallGateSystem) Name() string {
 	return "WallGateSystem"
 }
 
-func (*WallGateSystem) Stage() Stage {
+func (*WallGateSystem) Stage() esc_core.StageID {
 	return StageRules
 }
 
-func (wall *WallGateSystem) Update(ctx *esc.SystemContext, world *esc.World) {
+func (wall *WallGateSystem) Access() esc_core.AccessSet {
+	return wall.wall.Access()
+}
+
+func (wall *WallGateSystem) DebugQueries() []esc_core.QueryDebugInfo {
+	return []esc_core.QueryDebugInfo{
+		wall.wall.DebugInfo(),
+	}
+}
+
+func (wall *WallGateSystem) Update(ctx *esc_core.Context) error {
 	var openState bool
 
 	if ctx.Phase == packets.MatchPhase_MATCH_PHASE_PREPARE {

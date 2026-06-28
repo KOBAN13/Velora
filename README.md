@@ -124,6 +124,94 @@ ws://localhost:8080/velora
 
 При запуске сервер загружает игровой конфиг из Google Sheets, создает пул PostgreSQL и проверяет подключение через `Ping` и `SELECT 1`. Если `config.env`, обязательные env-переменные, service account, Google Sheets таблица или база недоступны, процесс завершится с ошибкой.
 
+## Обновление ECS-зависимости
+
+Проект использует модуль `github.com/KOBAN13/kukuruzka-esc`, пакет `github.com/KOBAN13/kukuruzka-esc/ecs`.
+
+Для локальной разработки зависимости без commit/push:
+
+```bash
+make ecs-local KUKURUZKA_ESC_PATH=../kukuruzka-esc
+```
+
+В Windows CMD без `make`:
+
+```cmd
+scripts\kukuruzka-esc.cmd local ..\kukuruzka-esc
+```
+
+Эта команда добавляет в `go.mod` `replace` на локальную копию и выполняет `go mod tidy`.
+
+Чтобы убрать локальный `replace` и подтянуть версию из GitHub:
+
+```bash
+make ecs-update
+```
+
+В Windows CMD:
+
+```cmd
+scripts\kukuruzka-esc.cmd update
+```
+
+Можно указать конкретную ветку, тег или коммит:
+
+```bash
+make ecs-update KUKURUZKA_ESC_REF=main
+make ecs-update KUKURUZKA_ESC_REF=v0.1.0
+```
+
+В Windows CMD:
+
+```cmd
+scripts\kukuruzka-esc.cmd update main
+scripts\kukuruzka-esc.cmd update v0.1.0
+```
+
+Чтобы запускать обновление по таймеру раз в 10 секунд:
+
+```bash
+make ecs-watch-update KUKURUZKA_ESC_REF=main
+```
+
+В Windows CMD:
+
+```cmd
+scripts\kukuruzka-esc.cmd watch-update main 10
+```
+
+Интервал можно поменять:
+
+```bash
+make ecs-watch-update KUKURUZKA_ESC_REF=main KUKURUZKA_ESC_INTERVAL=30
+```
+
+В Windows CMD:
+
+```cmd
+scripts\kukuruzka-esc.cmd watch-update main 30
+```
+
+Команда работает до остановки через `Ctrl+C`. Она не делает commit/push, только повторяет обновление зависимости из Git.
+
+Чтобы закоммитить и запушить изменения в локальном репозитории зависимости, а затем обновить `Velora`:
+
+```bash
+make ecs-publish KUKURUZKA_ESC_PATH=../kukuruzka-esc KUKURUZKA_ESC_MESSAGE="update ecs"
+```
+
+В Windows CMD:
+
+```cmd
+scripts\kukuruzka-esc.cmd publish ..\kukuruzka-esc "update ecs"
+```
+
+Если нужно обновиться не на текущую ветку зависимости, а на конкретный ref:
+
+```bash
+make ecs-publish KUKURUZKA_ESC_PATH=../kukuruzka-esc KUKURUZKA_ESC_MESSAGE="update ecs" KUKURUZKA_ESC_PUBLISH_REF=v0.1.0
+```
+
 ## Деплой
 
 Для деплоя с локальной машины используйте:
