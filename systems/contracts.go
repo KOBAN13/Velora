@@ -1,13 +1,11 @@
 package systems
 
 import (
-	"Velora/esc"
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
-type Stage int
-
 const (
-	StagePhase Stage = iota
+	StagePhase esc_core.StageID = iota
 	StageInput
 	StageMovement
 	StageSpawn
@@ -15,12 +13,6 @@ const (
 	StageCleanup
 )
 
-type System interface {
-	Name() string
-	Stage() Stage
-	Update(ctx *esc.SystemContext, world *esc.World)
-}
-
 type Initializer interface {
-	Start(ctx *esc.SystemContext, world *esc.World) error
+	Start(ctx *esc_core.Context, world *esc_core.World) error
 }

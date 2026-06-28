@@ -3,15 +3,7 @@ package esc
 import (
 	"math/rand/v2"
 	"time"
-
-	"Velora/server/pkg/packets"
 )
-
-type Resources struct {
-	Inputs          *InputResource
-	NutrientSpawner *NutrientSpawnerResource
-	EntityIds       EntityAllocator
-}
 
 type InputResource struct {
 	Inputs map[uint64]PlayerInput
@@ -39,16 +31,4 @@ type NutrientSpawnerResource struct {
 	MinNutrientDistance float32
 
 	NutrientActive bool
-}
-
-type SystemContext struct {
-	Tick         uint64
-	DeltaSeconds float32
-	Now          time.Time
-
-	Phase       packets.MatchPhase
-	PhaseEndsAt time.Time
-
-	Commands  *CommandBuffer
-	Resources *Resources
 }

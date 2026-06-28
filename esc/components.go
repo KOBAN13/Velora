@@ -18,6 +18,10 @@ type Health struct {
 	Value int32
 }
 
+type MaxHealth struct {
+	Value int32
+}
+
 type Biomass struct {
 	Value uint32
 }
