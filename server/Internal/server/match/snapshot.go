@@ -3,56 +3,39 @@ package match
 import (
 	"Velora/esc"
 	"Velora/server/pkg/packets"
+	"cmp"
 	"slices"
 	"time"
+
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
-func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
-	var playerEntities = sortedEntitiesById(world.QueryPlayerCells())
-	var coreEntities = sortedEntitiesById(world.QueryCores())
-	var nutrientEntities = sortedEntitiesById(world.QueryNutrients())
-	var wallEntities = sortedEntitiesById(world.QueryWalls())
+type SnapshotQueries struct {
+	players   *esc_core.Query
+	cores     *esc_core.Query
+	nutrients *esc_core.Query
+	walls     *esc_core.Query
+}
 
-	var playerCells = make([]*packets.PlayerCellEntityMessage, 0, len(playerEntities))
-	var cores = make([]*packets.CoreEntityMessage, 0, len(coreEntities))
-	var nutrients = make([]*packets.NutrientEntityMessage, 0, len(nutrientEntities))
-	var walls = make([]*packets.WallEntityMessage, 0, len(wallEntities))
-
-	for _, player := range playerEntities {
-		playerCells = append(playerCells, &packets.PlayerCellEntityMessage{
-			Id:       uint64(player.Id),
-			OwnerId:  player.OwnerId.UserId,
-			Position: newVector2Message(player.Position),
-			Hp:       uint32(player.HP.Value),
-			Biomass:  player.Biomass.Value,
-			Level:    player.Level.Value,
-			Alive:    player.Active.IsActive,
-		})
+func BuildMatchSnapshot(m *Match, queries *SnapshotQueries, now time.Time) packets.Msg {
+	playerCells, err := buildPlayerCellMessage(queries.players)
+	if err != nil {
+		return nil
 	}
 
-	for _, core := range coreEntities {
-		cores = append(cores, &packets.CoreEntityMessage{
-			Id:       uint64(core.Id),
-			OwnerId:  core.OwnerId.UserId,
-			Position: newVector2Message(core.Position),
-			Hp:       uint32(core.HP.Value),
-		})
+	cores, err := buildCoreMessage(queries.cores)
+	if err != nil {
+		return nil
 	}
 
-	for _, nutrient := range nutrientEntities {
-		nutrients = append(nutrients, &packets.NutrientEntityMessage{
-			Id:       uint64(nutrient.Id),
-			Position: newVector2Message(nutrient.Position),
-			Value:    nutrient.Value.Value,
-			Active:   nutrient.Active.IsActive,
-		})
+	nutrients, err := buildNutrientMessage(queries.nutrients)
+	if err != nil {
+		return nil
 	}
 
-	for _, wall := range wallEntities {
-		walls = append(walls, &packets.WallEntityMessage{
-			Id:   uint64(wall.Id),
-			Open: wall.Open.Open,
-		})
+	walls, err := buildWallsMessage(queries.walls)
+	if err != nil {
+		return nil
 	}
 
 	return packets.NewMatchSnapshot(
@@ -66,18 +49,162 @@ func BuildMatchSnapshot(m *Match, world *esc.World, now time.Time) packets.Msg {
 		walls)
 }
 
-func sortedEntitiesById[T esc.Entity](entities []T) []T {
-	slices.SortFunc(entities, func(a T, b T) int {
-		if a.EntityID() < b.EntityID() {
-			return -1
+func buildWallsMessage(walls *esc_core.Query) ([]*packets.WallEntityMessage, error) {
+	var it = walls.Iter()
+
+	var wallsMessage = make([]*packets.WallEntityMessage, 0)
+
+	for it.Next() {
+		var entity = it.Entity()
+
+		open, err := esc_core.Read[esc.WallState](it)
+		if err != nil {
+			return nil, err
 		}
-		if a.EntityID() > b.EntityID() {
-			return 1
-		}
-		return 0
+
+		wallsMessage = append(wallsMessage, &packets.WallEntityMessage{
+			Id:   uint64(entity.Index()),
+			Open: open.Open,
+		})
+	}
+
+	slices.SortFunc(wallsMessage, func(a, b *packets.WallEntityMessage) int {
+		return cmp.Compare(a.Id, b.Id)
 	})
 
-	return entities
+	return wallsMessage, nil
+}
+
+func buildNutrientMessage(nutrients *esc_core.Query) ([]*packets.NutrientEntityMessage, error) {
+	var it = nutrients.Iter()
+
+	var nutrientsMessage = make([]*packets.NutrientEntityMessage, 0)
+
+	for it.Next() {
+		var entity = it.Entity()
+
+		position, err := esc_core.Read[esc.Position](it)
+		if err != nil {
+			return nil, err
+		}
+
+		value, err := esc_core.Read[esc.NutrientValue](it)
+		if err != nil {
+			return nil, err
+		}
+
+		active, err := esc_core.Read[esc.Active](it)
+		if err != nil {
+			return nil, err
+		}
+
+		nutrientsMessage = append(nutrientsMessage, &packets.NutrientEntityMessage{
+			Id:       uint64(entity.Index()),
+			Position: newVector2Message(position),
+			Value:    value.Value,
+			Active:   active.IsActive,
+		})
+	}
+
+	slices.SortFunc(nutrientsMessage, func(a, b *packets.NutrientEntityMessage) int {
+		return cmp.Compare(a.Id, b.Id)
+	})
+
+	return nutrientsMessage, nil
+}
+
+func buildCoreMessage(cores *esc_core.Query) ([]*packets.CoreEntityMessage, error) {
+	var it = cores.Iter()
+
+	var coresMessage = make([]*packets.CoreEntityMessage, 0)
+
+	for it.Next() {
+		var entity = it.Entity()
+
+		owner, err := esc_core.Read[esc.Owner](it)
+		if err != nil {
+			return nil, err
+		}
+
+		position, err := esc_core.Read[esc.Position](it)
+		if err != nil {
+			return nil, err
+		}
+
+		health, err := esc_core.Read[esc.Health](it)
+		if err != nil {
+			return nil, err
+		}
+
+		coresMessage = append(coresMessage, &packets.CoreEntityMessage{
+			Id:       uint64(entity.Index()),
+			OwnerId:  owner.UserId,
+			Position: newVector2Message(position),
+			Hp:       uint32(health.Value),
+		})
+	}
+
+	slices.SortFunc(coresMessage, func(a, b *packets.CoreEntityMessage) int {
+		return cmp.Compare(a.Id, b.Id)
+	})
+
+	return coresMessage, nil
+}
+
+func buildPlayerCellMessage(players *esc_core.Query) ([]*packets.PlayerCellEntityMessage, error) {
+	var it = players.Iter()
+
+	var playerCells = make([]*packets.PlayerCellEntityMessage, 0)
+
+	for it.Next() {
+		var entity = it.Entity()
+
+		owner, err := esc_core.Read[esc.Owner](it)
+		if err != nil {
+			return nil, err
+		}
+
+		position, err := esc_core.Read[esc.Position](it)
+		if err != nil {
+			return nil, err
+		}
+
+		health, err := esc_core.Read[esc.Health](it)
+		if err != nil {
+			return nil, err
+		}
+
+		biomass, err := esc_core.Read[esc.Biomass](it)
+		if err != nil {
+			return nil, err
+		}
+
+		level, err := esc_core.Read[esc.Level](it)
+		if err != nil {
+			return nil, err
+		}
+
+		active, err := esc_core.Read[esc.Active](it)
+		if err != nil {
+			return nil, err
+		}
+
+		playerCells = append(playerCells, &packets.PlayerCellEntityMessage{
+			Id:       uint64(entity.Index()),
+			OwnerId:  owner.UserId,
+			Position: newVector2Message(position),
+			Hp:       uint32(health.Value),
+			Biomass:  biomass.Value,
+			Level:    level.Value,
+			Alive:    active.IsActive,
+		})
+	}
+
+	slices.SortFunc(playerCells, func(a, b *packets.PlayerCellEntityMessage) int {
+		return cmp.Compare(a.Id, b.Id)
+	})
+
+	return playerCells, nil
 }
 
 func newVector2Message(position esc.Position) *packets.Vector2Message {
