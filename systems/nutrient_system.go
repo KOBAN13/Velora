@@ -1,8 +1,11 @@
 package systems
 
 import (
-	"Velora/esc"
 	"errors"
+
+	"Velora/esc"
+
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
 var (
@@ -13,205 +16,223 @@ const (
 	DefaultNutrientPickUpDistance = 1.5
 )
 
-type NutrientSystem struct{}
+type NutrientSystem struct {
+	players   *esc_core.Query
+	nutrients *esc_core.Query
+	cores     *esc_core.Query
+}
+
+func NewNutrientSystem(world *esc_core.World) (*NutrientSystem, error) {
+	players, err := esc_core.
+		NewQuery(world, "NutrientPlayers").
+		With(esc_core.Component[esc.PlayerTag]()).
+		Read(esc_core.Component[esc.Active]()).
+		Read(esc_core.Component[esc.Position]()).
+		Write(esc_core.Component[esc.Biomass]()).
+		Write(esc_core.Component[esc.Level]()).
+		Build()
+
+	if err != nil {
+		return nil, err
+	}
+
+	nutrients, err := esc_core.
+		NewQuery(world, "Nutrients").
+		With(esc_core.Component[esc.NutrientTag]()).
+		Write(esc_core.Component[esc.Position]()).
+		Write(esc_core.Component[esc.NutrientValue]()).
+		Write(esc_core.Component[esc.Active]()).
+		Build()
+
+	if err != nil {
+		return nil, err
+	}
+
+	cores, err := esc_core.
+		NewQuery(world, "NutrientCores").
+		With(esc_core.Component[esc.CoreTag]()).
+		Read(esc_core.Component[esc.Position]()).
+		Build()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &NutrientSystem{
+		players:   players,
+		nutrients: nutrients,
+		cores:     cores,
+	}, nil
+}
 
 func (*NutrientSystem) Name() string {
 	return "NutrientSystem"
 }
 
-func (*NutrientSystem) Stage() Stage {
+func (*NutrientSystem) Stage() esc_core.StageID {
 	return StageSpawn
 }
 
-func NewNutrientSystem() *NutrientSystem {
-	return &NutrientSystem{}
+func (s *NutrientSystem) Access() esc_core.AccessSet {
+	var access = s.players.Access()
+	access.Merge(s.nutrients.Access())
+	access.Merge(s.cores.Access())
+	return access
 }
 
-func (s *NutrientSystem) Update(ctx *esc.SystemContext, world *esc.World) {
-	s.PlayerPickUpNutrient(world)
-	s.SpawnForTick(world, ctx)
+func (s *NutrientSystem) DebugQueries() []esc_core.QueryDebugInfo {
+	return []esc_core.QueryDebugInfo{
+		s.players.DebugInfo(),
+		s.nutrients.DebugInfo(),
+		s.cores.DebugInfo(),
+	}
 }
 
-func (s *NutrientSystem) Start(ctx *esc.SystemContext, world *esc.World) error {
-	if err := s.Fill(ctx, world); err != nil {
+func (s *NutrientSystem) Start(ctx *esc_core.Context) error {
+	spawner, err := esc_core.GetResources[esc.NutrientSpawnerResource](ctx.Resources)
+
+	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	activeCount, totalCount, inactive, err := s.nutrientStats()
 
-func (s *NutrientSystem) Fill(ctx *esc.SystemContext, world *esc.World) error {
-	var spawner = ctx.Resources.NutrientSpawner
-	var missing = spawner.MaxNutrients - s.ActiveNutrientCount(world)
+	if err != nil {
+		return err
+	}
+
+	missing := spawner.MaxNutrients - activeCount
 
 	if missing <= 0 {
 		return nil
 	}
 
-	if s.spawn(ctx, world, missing) != missing {
+	spawned, err := s.spawn(ctx, spawner, missing, inactive, spawner.MaxNutrients-totalCount)
+
+	if err != nil {
+		return err
+	}
+
+	if spawned != missing {
 		return ErrNutrientSpawn
 	}
 
 	return nil
 }
 
-func (s *NutrientSystem) PlayerPickUpNutrient(world *esc.World) {
-	for _, player := range world.QueryActivePlayerCells() {
-		var playerPosition = player.Position
-		for _, nutrient := range world.QueryActiveNutrients() {
-
-			var nutrientPosition = nutrient.Position
-
-			var distance = playerPosition.DistanceTo(nutrientPosition)
-
-			if distance <= DefaultNutrientPickUpDistance {
-				world.SetActive(nutrient.EntityID(), esc.Active{IsActive: false})
-
-				var nutrientValue = nutrient.Value.Value
-				var playerBiomass = player.Biomass.Value
-
-				world.SetBiomass(player.EntityID(), esc.Biomass{Value: nutrientValue + playerBiomass})
-				world.SetLevel(player.EntityID(), esc.Level{Value: 1 + player.Biomass.Value/100})
-			}
-		}
+func (s *NutrientSystem) Update(ctx *esc_core.Context) error {
+	if err := s.pickUpNutrients(); err != nil {
+		return err
 	}
-}
 
-func (s *NutrientSystem) SpawnForTick(world *esc.World, ctx *esc.SystemContext) {
-	var spawner = ctx.Resources.NutrientSpawner
+	spawner, err := esc_core.GetResources[esc.NutrientSpawnerResource](ctx.Resources)
 
-	var tick = float64(ctx.Tick)
+	if err != nil {
+		return err
+	}
+
+	tick := float64(ctx.Tick)
 
 	if spawner.SpawnInterval > 0 && tick-spawner.LastSpawnTick < spawner.SpawnInterval {
-		return
+		return nil
 	}
 
 	spawner.LastSpawnTick = tick
 
-	var missing = spawner.MaxNutrients - s.ActiveNutrientCount(world)
+	activeCount, totalCount, inactive, err := s.nutrientStats()
 
-	if missing <= 0 {
-		return
+	if err != nil {
+		return err
 	}
 
-	if spawner.SpawnBatch <= 0 {
-		return
+	missing := spawner.MaxNutrients - activeCount
+
+	if missing <= 0 || spawner.SpawnBatch <= 0 {
+		return nil
 	}
 
-	s.spawn(ctx, world, min(missing, spawner.SpawnBatch))
+	_, err = s.spawn(ctx, spawner, min(missing, spawner.SpawnBatch), inactive, spawner.MaxNutrients-totalCount)
+	return err
 }
 
-func (s *NutrientSystem) spawn(ctx *esc.SystemContext, world *esc.World, count int) int {
-	if count <= 0 {
-		return 0
-	}
+func (s *NutrientSystem) pickUpNutrients() error {
+	players := s.players.Iter()
 
-	var spawned = 0
-	var attempts = 0
-	var spawner = ctx.Resources.NutrientSpawner
-	var reservedPositions = make([]esc.Position, 0, count)
-	var inactiveNutrients = world.QueryInactiveNutrients()
-	var newNutrientLimit = spawner.MaxNutrients - len(world.QueryNutrients())
+	for players.Next() {
+		active, err := esc_core.Read[esc.Active](players)
 
-	if newNutrientLimit < 0 {
-		newNutrientLimit = 0
-	}
+		if err != nil {
+			return err
+		}
 
-	if count > len(inactiveNutrients)+newNutrientLimit {
-		count = len(inactiveNutrients) + newNutrientLimit
-	}
-
-	var maxAttempts = count * spawner.MaxAttempts
-
-	for spawned < count && attempts < maxAttempts {
-		attempts++
-
-		var position = s.randomPosition(ctx)
-
-		if !s.canPlace(ctx, world, position, reservedPositions) {
+		if !active.IsActive {
 			continue
 		}
 
-		if spawned < len(inactiveNutrients) {
-			ctx.Commands.Add(&esc.RespawnNutrientCommand{
-				EntityId: inactiveNutrients[spawned].EntityID(),
-				Position: position,
-				Value:    spawner.NutrientValue,
-				Active:   spawner.NutrientActive,
-			})
-		} else {
-			ctx.Commands.Add(&esc.SpawnNutrientCommand{
-				Position: position,
-				Value:    spawner.NutrientValue,
-				Active:   spawner.NutrientActive,
-			})
+		position, err := esc_core.Read[esc.Position](players)
+
+		if err != nil {
+			return err
 		}
 
-		reservedPositions = append(reservedPositions, position)
+		biomass, err := esc_core.Write[esc.Biomass](players)
 
-		spawned++
-	}
+		if err != nil {
+			return err
+		}
 
-	return spawned
-}
+		level, err := esc_core.Write[esc.Level](players)
 
-func (s *NutrientSystem) randomPosition(ctx *esc.SystemContext) esc.Position {
-	var spawner = ctx.Resources.NutrientSpawner
-	var size = spawner.ArenaHalfSize * 2
+		if err != nil {
+			return err
+		}
 
-	return esc.Position{
-		X: spawner.Rng.Float32()*size - spawner.ArenaHalfSize,
-		Y: spawner.Rng.Float32()*size - spawner.ArenaHalfSize,
-	}
-}
-
-func (s *NutrientSystem) canPlace(ctx *esc.SystemContext, world *esc.World, position esc.Position, reservedPositions []esc.Position) bool {
-	var spawner = ctx.Resources.NutrientSpawner
-
-	for _, player := range world.QueryPlayerCells() {
-		if distanceSquared(position, player.Position) < square(spawner.MinPlayerDistance) {
-			return false
+		if err := s.pickUpNutrientsForPlayer(position, biomass, level); err != nil {
+			return err
 		}
 	}
 
-	for _, core := range world.QueryCores() {
-		if distanceSquared(position, core.Position) < square(spawner.MinCoreDistance) {
-			return false
-		}
-	}
-
-	for _, nutrient := range world.QueryActiveNutrients() {
-		if distanceSquared(position, nutrient.Position) < square(spawner.MinNutrientDistance) {
-			return false
-		}
-	}
-
-	for _, reservedPosition := range reservedPositions {
-		if distanceSquared(position, reservedPosition) < square(spawner.MinNutrientDistance) {
-			return false
-		}
-	}
-
-	return true
+	return nil
 }
 
-func (s *NutrientSystem) ActiveNutrientCount(world *esc.World) int {
-	var count = 0
+func (s *NutrientSystem) pickUpNutrientsForPlayer(
+	playerPosition esc.Position,
+	playerBiomass *esc.Biomass,
+	playerLevel *esc.Level,
+) error {
+	nutrients := s.nutrients.Iter()
 
-	for range world.QueryActiveNutrients() {
-		count++
+	for nutrients.Next() {
+		active, err := esc_core.Write[esc.Active](nutrients)
+
+		if err != nil {
+			return err
+		}
+
+		if !active.IsActive {
+			continue
+		}
+
+		position, err := esc_core.Write[esc.Position](nutrients)
+
+		if err != nil {
+			return err
+		}
+
+		if distanceSquared(playerPosition, *position) > square(DefaultNutrientPickUpDistance) {
+			continue
+		}
+
+		value, err := esc_core.Write[esc.NutrientValue](nutrients)
+
+		if err != nil {
+			return err
+		}
+
+		active.IsActive = false
+		playerBiomass.Value += value.Value
+		playerLevel.Value = 1 + playerBiomass.Value/100
 	}
 
-	return count
-}
-
-func distanceSquared(a esc.Position, b esc.Position) float32 {
-	var dx = a.X - b.X
-	var dy = a.Y - b.Y
-
-	return dx*dx + dy*dy
-}
-
-func square(value float32) float32 {
-	return value * value
+	return nil
 }

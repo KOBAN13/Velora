@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	StagePhase esc_core.StageID = iota
+	StagePhase esc_core.StageID = iota + 1
 	StageInput
 	StageMovement
 	StageSpawn
@@ -14,5 +14,5 @@ const (
 )
 
 type Initializer interface {
-	Start(ctx *esc_core.Context, world *esc_core.World) error
+	Start(ctx *esc_core.Context) error
 }

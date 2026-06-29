@@ -1,18 +1,23 @@
 package esc
 
 import (
+	"Velora/server/pkg/packets"
 	"math/rand/v2"
 	"time"
 )
 
-type InputResource struct {
-	Inputs map[uint64]PlayerInput
-}
+type PlayerInputSlice []PlayerInput
 
 type PlayerInput struct {
 	MoveX      float32
 	MoveY      float32
 	ReceivedAt time.Time
+}
+
+type MatchPhaseResource struct {
+	Phase       packets.MatchPhase
+	PhaseEndsAt time.Time
+	Now         time.Time
 }
 
 type NutrientSpawnerResource struct {

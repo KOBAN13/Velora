@@ -12,12 +12,10 @@ const (
 	ActiveDuration = 180 * time.Second
 )
 
-type PhaseSystem struct {
-	phase *esc_core.Query
-}
+type PhaseSystem struct{}
 
-func NewPhaseSystem(world *esc_core.World) (*PhaseSystem, error) {
-	var phase esc_core.Query
+func NewPhaseSystem() (*PhaseSystem, error) {
+	return &PhaseSystem{}, nil
 }
 
 func (*PhaseSystem) Name() string {
@@ -28,33 +26,35 @@ func (*PhaseSystem) Stage() esc_core.StageID {
 	return StagePhase
 }
 
-func (phase *PhaseSystem) Access() esc_core.AccessSet {
-	return phase.phase.Access()
-}
-
-func (phase *PhaseSystem) DebugQueries() []esc_core.QueryDebugInfo {
-	return []esc_core.QueryDebugInfo{
-		phase.phase.DebugInfo(),
-	}
-}
-
 func (phase *PhaseSystem) Update(ctx *esc_core.Context) error {
-	phase.updatePhase(ctx)
+	return phase.updatePhase(ctx)
 }
 
-func (phase *PhaseSystem) updatePhase(ctx *esc_core.Context) {
-	switch ctx.Phase {
+func (phase *PhaseSystem) updatePhase(ctx *esc_core.Context) error {
+	var phaseResource, err = esc_core.GetResources[esc.MatchPhaseResource](ctx.Resources)
+
+	if err != nil {
+		return err
+	}
+
+	switch phaseResource.Phase {
 	case packets.MatchPhase_MATCH_PHASE_PREPARE:
-		if ctx.Now.After(ctx.PhaseEndsAt) || ctx.Now.Equal(ctx.PhaseEndsAt) {
-			ctx.Phase = packets.MatchPhase_MATCH_PHASE_ACTIVE
-			ctx.PhaseEndsAt = ctx.Now.Add(ActiveDuration)
+		if phaseExpired(phaseResource.Now, phaseResource.PhaseEndsAt) {
+			phaseResource.Phase = packets.MatchPhase_MATCH_PHASE_ACTIVE
+			phaseResource.PhaseEndsAt = phaseResource.Now.Add(ActiveDuration)
 		}
 
 	case packets.MatchPhase_MATCH_PHASE_ACTIVE:
-		if ctx.Now.After(ctx.PhaseEndsAt) || ctx.Now.Equal(ctx.PhaseEndsAt) {
-			ctx.Phase = packets.MatchPhase_MATCH_PHASE_ENDED
-			ctx.PhaseEndsAt = time.Time{}
+		if phaseExpired(phaseResource.Now, phaseResource.PhaseEndsAt) {
+			phaseResource.Phase = packets.MatchPhase_MATCH_PHASE_ENDED
+			phaseResource.PhaseEndsAt = time.Time{}
 		}
 	case packets.MatchPhase_MATCH_PHASE_ENDED:
 	}
+
+	return nil
+}
+
+func phaseExpired(now time.Time, endsAt time.Time) bool {
+	return !endsAt.IsZero() && !now.Before(endsAt)
 }

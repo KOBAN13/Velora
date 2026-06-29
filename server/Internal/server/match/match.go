@@ -13,6 +13,8 @@ import (
 	"slices"
 	"sync"
 	"time"
+
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
 var (
@@ -33,8 +35,8 @@ type Match struct {
 	Phase       packets.MatchPhase
 	PhaseEndsAt time.Time
 
-	Entities     *esc.World
-	Resources    *esc.Resources
+	World        *esc_core.World
+	Resources    *esc_core.Resources
 	SystemRunner *systems.SystemRunner
 
 	players map[uint64]*PlayerRef

@@ -10,6 +10,8 @@ import (
 	"errors"
 	"sync"
 	"time"
+
+	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
 
 var (
@@ -50,20 +52,18 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		return nil, err
 	}
 
-	var capacity = esc.WorldCapacity{
-		Entities: len(players)*2 + 1 + m.gameConfig.Nutrient.MaxNutrients,
-	}
+	var worldOption = esc_core.WithEntityCapacity(len(players)*2 + 1 + m.gameConfig.Nutrient.MaxNutrients)
 
-	var world = esc.NewWorld(capacity)
+	var world = esc_core.NewWorld(worldOption)
 
 	for _, player := range players {
 		var start = spawners.StartPositions[player.Slot]
 
-		world.CreatePlayerCell(esc.EntityId(entityIds.Next()), player.UserId, start.Cell, m.gameConfig.PlayerCell)
-		world.CreateCore(esc.EntityId(entityIds.Next()), player.UserId, start.Core, m.gameConfig.Core)
+		_, err = esc_core.SpawnBundle(world, esc.NewPlayerCellBundle(player.UserId, start.Cell, m.gameConfig.PlayerCell))
+		_, err = esc_core.SpawnBundle(world, esc.NewCoreBundle(player.UserId, start.Core, m.gameConfig.Core))
 	}
 
-	world.CreateWall(esc.EntityId(entityIds.Next()), m.gameConfig.Wall)
+	_, err = esc_core.SpawnBundle(world, esc.NewWallBundle(m.gameConfig.Wall))
 
 	nutrientSpawner, err := spawners.NewNutrientSpawn(m.gameConfig, config.MapSeed)
 
@@ -88,7 +88,7 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		PhaseEndsAt: time.Now().Add(PrepareDuration),
 		players:     make(map[uint64]*PlayerRef),
 		Inputs:      make(map[uint64]esc.PlayerInput),
-		Entities:    world,
+		World:       world,
 
 		EntityIds:       entityIds,
 		NutrientSpawner: nutrientSpawner,
@@ -97,12 +97,11 @@ func (m *Manager) CreateMatch(config MatchConfig) (*Match, error) {
 		sync: sync.Once{},
 	}
 
-	match.Resources = &esc.Resources{
-		Inputs: &esc.InputResource{
-			Inputs: make(map[uint64]esc.PlayerInput, len(players)),
-		},
-		NutrientSpawner: &match.NutrientSpawner,
-		EntityIds:       esc.EntityIdAllocator{Generator: entityIds},
+	match.Resources = esc_core.NewResources()
+
+	err = esc_core.PutResource[esc.NutrientSpawnerResource](match.Resources, match.NutrientSpawner)
+	if err != nil {
+		return nil, err
 	}
 
 	var systemRunner = systems.NewSystemRunner()
