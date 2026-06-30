@@ -2,7 +2,6 @@ package match
 
 import (
 	"Velora/esc"
-	"Velora/server/pkg/packets"
 	"time"
 
 	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
@@ -24,7 +23,6 @@ func (m *Match) Run() {
 }
 
 func (m *Match) Tick(now time.Time) {
-	var snapshot packets.Msg
 	var clients []Client
 
 	m.Mu.Lock()
@@ -40,7 +38,19 @@ func (m *Match) Tick(now time.Time) {
 
 	m.applySystemContextLocked()
 
-	snapshot = BuildMatchSnapshot(m, m.World, now)
+	var players, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.PlayerTag]()).Build()
+	var nutrients, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.NutrientTag]()).Build()
+	var cores, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.CoreTag]()).Build()
+	var walls, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.WallTag]()).Build()
+
+	var snapshotQueries = &SnapshotQueries{
+		players:   players,
+		cores:     cores,
+		nutrients: nutrients,
+		walls:     walls,
+	}
+
+	var snapshot = BuildMatchSnapshot(m, snapshotQueries, now)
 	clients = m.connectedClientsLocked()
 
 	m.Mu.Unlock()
