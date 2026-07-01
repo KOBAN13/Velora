@@ -9,5 +9,7 @@ services:
       - config.env
     ports:
       - "9999:8080"
+    volumes:
+      - ./service-account.json:/app/service-account.json:ro
     environment:
       - APP_ENV=production

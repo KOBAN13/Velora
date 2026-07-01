@@ -6,3 +6,4 @@
 *.log
 tmp
 vendor
+server/Internal/server/match/nutrient_spawner.go

@@ -6,7 +6,10 @@ RUN go mod download
 
 COPY main.go ./
 COPY server ./server
+RUN rm -f server/Internal/server/match/nutrient_spawner.go
 COPY shared ./shared
+COPY esc ./esc
+COPY systems ./systems
 RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 
 FROM alpine:latest
