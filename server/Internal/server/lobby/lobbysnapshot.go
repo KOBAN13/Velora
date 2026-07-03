@@ -6,7 +6,7 @@ import (
 )
 
 func (lobby *LobbyManager) buildSnapshot(room *Room) packets.Msg {
-	var players = collectRoomPLayers(room)
+	var players = collectRoomPlayers(room)
 
 	return packets.NewRoomStateSnapshot(room.ID, room.MaxPlayers, room.Status, players)
 }
@@ -27,7 +27,7 @@ func (lobby *LobbyManager) RoomListSnapshot() packets.Msg {
 	var messages = make([]*packets.RoomSummaryMessage, 0, lobby.rooms.Size())
 
 	lobby.rooms.Foreach(func(room *Room, u uint64) {
-		var players = collectRoomPLayers(room)
+		var players = collectRoomPlayers(room)
 		var roomSummary = packets.NewRoomSummaryMessage(room.ID, room.Name, players, room.MaxPlayers, room.Status)
 
 		messages = append(messages, roomSummary)
@@ -61,7 +61,7 @@ func roomClients(room *Room) []contracts.ClientInterface {
 	return clients
 }
 
-func collectRoomPLayers(room *Room) []*packets.RoomPlayerMessage {
+func collectRoomPlayers(room *Room) []*packets.RoomPlayerMessage {
 	players := make([]*packets.RoomPlayerMessage, 0, len(room.Players))
 	addedPlayers := make(map[uint64]struct{}, len(room.Players))
 

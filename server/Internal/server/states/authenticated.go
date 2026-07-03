@@ -31,6 +31,9 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 	case *packets.Packet_CreateRoomRequest:
 		auth.createRoomRequestMessage(message.CreateRoomRequest)
 
+	case *packets.Packet_PlayerKickRoom:
+		auth.playerKickRoomRequestMessage(message.PlayerKickRoom.GetUserId())
+
 	case *packets.Packet_JoinRoomRequest:
 		auth.joinRoomRequestMessage(message.JoinRoomRequest.RoomId)
 
@@ -95,6 +98,21 @@ func (auth *Authenticated) leaveRoomRequestMessage() {
 		var dennyMessage = packets.NewDenyResponse(err.Error())
 
 		auth.logger.Printf("Error leave room: %v", err)
+		auth.client.SocketSend(dennyMessage)
+	}
+
+	auth.client.SocketSend(packets.NewOkResponse())
+}
+
+func (auth *Authenticated) playerKickRoomRequestMessage(idPlayerKick uint64) {
+	var lobbyService = auth.client.Lobby()
+
+	var err = lobbyService.KickPlayerInRoom(auth.client, idPlayerKick)
+
+	if err != nil {
+		var dennyMessage = packets.NewDenyResponse(err.Error())
+
+		auth.logger.Printf("Error kick room: %v", err)
 		auth.client.SocketSend(dennyMessage)
 	}
 

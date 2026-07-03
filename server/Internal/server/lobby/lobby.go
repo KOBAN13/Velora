@@ -210,8 +210,37 @@ func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uin
 
 	lobby.addPlayerToRoom(roomId, room, roomPlayer)
 
+	var playerRoom = newRoomPlayerMessage(roomPlayer)
+
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
+
+	var msgPlayerJoin = packets.NewPlayerJoinInRoom(playerRoom)
+	lobby.broadcastToRoom(room, msgPlayerJoin)
+
+	return nil
+}
+
+func (lobby *LobbyManager) KickPlayerInRoom(client contracts.ClientInterface, idPlayerKick uint64) error {
+	var roomId, room, player, err = lobby.validateRoom(client)
+
+	if err != nil {
+		return err
+	}
+
+	if !player.IsOwner {
+		return ErrUserInNotOwnerGame
+	}
+
+	if !lobby.removePlayerFromRoom(roomId, room, idPlayerKick) {
+		return ErrUserIsNotRoom
+	}
+
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
+
+	var msgPlayerLeave = packets.NewPlayerKickInRoom(player.UserID)
+	lobby.broadcastToRoom(room, msgPlayerLeave)
 
 	return nil
 }
@@ -229,6 +258,11 @@ func (lobby *LobbyManager) LeaveRoom(client contracts.ClientInterface) error {
 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
+
+	var playerRoom = newRoomPlayerMessage(player)
+
+	var msgPlayerLeave = packets.NewPlayerRemoveInRoom(playerRoom)
+	lobby.broadcastToRoom(room, msgPlayerLeave)
 
 	return nil
 }
@@ -258,26 +292,35 @@ func (lobby *LobbyManager) RemoveClient(client contracts.ClientInterface) error 
 	}
 
 	var userID = client.GetUser().ID
-	var roomsToBroadcast []*Room
+	var roomId, ok = lobby.userRoom[userID]
 
-	lobby.rooms.Foreach(func(room *Room, roomID uint64) {
-		if _, ok := room.Players[userID]; !ok {
-			return
-		}
-
-		if !lobby.removePlayerFromRoom(roomID, room, userID) {
-			return
-		}
-
-		roomsToBroadcast = append(roomsToBroadcast, room)
-	})
-
-	delete(lobby.userRoom, userID)
-
-	for _, room := range roomsToBroadcast {
-		var msg = lobby.buildSnapshot(room)
-		lobby.broadcastToRoom(room, msg)
+	if !ok {
+		return nil
 	}
+
+	var room, isRoomFound = lobby.rooms.Get(roomId)
+
+	if !isRoomFound {
+		delete(lobby.userRoom, userID)
+		return nil
+	}
+
+	var player, isPlayerInRoom = room.Players[userID]
+	if !isPlayerInRoom {
+		delete(lobby.userRoom, userID)
+		return nil
+	}
+
+	if !lobby.removePlayerFromRoom(roomId, room, userID) {
+		return nil
+	}
+
+	var msg = lobby.buildSnapshot(room)
+	lobby.broadcastToRoom(room, msg)
+
+	var playerRoom = newRoomPlayerMessage(player)
+	var msgPlayerLeave = packets.NewPlayerRemoveInRoom(playerRoom)
+	lobby.broadcastToRoom(room, msgPlayerLeave)
 
 	return nil
 }

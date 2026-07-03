@@ -21,6 +21,7 @@ type LobbyService interface {
 	LeaveRoom(client ClientInterface) error
 	SetReady(client ClientInterface, isReady bool) error
 	StartGame(client ClientInterface) error
+	KickPlayerInRoom(client ClientInterface, idPlayerKick uint64) error
 }
 
 type ClientStateHandler interface {

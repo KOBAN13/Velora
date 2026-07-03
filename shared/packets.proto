@@ -78,6 +78,18 @@ message RoomPlayerMessage {
   bool owner = 5;
 }
 
+message PlayerJoinRoom {
+    RoomPlayerMessage player = 1;
+}
+
+message PlayerKickRoom {
+  uint64 userId = 1;
+}
+
+message PlayerRemoveRoom {
+  RoomPlayerMessage player = 1;
+}
+
 message RoomStateSnapshotMessage {
   uint64 roomId = 1;
   uint32 maxPlayer = 2;
@@ -174,5 +186,8 @@ message Packet {
     RoomListSnapshotMessage room_list_snapshot = 17;
     PlayerInputMessage player_input = 18;
     MatchSnapshotMessage match_snapshot = 19;
+    PlayerJoinRoom player_join_room = 20;
+    PlayerKickRoom player_kick_room = 21;
+    PlayerRemoveRoom player_remove_room = 22;
   }
 }
