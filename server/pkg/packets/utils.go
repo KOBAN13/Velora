@@ -79,9 +79,17 @@ func NewPlayerKickInRoom(playerId uint64) Msg {
 }
 
 func NewPlayerJoinInRoom(player *RoomPlayerMessage) Msg {
-	return &Packet_PlayerJoinRoom{
-		PlayerJoinRoom: &PlayerJoinRoom{
+	return &Packet_JoinRoomResponseMessage{
+		JoinRoomResponseMessage: &JoinRoomResponseMessage{
 			Player: player,
+		},
+	}
+}
+
+func NewPlayersInRoomResponse(players []*RoomPlayerMessage) Msg {
+	return &Packet_PlayersInRoomResponse{
+		PlayersInRoomResponse: &PlayersInRoomResponse{
+			Player: players,
 		},
 	}
 }

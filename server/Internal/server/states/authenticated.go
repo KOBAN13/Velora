@@ -46,8 +46,11 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 	case *packets.Packet_StartGame:
 		auth.startGameRequestMessage()
 
-	case *packets.Packet_RoomList:
+	case *packets.Packet_RoomListRequestMessage:
 		auth.collectRoomListRequestMessage()
+
+	case *packets.Packet_PlayersInRoomRequest:
+		auth.collectPlayerListRequestMessage(message.PlayersInRoomRequest.RoomId)
 	}
 }
 
@@ -153,6 +156,14 @@ func (auth *Authenticated) collectRoomListRequestMessage() {
 	var lobbyService = auth.client.Lobby()
 
 	var msg = lobbyService.RoomListSnapshot()
+
+	auth.client.SocketSend(msg)
+}
+
+func (auth *Authenticated) collectPlayerListRequestMessage(roomId uint64) {
+	var lobbyService = auth.client.Lobby()
+
+	var msg = lobbyService.PlayersListSnapshot(roomId)
 
 	auth.client.SocketSend(msg)
 }

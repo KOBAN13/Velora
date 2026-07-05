@@ -752,27 +752,27 @@ func (x *RoomPlayerMessage) GetOwner() bool {
 	return false
 }
 
-type PlayerJoinRoom struct {
+type JoinRoomResponseMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Player        *RoomPlayerMessage     `protobuf:"bytes,1,opt,name=player,proto3" json:"player,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PlayerJoinRoom) Reset() {
-	*x = PlayerJoinRoom{}
+func (x *JoinRoomResponseMessage) Reset() {
+	*x = JoinRoomResponseMessage{}
 	mi := &file_packets_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PlayerJoinRoom) String() string {
+func (x *JoinRoomResponseMessage) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PlayerJoinRoom) ProtoMessage() {}
+func (*JoinRoomResponseMessage) ProtoMessage() {}
 
-func (x *PlayerJoinRoom) ProtoReflect() protoreflect.Message {
+func (x *JoinRoomResponseMessage) ProtoReflect() protoreflect.Message {
 	mi := &file_packets_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -784,12 +784,12 @@ func (x *PlayerJoinRoom) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PlayerJoinRoom.ProtoReflect.Descriptor instead.
-func (*PlayerJoinRoom) Descriptor() ([]byte, []int) {
+// Deprecated: Use JoinRoomResponseMessage.ProtoReflect.Descriptor instead.
+func (*JoinRoomResponseMessage) Descriptor() ([]byte, []int) {
 	return file_packets_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *PlayerJoinRoom) GetPlayer() *RoomPlayerMessage {
+func (x *JoinRoomResponseMessage) GetPlayer() *RoomPlayerMessage {
 	if x != nil {
 		return x.Player
 	}
@@ -884,6 +884,94 @@ func (x *PlayerRemoveRoom) GetPlayer() *RoomPlayerMessage {
 	return nil
 }
 
+type PlayersInRoomRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayersInRoomRequest) Reset() {
+	*x = PlayersInRoomRequest{}
+	mi := &file_packets_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayersInRoomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayersInRoomRequest) ProtoMessage() {}
+
+func (x *PlayersInRoomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayersInRoomRequest.ProtoReflect.Descriptor instead.
+func (*PlayersInRoomRequest) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *PlayersInRoomRequest) GetRoomId() uint64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+type PlayersInRoomResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Player        []*RoomPlayerMessage   `protobuf:"bytes,1,rep,name=Player,proto3" json:"Player,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayersInRoomResponse) Reset() {
+	*x = PlayersInRoomResponse{}
+	mi := &file_packets_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayersInRoomResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayersInRoomResponse) ProtoMessage() {}
+
+func (x *PlayersInRoomResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_packets_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayersInRoomResponse.ProtoReflect.Descriptor instead.
+func (*PlayersInRoomResponse) Descriptor() ([]byte, []int) {
+	return file_packets_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *PlayersInRoomResponse) GetPlayer() []*RoomPlayerMessage {
+	if x != nil {
+		return x.Player
+	}
+	return nil
+}
+
 type RoomStateSnapshotMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        uint64                 `protobuf:"varint,1,opt,name=roomId,proto3" json:"roomId,omitempty"`
@@ -896,7 +984,7 @@ type RoomStateSnapshotMessage struct {
 
 func (x *RoomStateSnapshotMessage) Reset() {
 	*x = RoomStateSnapshotMessage{}
-	mi := &file_packets_proto_msgTypes[16]
+	mi := &file_packets_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -908,7 +996,7 @@ func (x *RoomStateSnapshotMessage) String() string {
 func (*RoomStateSnapshotMessage) ProtoMessage() {}
 
 func (x *RoomStateSnapshotMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[16]
+	mi := &file_packets_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -921,7 +1009,7 @@ func (x *RoomStateSnapshotMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoomStateSnapshotMessage.ProtoReflect.Descriptor instead.
 func (*RoomStateSnapshotMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{16}
+	return file_packets_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RoomStateSnapshotMessage) GetRoomId() uint64 {
@@ -966,7 +1054,7 @@ type MatchStartMessage struct {
 
 func (x *MatchStartMessage) Reset() {
 	*x = MatchStartMessage{}
-	mi := &file_packets_proto_msgTypes[17]
+	mi := &file_packets_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -978,7 +1066,7 @@ func (x *MatchStartMessage) String() string {
 func (*MatchStartMessage) ProtoMessage() {}
 
 func (x *MatchStartMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[17]
+	mi := &file_packets_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -991,7 +1079,7 @@ func (x *MatchStartMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchStartMessage.ProtoReflect.Descriptor instead.
 func (*MatchStartMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{17}
+	return file_packets_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *MatchStartMessage) GetRoomId() uint64 {
@@ -1046,7 +1134,7 @@ type Vector2Message struct {
 
 func (x *Vector2Message) Reset() {
 	*x = Vector2Message{}
-	mi := &file_packets_proto_msgTypes[18]
+	mi := &file_packets_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +1146,7 @@ func (x *Vector2Message) String() string {
 func (*Vector2Message) ProtoMessage() {}
 
 func (x *Vector2Message) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[18]
+	mi := &file_packets_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +1159,7 @@ func (x *Vector2Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Vector2Message.ProtoReflect.Descriptor instead.
 func (*Vector2Message) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{18}
+	return file_packets_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *Vector2Message) GetX() float32 {
@@ -1098,7 +1186,7 @@ type PlayerInputMessage struct {
 
 func (x *PlayerInputMessage) Reset() {
 	*x = PlayerInputMessage{}
-	mi := &file_packets_proto_msgTypes[19]
+	mi := &file_packets_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1198,7 @@ func (x *PlayerInputMessage) String() string {
 func (*PlayerInputMessage) ProtoMessage() {}
 
 func (x *PlayerInputMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[19]
+	mi := &file_packets_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1211,7 @@ func (x *PlayerInputMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlayerInputMessage.ProtoReflect.Descriptor instead.
 func (*PlayerInputMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{19}
+	return file_packets_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *PlayerInputMessage) GetMatchId() uint64 {
@@ -1155,7 +1243,7 @@ type PlayerCellEntityMessage struct {
 
 func (x *PlayerCellEntityMessage) Reset() {
 	*x = PlayerCellEntityMessage{}
-	mi := &file_packets_proto_msgTypes[20]
+	mi := &file_packets_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1255,7 @@ func (x *PlayerCellEntityMessage) String() string {
 func (*PlayerCellEntityMessage) ProtoMessage() {}
 
 func (x *PlayerCellEntityMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[20]
+	mi := &file_packets_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1268,7 @@ func (x *PlayerCellEntityMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlayerCellEntityMessage.ProtoReflect.Descriptor instead.
 func (*PlayerCellEntityMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{20}
+	return file_packets_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *PlayerCellEntityMessage) GetId() uint64 {
@@ -1244,7 +1332,7 @@ type CoreEntityMessage struct {
 
 func (x *CoreEntityMessage) Reset() {
 	*x = CoreEntityMessage{}
-	mi := &file_packets_proto_msgTypes[21]
+	mi := &file_packets_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1256,7 +1344,7 @@ func (x *CoreEntityMessage) String() string {
 func (*CoreEntityMessage) ProtoMessage() {}
 
 func (x *CoreEntityMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[21]
+	mi := &file_packets_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1269,7 +1357,7 @@ func (x *CoreEntityMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreEntityMessage.ProtoReflect.Descriptor instead.
 func (*CoreEntityMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{21}
+	return file_packets_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CoreEntityMessage) GetId() uint64 {
@@ -1312,7 +1400,7 @@ type NutrientEntityMessage struct {
 
 func (x *NutrientEntityMessage) Reset() {
 	*x = NutrientEntityMessage{}
-	mi := &file_packets_proto_msgTypes[22]
+	mi := &file_packets_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1324,7 +1412,7 @@ func (x *NutrientEntityMessage) String() string {
 func (*NutrientEntityMessage) ProtoMessage() {}
 
 func (x *NutrientEntityMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[22]
+	mi := &file_packets_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1337,7 +1425,7 @@ func (x *NutrientEntityMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NutrientEntityMessage.ProtoReflect.Descriptor instead.
 func (*NutrientEntityMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{22}
+	return file_packets_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *NutrientEntityMessage) GetId() uint64 {
@@ -1378,7 +1466,7 @@ type WallEntityMessage struct {
 
 func (x *WallEntityMessage) Reset() {
 	*x = WallEntityMessage{}
-	mi := &file_packets_proto_msgTypes[23]
+	mi := &file_packets_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1390,7 +1478,7 @@ func (x *WallEntityMessage) String() string {
 func (*WallEntityMessage) ProtoMessage() {}
 
 func (x *WallEntityMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[23]
+	mi := &file_packets_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1403,7 +1491,7 @@ func (x *WallEntityMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WallEntityMessage.ProtoReflect.Descriptor instead.
 func (*WallEntityMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{23}
+	return file_packets_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *WallEntityMessage) GetId() uint64 {
@@ -1436,7 +1524,7 @@ type MatchSnapshotMessage struct {
 
 func (x *MatchSnapshotMessage) Reset() {
 	*x = MatchSnapshotMessage{}
-	mi := &file_packets_proto_msgTypes[24]
+	mi := &file_packets_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1448,7 +1536,7 @@ func (x *MatchSnapshotMessage) String() string {
 func (*MatchSnapshotMessage) ProtoMessage() {}
 
 func (x *MatchSnapshotMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[24]
+	mi := &file_packets_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1461,7 +1549,7 @@ func (x *MatchSnapshotMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchSnapshotMessage.ProtoReflect.Descriptor instead.
 func (*MatchSnapshotMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{24}
+	return file_packets_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *MatchSnapshotMessage) GetMatchId() uint64 {
@@ -1528,7 +1616,7 @@ type OkResponseMessage struct {
 
 func (x *OkResponseMessage) Reset() {
 	*x = OkResponseMessage{}
-	mi := &file_packets_proto_msgTypes[25]
+	mi := &file_packets_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1540,7 +1628,7 @@ func (x *OkResponseMessage) String() string {
 func (*OkResponseMessage) ProtoMessage() {}
 
 func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[25]
+	mi := &file_packets_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1553,7 +1641,7 @@ func (x *OkResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OkResponseMessage.ProtoReflect.Descriptor instead.
 func (*OkResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{25}
+	return file_packets_proto_rawDescGZIP(), []int{27}
 }
 
 type DenyResponseMessage struct {
@@ -1565,7 +1653,7 @@ type DenyResponseMessage struct {
 
 func (x *DenyResponseMessage) Reset() {
 	*x = DenyResponseMessage{}
-	mi := &file_packets_proto_msgTypes[26]
+	mi := &file_packets_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1577,7 +1665,7 @@ func (x *DenyResponseMessage) String() string {
 func (*DenyResponseMessage) ProtoMessage() {}
 
 func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[26]
+	mi := &file_packets_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1590,7 +1678,7 @@ func (x *DenyResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DenyResponseMessage.ProtoReflect.Descriptor instead.
 func (*DenyResponseMessage) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{26}
+	return file_packets_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DenyResponseMessage) GetReason() string {
@@ -1618,14 +1706,16 @@ type Packet struct {
 	//	*Packet_RoomStateSnapshot
 	//	*Packet_MatchStarted
 	//	*Packet_StartGame
-	//	*Packet_RoomList
 	//	*Packet_RoomSummaryMessage
 	//	*Packet_RoomListSnapshot
 	//	*Packet_PlayerInput
 	//	*Packet_MatchSnapshot
-	//	*Packet_PlayerJoinRoom
 	//	*Packet_PlayerKickRoom
 	//	*Packet_PlayerRemoveRoom
+	//	*Packet_JoinRoomResponseMessage
+	//	*Packet_PlayersInRoomRequest
+	//	*Packet_PlayersInRoomResponse
+	//	*Packet_RoomListRequestMessage
 	Msg           isPacket_Msg `protobuf_oneof:"msg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1633,7 +1723,7 @@ type Packet struct {
 
 func (x *Packet) Reset() {
 	*x = Packet{}
-	mi := &file_packets_proto_msgTypes[27]
+	mi := &file_packets_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1645,7 +1735,7 @@ func (x *Packet) String() string {
 func (*Packet) ProtoMessage() {}
 
 func (x *Packet) ProtoReflect() protoreflect.Message {
-	mi := &file_packets_proto_msgTypes[27]
+	mi := &file_packets_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1658,7 +1748,7 @@ func (x *Packet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Packet.ProtoReflect.Descriptor instead.
 func (*Packet) Descriptor() ([]byte, []int) {
-	return file_packets_proto_rawDescGZIP(), []int{27}
+	return file_packets_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *Packet) GetSenderId() uint64 {
@@ -1792,15 +1882,6 @@ func (x *Packet) GetStartGame() *StartGameRequestMessage {
 	return nil
 }
 
-func (x *Packet) GetRoomList() *RoomListRequestMessage {
-	if x != nil {
-		if x, ok := x.Msg.(*Packet_RoomList); ok {
-			return x.RoomList
-		}
-	}
-	return nil
-}
-
 func (x *Packet) GetRoomSummaryMessage() *RoomSummaryMessage {
 	if x != nil {
 		if x, ok := x.Msg.(*Packet_RoomSummaryMessage); ok {
@@ -1837,15 +1918,6 @@ func (x *Packet) GetMatchSnapshot() *MatchSnapshotMessage {
 	return nil
 }
 
-func (x *Packet) GetPlayerJoinRoom() *PlayerJoinRoom {
-	if x != nil {
-		if x, ok := x.Msg.(*Packet_PlayerJoinRoom); ok {
-			return x.PlayerJoinRoom
-		}
-	}
-	return nil
-}
-
 func (x *Packet) GetPlayerKickRoom() *PlayerKickRoom {
 	if x != nil {
 		if x, ok := x.Msg.(*Packet_PlayerKickRoom); ok {
@@ -1859,6 +1931,42 @@ func (x *Packet) GetPlayerRemoveRoom() *PlayerRemoveRoom {
 	if x != nil {
 		if x, ok := x.Msg.(*Packet_PlayerRemoveRoom); ok {
 			return x.PlayerRemoveRoom
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetJoinRoomResponseMessage() *JoinRoomResponseMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_JoinRoomResponseMessage); ok {
+			return x.JoinRoomResponseMessage
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetPlayersInRoomRequest() *PlayersInRoomRequest {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_PlayersInRoomRequest); ok {
+			return x.PlayersInRoomRequest
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetPlayersInRoomResponse() *PlayersInRoomResponse {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_PlayersInRoomResponse); ok {
+			return x.PlayersInRoomResponse
+		}
+	}
+	return nil
+}
+
+func (x *Packet) GetRoomListRequestMessage() *RoomListRequestMessage {
+	if x != nil {
+		if x, ok := x.Msg.(*Packet_RoomListRequestMessage); ok {
+			return x.RoomListRequestMessage
 		}
 	}
 	return nil
@@ -1920,36 +2028,44 @@ type Packet_StartGame struct {
 	StartGame *StartGameRequestMessage `protobuf:"bytes,14,opt,name=start_game,json=startGame,proto3,oneof"`
 }
 
-type Packet_RoomList struct {
-	RoomList *RoomListRequestMessage `protobuf:"bytes,15,opt,name=room_list,json=roomList,proto3,oneof"`
-}
-
 type Packet_RoomSummaryMessage struct {
-	RoomSummaryMessage *RoomSummaryMessage `protobuf:"bytes,16,opt,name=room_summary_message,json=roomSummaryMessage,proto3,oneof"`
+	RoomSummaryMessage *RoomSummaryMessage `protobuf:"bytes,15,opt,name=room_summary_message,json=roomSummaryMessage,proto3,oneof"`
 }
 
 type Packet_RoomListSnapshot struct {
-	RoomListSnapshot *RoomListSnapshotMessage `protobuf:"bytes,17,opt,name=room_list_snapshot,json=roomListSnapshot,proto3,oneof"`
+	RoomListSnapshot *RoomListSnapshotMessage `protobuf:"bytes,16,opt,name=room_list_snapshot,json=roomListSnapshot,proto3,oneof"`
 }
 
 type Packet_PlayerInput struct {
-	PlayerInput *PlayerInputMessage `protobuf:"bytes,18,opt,name=player_input,json=playerInput,proto3,oneof"`
+	PlayerInput *PlayerInputMessage `protobuf:"bytes,17,opt,name=player_input,json=playerInput,proto3,oneof"`
 }
 
 type Packet_MatchSnapshot struct {
-	MatchSnapshot *MatchSnapshotMessage `protobuf:"bytes,19,opt,name=match_snapshot,json=matchSnapshot,proto3,oneof"`
-}
-
-type Packet_PlayerJoinRoom struct {
-	PlayerJoinRoom *PlayerJoinRoom `protobuf:"bytes,20,opt,name=player_join_room,json=playerJoinRoom,proto3,oneof"`
+	MatchSnapshot *MatchSnapshotMessage `protobuf:"bytes,18,opt,name=match_snapshot,json=matchSnapshot,proto3,oneof"`
 }
 
 type Packet_PlayerKickRoom struct {
-	PlayerKickRoom *PlayerKickRoom `protobuf:"bytes,21,opt,name=player_kick_room,json=playerKickRoom,proto3,oneof"`
+	PlayerKickRoom *PlayerKickRoom `protobuf:"bytes,19,opt,name=player_kick_room,json=playerKickRoom,proto3,oneof"`
 }
 
 type Packet_PlayerRemoveRoom struct {
-	PlayerRemoveRoom *PlayerRemoveRoom `protobuf:"bytes,22,opt,name=player_remove_room,json=playerRemoveRoom,proto3,oneof"`
+	PlayerRemoveRoom *PlayerRemoveRoom `protobuf:"bytes,20,opt,name=player_remove_room,json=playerRemoveRoom,proto3,oneof"`
+}
+
+type Packet_JoinRoomResponseMessage struct {
+	JoinRoomResponseMessage *JoinRoomResponseMessage `protobuf:"bytes,21,opt,name=join_room_response_message,json=joinRoomResponseMessage,proto3,oneof"`
+}
+
+type Packet_PlayersInRoomRequest struct {
+	PlayersInRoomRequest *PlayersInRoomRequest `protobuf:"bytes,22,opt,name=players_in_room_request,json=playersInRoomRequest,proto3,oneof"`
+}
+
+type Packet_PlayersInRoomResponse struct {
+	PlayersInRoomResponse *PlayersInRoomResponse `protobuf:"bytes,23,opt,name=players_in_room_response,json=playersInRoomResponse,proto3,oneof"`
+}
+
+type Packet_RoomListRequestMessage struct {
+	RoomListRequestMessage *RoomListRequestMessage `protobuf:"bytes,24,opt,name=room_list_request_message,json=roomListRequestMessage,proto3,oneof"`
 }
 
 func (*Packet_Chat) isPacket_Msg() {}
@@ -1978,8 +2094,6 @@ func (*Packet_MatchStarted) isPacket_Msg() {}
 
 func (*Packet_StartGame) isPacket_Msg() {}
 
-func (*Packet_RoomList) isPacket_Msg() {}
-
 func (*Packet_RoomSummaryMessage) isPacket_Msg() {}
 
 func (*Packet_RoomListSnapshot) isPacket_Msg() {}
@@ -1988,11 +2102,17 @@ func (*Packet_PlayerInput) isPacket_Msg() {}
 
 func (*Packet_MatchSnapshot) isPacket_Msg() {}
 
-func (*Packet_PlayerJoinRoom) isPacket_Msg() {}
-
 func (*Packet_PlayerKickRoom) isPacket_Msg() {}
 
 func (*Packet_PlayerRemoveRoom) isPacket_Msg() {}
+
+func (*Packet_JoinRoomResponseMessage) isPacket_Msg() {}
+
+func (*Packet_PlayersInRoomRequest) isPacket_Msg() {}
+
+func (*Packet_PlayersInRoomResponse) isPacket_Msg() {}
+
+func (*Packet_RoomListRequestMessage) isPacket_Msg() {}
 
 var File_packets_proto protoreflect.FileDescriptor
 
@@ -2032,13 +2152,17 @@ const file_packets_proto_rawDesc = "" +
 	"\bclientId\x18\x02 \x01(\x04R\bclientId\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12\x18\n" +
 	"\aisReady\x18\x04 \x01(\bR\aisReady\x12\x14\n" +
-	"\x05owner\x18\x05 \x01(\bR\x05owner\"D\n" +
-	"\x0ePlayerJoinRoom\x122\n" +
+	"\x05owner\x18\x05 \x01(\bR\x05owner\"M\n" +
+	"\x17JoinRoomResponseMessage\x122\n" +
 	"\x06player\x18\x01 \x01(\v2\x1a.packets.RoomPlayerMessageR\x06player\"(\n" +
 	"\x0ePlayerKickRoom\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\x04R\x06userId\"F\n" +
 	"\x10PlayerRemoveRoom\x122\n" +
-	"\x06player\x18\x01 \x01(\v2\x1a.packets.RoomPlayerMessageR\x06player\"\xb1\x01\n" +
+	"\x06player\x18\x01 \x01(\v2\x1a.packets.RoomPlayerMessageR\x06player\".\n" +
+	"\x14PlayersInRoomRequest\x12\x16\n" +
+	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\"K\n" +
+	"\x15PlayersInRoomResponse\x122\n" +
+	"\x06Player\x18\x01 \x03(\v2\x1a.packets.RoomPlayerMessageR\x06Player\"\xb1\x01\n" +
 	"\x18RoomStateSnapshotMessage\x12\x16\n" +
 	"\x06roomId\x18\x01 \x01(\x04R\x06roomId\x12\x1c\n" +
 	"\tmaxPlayer\x18\x02 \x01(\rR\tmaxPlayer\x12+\n" +
@@ -2091,7 +2215,7 @@ const file_packets_proto_rawDesc = "" +
 	"\x05walls\x18\b \x03(\v2\x1a.packets.WallEntityMessageR\x05walls\"\x13\n" +
 	"\x11OkResponseMessage\"-\n" +
 	"\x13DenyResponseMessage\x12\x16\n" +
-	"\x06reason\x18\x01 \x01(\tR\x06reason\"\xed\v\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\"\xda\r\n" +
 	"\x06Packet\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\x04R\bsenderId\x12*\n" +
 	"\x04chat\x18\x02 \x01(\v2\x14.packets.ChatMessageH\x00R\x04chat\x12$\n" +
@@ -2109,15 +2233,17 @@ const file_packets_proto_rawDesc = "" +
 	"\x13room_state_snapshot\x18\f \x01(\v2!.packets.RoomStateSnapshotMessageH\x00R\x11roomStateSnapshot\x12A\n" +
 	"\rmatch_started\x18\r \x01(\v2\x1a.packets.MatchStartMessageH\x00R\fmatchStarted\x12A\n" +
 	"\n" +
-	"start_game\x18\x0e \x01(\v2 .packets.StartGameRequestMessageH\x00R\tstartGame\x12>\n" +
-	"\troom_list\x18\x0f \x01(\v2\x1f.packets.RoomListRequestMessageH\x00R\broomList\x12O\n" +
-	"\x14room_summary_message\x18\x10 \x01(\v2\x1b.packets.RoomSummaryMessageH\x00R\x12roomSummaryMessage\x12P\n" +
-	"\x12room_list_snapshot\x18\x11 \x01(\v2 .packets.RoomListSnapshotMessageH\x00R\x10roomListSnapshot\x12@\n" +
-	"\fplayer_input\x18\x12 \x01(\v2\x1b.packets.PlayerInputMessageH\x00R\vplayerInput\x12F\n" +
-	"\x0ematch_snapshot\x18\x13 \x01(\v2\x1d.packets.MatchSnapshotMessageH\x00R\rmatchSnapshot\x12C\n" +
-	"\x10player_join_room\x18\x14 \x01(\v2\x17.packets.PlayerJoinRoomH\x00R\x0eplayerJoinRoom\x12C\n" +
-	"\x10player_kick_room\x18\x15 \x01(\v2\x17.packets.PlayerKickRoomH\x00R\x0eplayerKickRoom\x12I\n" +
-	"\x12player_remove_room\x18\x16 \x01(\v2\x19.packets.PlayerRemoveRoomH\x00R\x10playerRemoveRoomB\x05\n" +
+	"start_game\x18\x0e \x01(\v2 .packets.StartGameRequestMessageH\x00R\tstartGame\x12O\n" +
+	"\x14room_summary_message\x18\x0f \x01(\v2\x1b.packets.RoomSummaryMessageH\x00R\x12roomSummaryMessage\x12P\n" +
+	"\x12room_list_snapshot\x18\x10 \x01(\v2 .packets.RoomListSnapshotMessageH\x00R\x10roomListSnapshot\x12@\n" +
+	"\fplayer_input\x18\x11 \x01(\v2\x1b.packets.PlayerInputMessageH\x00R\vplayerInput\x12F\n" +
+	"\x0ematch_snapshot\x18\x12 \x01(\v2\x1d.packets.MatchSnapshotMessageH\x00R\rmatchSnapshot\x12C\n" +
+	"\x10player_kick_room\x18\x13 \x01(\v2\x17.packets.PlayerKickRoomH\x00R\x0eplayerKickRoom\x12I\n" +
+	"\x12player_remove_room\x18\x14 \x01(\v2\x19.packets.PlayerRemoveRoomH\x00R\x10playerRemoveRoom\x12_\n" +
+	"\x1ajoin_room_response_message\x18\x15 \x01(\v2 .packets.JoinRoomResponseMessageH\x00R\x17joinRoomResponseMessage\x12V\n" +
+	"\x17players_in_room_request\x18\x16 \x01(\v2\x1d.packets.PlayersInRoomRequestH\x00R\x14playersInRoomRequest\x12Y\n" +
+	"\x18players_in_room_response\x18\x17 \x01(\v2\x1e.packets.PlayersInRoomResponseH\x00R\x15playersInRoomResponse\x12\\\n" +
+	"\x19room_list_request_message\x18\x18 \x01(\v2\x1f.packets.RoomListRequestMessageH\x00R\x16roomListRequestMessageB\x05\n" +
 	"\x03msg*>\n" +
 	"\n" +
 	"RoomStatus\x12\x17\n" +
@@ -2142,7 +2268,7 @@ func file_packets_proto_rawDescGZIP() []byte {
 }
 
 var file_packets_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_packets_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_packets_proto_goTypes = []any{
 	(RoomStatus)(0),                  // 0: packets.RoomStatus
 	(MatchPhase)(0),                  // 1: packets.MatchPhase
@@ -2159,65 +2285,70 @@ var file_packets_proto_goTypes = []any{
 	(*LeaveRoomRequestMessage)(nil),  // 12: packets.LeaveRoomRequestMessage
 	(*ReadyRequestMessage)(nil),      // 13: packets.ReadyRequestMessage
 	(*RoomPlayerMessage)(nil),        // 14: packets.RoomPlayerMessage
-	(*PlayerJoinRoom)(nil),           // 15: packets.PlayerJoinRoom
+	(*JoinRoomResponseMessage)(nil),  // 15: packets.JoinRoomResponseMessage
 	(*PlayerKickRoom)(nil),           // 16: packets.PlayerKickRoom
 	(*PlayerRemoveRoom)(nil),         // 17: packets.PlayerRemoveRoom
-	(*RoomStateSnapshotMessage)(nil), // 18: packets.RoomStateSnapshotMessage
-	(*MatchStartMessage)(nil),        // 19: packets.MatchStartMessage
-	(*Vector2Message)(nil),           // 20: packets.Vector2Message
-	(*PlayerInputMessage)(nil),       // 21: packets.PlayerInputMessage
-	(*PlayerCellEntityMessage)(nil),  // 22: packets.PlayerCellEntityMessage
-	(*CoreEntityMessage)(nil),        // 23: packets.CoreEntityMessage
-	(*NutrientEntityMessage)(nil),    // 24: packets.NutrientEntityMessage
-	(*WallEntityMessage)(nil),        // 25: packets.WallEntityMessage
-	(*MatchSnapshotMessage)(nil),     // 26: packets.MatchSnapshotMessage
-	(*OkResponseMessage)(nil),        // 27: packets.OkResponseMessage
-	(*DenyResponseMessage)(nil),      // 28: packets.DenyResponseMessage
-	(*Packet)(nil),                   // 29: packets.Packet
+	(*PlayersInRoomRequest)(nil),     // 18: packets.PlayersInRoomRequest
+	(*PlayersInRoomResponse)(nil),    // 19: packets.PlayersInRoomResponse
+	(*RoomStateSnapshotMessage)(nil), // 20: packets.RoomStateSnapshotMessage
+	(*MatchStartMessage)(nil),        // 21: packets.MatchStartMessage
+	(*Vector2Message)(nil),           // 22: packets.Vector2Message
+	(*PlayerInputMessage)(nil),       // 23: packets.PlayerInputMessage
+	(*PlayerCellEntityMessage)(nil),  // 24: packets.PlayerCellEntityMessage
+	(*CoreEntityMessage)(nil),        // 25: packets.CoreEntityMessage
+	(*NutrientEntityMessage)(nil),    // 26: packets.NutrientEntityMessage
+	(*WallEntityMessage)(nil),        // 27: packets.WallEntityMessage
+	(*MatchSnapshotMessage)(nil),     // 28: packets.MatchSnapshotMessage
+	(*OkResponseMessage)(nil),        // 29: packets.OkResponseMessage
+	(*DenyResponseMessage)(nil),      // 30: packets.DenyResponseMessage
+	(*Packet)(nil),                   // 31: packets.Packet
 }
 var file_packets_proto_depIdxs = []int32{
 	14, // 0: packets.RoomSummaryMessage.Players:type_name -> packets.RoomPlayerMessage
 	0,  // 1: packets.RoomSummaryMessage.status:type_name -> packets.RoomStatus
 	10, // 2: packets.RoomListSnapshotMessage.rooms:type_name -> packets.RoomSummaryMessage
-	14, // 3: packets.PlayerJoinRoom.player:type_name -> packets.RoomPlayerMessage
+	14, // 3: packets.JoinRoomResponseMessage.player:type_name -> packets.RoomPlayerMessage
 	14, // 4: packets.PlayerRemoveRoom.player:type_name -> packets.RoomPlayerMessage
-	0,  // 5: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
-	14, // 6: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
-	20, // 7: packets.PlayerInputMessage.movePosition:type_name -> packets.Vector2Message
-	20, // 8: packets.PlayerCellEntityMessage.position:type_name -> packets.Vector2Message
-	20, // 9: packets.CoreEntityMessage.position:type_name -> packets.Vector2Message
-	20, // 10: packets.NutrientEntityMessage.position:type_name -> packets.Vector2Message
-	1,  // 11: packets.MatchSnapshotMessage.phase:type_name -> packets.MatchPhase
-	22, // 12: packets.MatchSnapshotMessage.playerCells:type_name -> packets.PlayerCellEntityMessage
-	23, // 13: packets.MatchSnapshotMessage.cores:type_name -> packets.CoreEntityMessage
-	24, // 14: packets.MatchSnapshotMessage.nutrients:type_name -> packets.NutrientEntityMessage
-	25, // 15: packets.MatchSnapshotMessage.walls:type_name -> packets.WallEntityMessage
-	2,  // 16: packets.Packet.chat:type_name -> packets.ChatMessage
-	3,  // 17: packets.Packet.id:type_name -> packets.IdMessage
-	5,  // 18: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
-	6,  // 19: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
-	27, // 20: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
-	28, // 21: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
-	7,  // 22: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
-	8,  // 23: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
-	12, // 24: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
-	13, // 25: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
-	18, // 26: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
-	19, // 27: packets.Packet.match_started:type_name -> packets.MatchStartMessage
-	4,  // 28: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
-	9,  // 29: packets.Packet.room_list:type_name -> packets.RoomListRequestMessage
+	14, // 5: packets.PlayersInRoomResponse.Player:type_name -> packets.RoomPlayerMessage
+	0,  // 6: packets.RoomStateSnapshotMessage.status:type_name -> packets.RoomStatus
+	14, // 7: packets.RoomStateSnapshotMessage.Player:type_name -> packets.RoomPlayerMessage
+	22, // 8: packets.PlayerInputMessage.movePosition:type_name -> packets.Vector2Message
+	22, // 9: packets.PlayerCellEntityMessage.position:type_name -> packets.Vector2Message
+	22, // 10: packets.CoreEntityMessage.position:type_name -> packets.Vector2Message
+	22, // 11: packets.NutrientEntityMessage.position:type_name -> packets.Vector2Message
+	1,  // 12: packets.MatchSnapshotMessage.phase:type_name -> packets.MatchPhase
+	24, // 13: packets.MatchSnapshotMessage.playerCells:type_name -> packets.PlayerCellEntityMessage
+	25, // 14: packets.MatchSnapshotMessage.cores:type_name -> packets.CoreEntityMessage
+	26, // 15: packets.MatchSnapshotMessage.nutrients:type_name -> packets.NutrientEntityMessage
+	27, // 16: packets.MatchSnapshotMessage.walls:type_name -> packets.WallEntityMessage
+	2,  // 17: packets.Packet.chat:type_name -> packets.ChatMessage
+	3,  // 18: packets.Packet.id:type_name -> packets.IdMessage
+	5,  // 19: packets.Packet.login_request:type_name -> packets.LoginRequestMessage
+	6,  // 20: packets.Packet.register_request:type_name -> packets.RegisterRequestMessage
+	29, // 21: packets.Packet.ok_response:type_name -> packets.OkResponseMessage
+	30, // 22: packets.Packet.deny_response:type_name -> packets.DenyResponseMessage
+	7,  // 23: packets.Packet.create_room_request:type_name -> packets.CreateRoomRequestMessage
+	8,  // 24: packets.Packet.join_room_request:type_name -> packets.JoinRoomRequestMessage
+	12, // 25: packets.Packet.leave_room_request:type_name -> packets.LeaveRoomRequestMessage
+	13, // 26: packets.Packet.ready_request:type_name -> packets.ReadyRequestMessage
+	20, // 27: packets.Packet.room_state_snapshot:type_name -> packets.RoomStateSnapshotMessage
+	21, // 28: packets.Packet.match_started:type_name -> packets.MatchStartMessage
+	4,  // 29: packets.Packet.start_game:type_name -> packets.StartGameRequestMessage
 	10, // 30: packets.Packet.room_summary_message:type_name -> packets.RoomSummaryMessage
 	11, // 31: packets.Packet.room_list_snapshot:type_name -> packets.RoomListSnapshotMessage
-	21, // 32: packets.Packet.player_input:type_name -> packets.PlayerInputMessage
-	26, // 33: packets.Packet.match_snapshot:type_name -> packets.MatchSnapshotMessage
-	15, // 34: packets.Packet.player_join_room:type_name -> packets.PlayerJoinRoom
-	16, // 35: packets.Packet.player_kick_room:type_name -> packets.PlayerKickRoom
-	17, // 36: packets.Packet.player_remove_room:type_name -> packets.PlayerRemoveRoom
-	37, // [37:37] is the sub-list for method output_type
-	37, // [37:37] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	23, // 32: packets.Packet.player_input:type_name -> packets.PlayerInputMessage
+	28, // 33: packets.Packet.match_snapshot:type_name -> packets.MatchSnapshotMessage
+	16, // 34: packets.Packet.player_kick_room:type_name -> packets.PlayerKickRoom
+	17, // 35: packets.Packet.player_remove_room:type_name -> packets.PlayerRemoveRoom
+	15, // 36: packets.Packet.join_room_response_message:type_name -> packets.JoinRoomResponseMessage
+	18, // 37: packets.Packet.players_in_room_request:type_name -> packets.PlayersInRoomRequest
+	19, // 38: packets.Packet.players_in_room_response:type_name -> packets.PlayersInRoomResponse
+	9,  // 39: packets.Packet.room_list_request_message:type_name -> packets.RoomListRequestMessage
+	40, // [40:40] is the sub-list for method output_type
+	40, // [40:40] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_packets_proto_init() }
@@ -2225,7 +2356,7 @@ func file_packets_proto_init() {
 	if File_packets_proto != nil {
 		return
 	}
-	file_packets_proto_msgTypes[27].OneofWrappers = []any{
+	file_packets_proto_msgTypes[29].OneofWrappers = []any{
 		(*Packet_Chat)(nil),
 		(*Packet_Id)(nil),
 		(*Packet_LoginRequest)(nil),
@@ -2239,14 +2370,16 @@ func file_packets_proto_init() {
 		(*Packet_RoomStateSnapshot)(nil),
 		(*Packet_MatchStarted)(nil),
 		(*Packet_StartGame)(nil),
-		(*Packet_RoomList)(nil),
 		(*Packet_RoomSummaryMessage)(nil),
 		(*Packet_RoomListSnapshot)(nil),
 		(*Packet_PlayerInput)(nil),
 		(*Packet_MatchSnapshot)(nil),
-		(*Packet_PlayerJoinRoom)(nil),
 		(*Packet_PlayerKickRoom)(nil),
 		(*Packet_PlayerRemoveRoom)(nil),
+		(*Packet_JoinRoomResponseMessage)(nil),
+		(*Packet_PlayersInRoomRequest)(nil),
+		(*Packet_PlayersInRoomResponse)(nil),
+		(*Packet_RoomListRequestMessage)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2254,7 +2387,7 @@ func file_packets_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_packets_proto_rawDesc), len(file_packets_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   28,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

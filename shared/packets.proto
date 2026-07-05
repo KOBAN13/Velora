@@ -78,7 +78,7 @@ message RoomPlayerMessage {
   bool owner = 5;
 }
 
-message PlayerJoinRoom {
+message JoinRoomResponseMessage {
     RoomPlayerMessage player = 1;
 }
 
@@ -88,6 +88,14 @@ message PlayerKickRoom {
 
 message PlayerRemoveRoom {
   RoomPlayerMessage player = 1;
+}
+
+message PlayersInRoomRequest {
+  uint64 roomId = 1;
+}
+
+message PlayersInRoomResponse {
+  repeated RoomPlayerMessage Player = 1;
 }
 
 message RoomStateSnapshotMessage {
@@ -181,13 +189,15 @@ message Packet {
     RoomStateSnapshotMessage room_state_snapshot = 12;
     MatchStartMessage match_started = 13;
     StartGameRequestMessage start_game = 14;
-    RoomListRequestMessage room_list = 15;
-    RoomSummaryMessage room_summary_message = 16;
-    RoomListSnapshotMessage room_list_snapshot = 17;
-    PlayerInputMessage player_input = 18;
-    MatchSnapshotMessage match_snapshot = 19;
-    PlayerJoinRoom player_join_room = 20;
-    PlayerKickRoom player_kick_room = 21;
-    PlayerRemoveRoom player_remove_room = 22;
+    RoomSummaryMessage room_summary_message = 15;
+    RoomListSnapshotMessage room_list_snapshot = 16;
+    PlayerInputMessage player_input = 17;
+    MatchSnapshotMessage match_snapshot = 18;
+    PlayerKickRoom player_kick_room = 19;
+    PlayerRemoveRoom player_remove_room = 20;
+    JoinRoomResponseMessage join_room_response_message = 21;
+    PlayersInRoomRequest players_in_room_request = 22;
+    PlayersInRoomResponse players_in_room_response = 23;
+    RoomListRequestMessage room_list_request_message = 24;
   }
 }

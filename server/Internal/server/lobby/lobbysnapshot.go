@@ -36,6 +36,13 @@ func (lobby *LobbyManager) RoomListSnapshot() packets.Msg {
 	return packets.NewRoomListSnapshotMessage(messages)
 }
 
+func (lobby *LobbyManager) PlayersListSnapshot(id uint64) packets.Msg {
+	var room, _ = lobby.rooms.Get(id)
+	var players = collectRoomPlayers(room)
+
+	return packets.NewPlayersInRoomResponse(players)
+}
+
 func roomClients(room *Room) []contracts.ClientInterface {
 	clients := make([]contracts.ClientInterface, 0, len(room.Players))
 	addedClients := make(map[uint64]struct{}, len(room.Players))

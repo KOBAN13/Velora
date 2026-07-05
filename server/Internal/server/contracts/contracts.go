@@ -15,6 +15,7 @@ type MatchService interface {
 
 type LobbyService interface {
 	RoomListSnapshot() packets.Msg
+	PlayersListSnapshot(id uint64) packets.Msg
 
 	CreateRoom(client ClientInterface, roomName string, maxPlayers uint32) error
 	JoinRoom(client ClientInterface, roomId uint64) error
