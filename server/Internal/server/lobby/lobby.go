@@ -37,6 +37,8 @@ type LobbyManager struct {
 	rooms            *objects.SharedCollection[*Room]
 	userRoom         map[uint64]uint64
 	matchIdGenerator *Internal.IdGenerator
+
+	roomListChanged func()
 }
 
 type Room struct {
@@ -135,6 +137,8 @@ func (lobby *LobbyManager) StartGame(client contracts.ClientInterface) error {
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
 
+	lobby.notifyRoomListChanged()
+
 	for _, playerRef := range matchConfig.Players {
 		var roomPlayer, ok = room.Players[playerRef.UserId]
 
@@ -182,6 +186,8 @@ func (lobby *LobbyManager) CreateRoom(client contracts.ClientInterface, roomName
 
 	client.SocketSend(msg)
 
+	lobby.notifyRoomListChanged()
+
 	return nil
 }
 
@@ -218,6 +224,8 @@ func (lobby *LobbyManager) JoinRoom(client contracts.ClientInterface, roomId uin
 	var msgPlayerJoin = packets.NewPlayerJoinInRoom(playerRoom)
 	lobby.broadcastToRoom(room, msgPlayerJoin)
 
+	lobby.notifyRoomListChanged()
+
 	return nil
 }
 
@@ -242,6 +250,8 @@ func (lobby *LobbyManager) KickPlayerInRoom(client contracts.ClientInterface, id
 	var msgPlayerLeave = packets.NewPlayerKickInRoom(player.UserID)
 	lobby.broadcastToRoom(room, msgPlayerLeave)
 
+	lobby.notifyRoomListChanged()
+
 	return nil
 }
 
@@ -263,6 +273,8 @@ func (lobby *LobbyManager) LeaveRoom(client contracts.ClientInterface) error {
 
 	var msgPlayerLeave = packets.NewPlayerRemoveInRoom(playerRoom)
 	lobby.broadcastToRoom(room, msgPlayerLeave)
+
+	lobby.notifyRoomListChanged()
 
 	return nil
 }
@@ -322,7 +334,19 @@ func (lobby *LobbyManager) RemoveClient(client contracts.ClientInterface) error 
 	var msgPlayerLeave = packets.NewPlayerRemoveInRoom(playerRoom)
 	lobby.broadcastToRoom(room, msgPlayerLeave)
 
+	lobby.notifyRoomListChanged()
+
 	return nil
+}
+
+func (lobby *LobbyManager) SetRoomListChangedHandler(handler func()) {
+	if handler != nil {
+		lobby.roomListChanged = handler
+	}
+}
+
+func (lobby *LobbyManager) notifyRoomListChanged() {
+	lobby.roomListChanged()
 }
 
 func (lobby *LobbyManager) validateRoom(client contracts.ClientInterface) (uint64, *Room, *RoomPlayer, error) {

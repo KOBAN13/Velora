@@ -47,16 +47,24 @@ func NewHub(appConfig *config.AppConfig) *Hub {
 		os.Exit(1)
 	}
 
-	return &Hub{
+	var lobbyManager = lobby.NewLobbyManager()
+
+	var hub = &Hub{
 		Clients:    clients,
 		AppConfig:  appConfig,
 		Broadcast:  make(chan *packets.Packet),
 		Register:   make(chan contracts.Client),
 		Unregister: make(chan contracts.Client),
 		DbPool:     connect,
-		Lobby:      lobby.NewLobbyManager(),
+		Lobby:      lobbyManager,
 		Matches:    match.NewManager(*appConfig.Game),
 	}
+
+	lobbyManager.SetRoomListChangedHandler(func() {
+		hub.BroadcastToClients(lobbyManager.RoomListSnapshot())
+	})
+
+	return hub
 }
 
 func (h *Hub) NewDbTx() *db.DbTx {
@@ -80,6 +88,14 @@ func (h *Hub) Client(id uint64) (contracts.Client, bool) {
 
 func (h *Hub) BroadcastFrom(senderID uint64, msg packets.Msg) {
 	h.Broadcast <- &packets.Packet{SenderId: senderID, Msg: msg}
+}
+
+func (h *Hub) BroadcastToClients(msg packets.Msg) {
+	h.Clients.Foreach(func(client contracts.Client, id uint64) {
+		if client.IsAuthenticated() {
+			client.SocketSend(msg)
+		}
+	})
 }
 
 func (h *Hub) UnregisterClient(client contracts.Client) {
