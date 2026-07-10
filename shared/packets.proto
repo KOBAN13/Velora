@@ -70,6 +70,11 @@ message ReadyRequestMessage {
   bool isReady = 1;
 }
 
+message ReadyResponseMessage {
+  uint64 userId = 1;
+  bool isReady = 2;
+}
+
 message RoomPlayerMessage {
   uint64 userId = 1;
   uint64 clientId = 2;
@@ -82,7 +87,11 @@ message JoinRoomResponseMessage {
     RoomPlayerMessage player = 1;
 }
 
-message PlayerKickRoom {
+message PlayerKickRoomResponse {
+  uint64 userId = 1;
+}
+
+message PlayerKickRoomRequest {
   uint64 userId = 1;
 }
 
@@ -186,18 +195,20 @@ message Packet {
     JoinRoomRequestMessage join_room_request = 9;
     LeaveRoomRequestMessage leave_room_request = 10;
     ReadyRequestMessage ready_request = 11;
-    RoomStateSnapshotMessage room_state_snapshot = 12;
-    MatchStartMessage match_started = 13;
-    StartGameRequestMessage start_game = 14;
-    RoomSummaryMessage room_summary_message = 15;
-    RoomListSnapshotMessage room_list_snapshot = 16;
-    PlayerInputMessage player_input = 17;
-    MatchSnapshotMessage match_snapshot = 18;
-    PlayerKickRoom player_kick_room = 19;
-    PlayerRemoveRoom player_remove_room = 20;
-    JoinRoomResponseMessage join_room_response_message = 21;
-    PlayersInRoomRequest players_in_room_request = 22;
-    PlayersInRoomResponse players_in_room_response = 23;
-    RoomListRequestMessage room_list_request_message = 24;
+    ReadyResponseMessage ready_response = 12;
+    RoomStateSnapshotMessage room_state_snapshot = 13;
+    MatchStartMessage match_started = 14;
+    StartGameRequestMessage start_game = 15;
+    RoomSummaryMessage room_summary_message = 16;
+    RoomListSnapshotMessage room_list_snapshot = 17;
+    PlayerInputMessage player_input = 18;
+    MatchSnapshotMessage match_snapshot = 19;
+    PlayerKickRoomRequest player_kick_room_request = 20;
+    PlayerKickRoomResponse player_kick_room_response = 21;
+    PlayerRemoveRoom player_remove_room = 22;
+    JoinRoomResponseMessage join_room_response_message = 23;
+    PlayersInRoomRequest players_in_room_request = 24;
+    PlayersInRoomResponse players_in_room_response = 25;
+    RoomListRequestMessage room_list_request_message = 26;
   }
 }

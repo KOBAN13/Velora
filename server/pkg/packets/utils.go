@@ -62,6 +62,15 @@ func NewReadyRequest(isReady bool) Msg {
 	}
 }
 
+func NewReadyResponse(isReady bool, userId uint64) Msg {
+	return &Packet_ReadyResponse{
+		ReadyResponse: &ReadyResponseMessage{
+			IsReady: isReady,
+			UserId:  userId,
+		},
+	}
+}
+
 func NewPlayerRemoveInRoom(player *RoomPlayerMessage) Msg {
 	return &Packet_PlayerRemoveRoom{
 		PlayerRemoveRoom: &PlayerRemoveRoom{
@@ -70,9 +79,9 @@ func NewPlayerRemoveInRoom(player *RoomPlayerMessage) Msg {
 	}
 }
 
-func NewPlayerKickInRoom(playerId uint64) Msg {
-	return &Packet_PlayerKickRoom{
-		PlayerKickRoom: &PlayerKickRoom{
+func NewPlayerKickInRoomResponse(playerId uint64) Msg {
+	return &Packet_PlayerKickRoomResponse{
+		PlayerKickRoomResponse: &PlayerKickRoomResponse{
 			UserId: playerId,
 		},
 	}

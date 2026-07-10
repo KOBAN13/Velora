@@ -14,6 +14,7 @@ import (
 
 var (
 	ErrUserIsNotAuthenticated = errors.New("user is not authenticated")
+	ErrUserIsOwner            = errors.New("user is owner this room and action is not allowed")
 	ErrMaxPlayersExceeded     = errors.New("max players exceeded")
 	ErrUserInRoom             = errors.New("user is in room")
 	ErrRoomNotFound           = errors.New("room not found")
@@ -240,6 +241,10 @@ func (lobby *LobbyManager) KickPlayerInRoom(client contracts.ClientInterface, id
 		return ErrUserInNotOwnerGame
 	}
 
+	if player.UserID == idPlayerKick {
+		return ErrUserIsOwner
+	}
+
 	if !lobby.removePlayerFromRoom(roomId, room, idPlayerKick) {
 		return ErrUserIsNotRoom
 	}
@@ -247,7 +252,7 @@ func (lobby *LobbyManager) KickPlayerInRoom(client contracts.ClientInterface, id
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
 
-	var msgPlayerLeave = packets.NewPlayerKickInRoom(player.UserID)
+	var msgPlayerLeave = packets.NewPlayerKickInRoomResponse(idPlayerKick)
 	lobby.broadcastToRoom(room, msgPlayerLeave)
 
 	lobby.notifyRoomListChanged()
@@ -294,6 +299,10 @@ func (lobby *LobbyManager) SetReady(client contracts.ClientInterface, isReady bo
 
 	var msg = lobby.buildSnapshot(room)
 	lobby.broadcastToRoom(room, msg)
+
+	var message = packets.NewReadyResponse(isReady, player.UserID)
+
+	lobby.broadcastToRoom(room, message)
 
 	return nil
 }

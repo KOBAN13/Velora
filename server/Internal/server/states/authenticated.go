@@ -31,8 +31,8 @@ func (auth *Authenticated) HandleMessage(id uint64, msg packets.Msg) {
 	case *packets.Packet_CreateRoomRequest:
 		auth.createRoomRequestMessage(message.CreateRoomRequest)
 
-	case *packets.Packet_PlayerKickRoom:
-		auth.playerKickRoomRequestMessage(message.PlayerKickRoom.GetUserId())
+	case *packets.Packet_PlayerKickRoomRequest:
+		auth.playerKickRoomRequestMessage(message.PlayerKickRoomRequest.GetUserId())
 
 	case *packets.Packet_JoinRoomRequest:
 		auth.joinRoomRequestMessage(message.JoinRoomRequest.RoomId)
