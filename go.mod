@@ -3,7 +3,7 @@ module Velora
 go 1.26.2
 
 require (
-	github.com/KOBAN13/kukuruzka-esc v0.0.0-20260629141911-daa24d0c74d8
+	github.com/KOBAN13/kukuruzka-esc v0.0.0-20260710120940-13b57763335b
 	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1

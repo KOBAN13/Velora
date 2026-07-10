@@ -47,30 +47,32 @@ func (i *InputSystem) Update(ctx *esc_core.Context) error {
 	var iter = i.input.Iter()
 
 	for iter.Next() {
-		var input, err = esc_core.GetResources[esc.PlayerInput](ctx.Resources)
+		var inputSlice, err = esc_core.GetResources[esc.PlayerInputSlice](ctx.Resources)
 
 		if err != nil {
 			return err
 		}
 
-		active, err := esc_core.Read[esc.Active](iter)
+		for _, playerInput := range *inputSlice {
+			active, err := esc_core.Read[esc.Active](iter)
 
-		if err != nil {
-			return err
-		}
+			if err != nil {
+				return err
+			}
 
-		direction, err := esc_core.Write[esc.MoveDirection](iter)
+			direction, err := esc_core.Write[esc.MoveDirection](iter)
 
-		if err != nil {
-			return err
-		}
+			if err != nil {
+				return err
+			}
 
-		if active.IsActive == false {
-			direction.X = 0
-			direction.Y = 0
-		} else {
-			direction.X = input.MoveX
-			direction.Y = input.MoveY
+			if active.IsActive == false {
+				direction.X = 0
+				direction.Y = 0
+			} else {
+				direction.X = playerInput.MoveX
+				direction.Y = playerInput.MoveY
+			}
 		}
 	}
 

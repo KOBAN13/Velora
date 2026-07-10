@@ -1,8 +1,10 @@
 package match
 
 import (
-	"Velora/esc"
 	"time"
+
+	"Velora/esc"
+	"Velora/server/pkg/packets"
 
 	esc_core "github.com/KOBAN13/kukuruzka-esc/ecs"
 )
@@ -24,36 +26,63 @@ func (m *Match) Run() {
 
 func (m *Match) Tick(now time.Time) {
 	var clients []Client
+	var snapshot packets.Msg
 
-	m.Mu.Lock()
+	var ok = func() bool {
+		m.Mu.Lock()
+		defer m.Mu.Unlock()
 
-	m.ServerTick++
+		m.ServerTick++
 
-	var ctx = m.newSystemContextLocked(now, TimeDeltaSeconds)
+		ctx, err := m.newSystemContextLocked(now, TimeDeltaSeconds)
+		if err != nil {
+			return false
+		}
 
-	var err = m.SystemRunner.UpdateSystems(ctx)
-	if err != nil {
+		err = m.SystemRunner.UpdateSystems(ctx)
+
+		if err != nil {
+			return false
+		}
+
+		m.applySystemContextLocked()
+
+		players, err := esc_core.NewQuery(m.World, "SnapshotPlayers").With(esc_core.Component[esc.PlayerTag]()).Build()
+		if err != nil {
+			return false
+		}
+
+		nutrients, err := esc_core.NewQuery(m.World, "SnapshotNutrients").With(esc_core.Component[esc.NutrientTag]()).Build()
+		if err != nil {
+			return false
+		}
+
+		cores, err := esc_core.NewQuery(m.World, "SnapshotCores").With(esc_core.Component[esc.CoreTag]()).Build()
+		if err != nil {
+			return false
+		}
+
+		walls, err := esc_core.NewQuery(m.World, "SnapshotWalls").With(esc_core.Component[esc.WallTag]()).Build()
+		if err != nil {
+			return false
+		}
+
+		var snapshotQueries = &SnapshotQueries{
+			players:   players,
+			cores:     cores,
+			nutrients: nutrients,
+			walls:     walls,
+		}
+
+		snapshot = BuildMatchSnapshot(m, snapshotQueries, now)
+		clients = m.connectedClientsLocked()
+
+		return snapshot != nil
+	}()
+
+	if !ok {
 		return
 	}
-
-	m.applySystemContextLocked()
-
-	var players, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.PlayerTag]()).Build()
-	var nutrients, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.NutrientTag]()).Build()
-	var cores, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.CoreTag]()).Build()
-	var walls, _ = esc_core.NewQuery(m.World, "Players").With(esc_core.Component[esc.WallTag]()).Build()
-
-	var snapshotQueries = &SnapshotQueries{
-		players:   players,
-		cores:     cores,
-		nutrients: nutrients,
-		walls:     walls,
-	}
-
-	var snapshot = BuildMatchSnapshot(m, snapshotQueries, now)
-	clients = m.connectedClientsLocked()
-
-	m.Mu.Unlock()
 
 	for _, client := range clients {
 		client.SocketSend(snapshot)
@@ -69,7 +98,10 @@ func (m *Match) InitializeSystems(now time.Time) error {
 		return err
 	}
 
-	var ctx = m.newSystemContextLocked(now, 0)
+	ctx, err := m.newSystemContextLocked(now, 0)
+	if err != nil {
+		return err
+	}
 
 	if err := m.SystemRunner.InitializeSystems(ctx); err != nil {
 		return err
@@ -80,21 +112,17 @@ func (m *Match) InitializeSystems(now time.Time) error {
 	return nil
 }
 
-func (m *Match) newSystemContextLocked(now time.Time, deltaSeconds float32) *esc_core.Context {
-	var err = esc_core.RemoveResources[esc.PlayerInputSlice](m.Resources)
-	if err != nil {
-		return nil
-	}
-
+func (m *Match) newSystemContextLocked(now time.Time, deltaSeconds float32) (*esc_core.Context, error) {
+	_ = esc_core.RemoveResources[esc.PlayerInputSlice](m.Resources)
 	var inputs = make(esc.PlayerInputSlice, 0, len(m.Inputs))
 
 	for _, input := range m.Inputs {
 		inputs = append(inputs, input)
 	}
 
-	err = esc_core.PutResource[esc.PlayerInputSlice](m.Resources, inputs)
+	err := esc_core.PutResource[esc.PlayerInputSlice](m.Resources, inputs)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	var matchPhaseResource = esc.MatchPhaseResource{
@@ -104,13 +132,17 @@ func (m *Match) newSystemContextLocked(now time.Time, deltaSeconds float32) *esc
 	}
 
 	err = esc_core.PutResource[esc.MatchPhaseResource](m.Resources, matchPhaseResource)
+	if err != nil {
+		return nil, err
+	}
 
 	return &esc_core.Context{
 		Tick:         m.ServerTick,
 		DeltaSeconds: deltaSeconds,
+		World:        m.World,
 		Commands:     esc_core.NewCommandBuffer(),
 		Resources:    m.Resources,
-	}
+	}, nil
 }
 
 func (m *Match) applySystemContextLocked() {
